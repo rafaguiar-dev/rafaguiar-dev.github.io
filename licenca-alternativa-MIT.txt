@@ -1,0 +1,48 @@
+╔══════════════════════════════════════════════════════════════════════════╗
+║  ESTE ARQUIVO NÃO ESTÁ EM VIGOR.                                         ║
+║  A licença que vale é a do arquivo LICENSE (todos os direitos            ║
+║  reservados). Este aqui é só uma alternativa guardada.                   ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+Quando usar isto
+────────────────
+A MIT é o oposto do que você pediu. Ela autoriza qualquer pessoa a copiar,
+modificar, VENDER e republicar o trabalho, para sempre, de graça, bastando
+manter o seu nome no aviso de copyright. Se alguém pegar o site inteiro,
+trocar as fotos e vender como template, sob MIT isso é legal e você não pode
+reclamar.
+
+Ela só faz sentido se um dia você quiser transformar algum PEDAÇO técnico
+deste projeto num projeto separado e aberto — por exemplo o motor de ASCII do
+hero, sozinho, num repositório `ascii-conduits`. Aí, naquele repositório novo,
+você usa o texto abaixo. Não neste.
+
+Se for fazer isso: NÃO inclua neste pacote as suas fotos, seu currículo, seus
+textos de venda nem seus dados de contato. Só o código.
+
+Para colocar em vigor num outro repositório, copie daqui para baixo para um
+arquivo chamado LICENSE.
+
+───────────────────────────────────────────────────────────────────────────
+
+MIT License
+
+Copyright (c) 2026 Rafael Aguiar
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

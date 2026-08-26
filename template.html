@@ -1,0 +1,2448 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Rafael Aguiar — AI Automation Engineer. I turn copy into finished video and build the pipelines that do it at scale.">
+<meta name="theme-color" content="#0A0A0A">
+<meta name="author" content="Rafael Aguiar">
+<meta name="copyright" content="© 2026 Rafael Aguiar. All rights reserved.">
+<title>rafaguiar.dev</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Archivo:wght@300;400;500;600&display=swap">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   paleta: ascii-motion.com  (#0A0A0A / #FAFAFA / roxo 270°)
+   o ciano entra só como sombra deslocada, como no logo deles.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --bg:#0A0A0A; --bg-2:#111111; --card:#141414; --card-2:#1A1A1A;
+  --ink:#FAFAFA; --ink-2:#A3A3A3; --ink-3:#666666;
+  /* cinza so do hero: os readouts sobre o campo ASCII pediam mais presenca
+     que o #666 usado no resto da pagina */
+  --ink-hero:#8E8E98;
+  --line:#262626; --line-2:#1C1C1C;
+  --purple:#BF85F9; --purple-deep:#9938FA; --purple-dim:rgba(191,133,249,.12);
+  --cyan:#2DD4BF; --ok:#4ADE80;
+  --radius:8px;
+  --max:1200px; --gut:clamp(18px,4.5vw,52px);
+  --s--2:11px;
+  --s--1:clamp(.72rem,.7rem + .1vw,.79rem);
+  --s-0:clamp(.95rem,.92rem + .16vw,1.03rem);
+  --s-1:clamp(1.1rem,1rem + .5vw,1.35rem);
+  --s-2:clamp(1.4rem,1.15rem + 1.3vw,2.2rem);
+  --s-3:clamp(1.9rem,1.35rem + 2.9vw,3.6rem);
+  --s-4:clamp(2.6rem,1.2rem + 7.4vw,7rem);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+/* Sem scroll-snap. Ate 'proximity' fazia a pagina puxar o scroll de volta
+   quando voce parava perto do topo de uma secao — parecia travada. O encaixe
+   agora so acontece quando VOCE pede: clicando um link da nav (scroll-behavior
+   :smooth + scroll-margin-top pra nao ficar embaixo da barra fixa). */
+.hero,section.sec{scroll-margin-top:72px}   /* 60px da barra fixa + folga */
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}}
+
+body{
+  margin:0;background:var(--bg);color:var(--ink);overflow-x:hidden;
+  font-family:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  font-size:var(--s-0);line-height:1.6;-webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{margin:0;line-height:1;letter-spacing:-.045em;font-weight:800}
+p{margin:0}
+a{color:inherit}
+.sans{font-family:"Archivo","Helvetica Neue",Arial,sans-serif}
+:focus-visible{outline:2px solid var(--purple);outline-offset:3px;border-radius:3px}
+img{display:block;max-width:100%;height:auto}
+.wrap{max-width:var(--max);margin-inline:auto;padding-inline:var(--gut)}
+::selection{background:var(--purple);color:var(--bg)}
+
+/* ═══ barra de progresso do scroll ════════════════════════════════ */
+#prog{position:fixed;top:0;left:0;height:2px;width:0;z-index:90;
+  background:linear-gradient(90deg,var(--purple-deep),var(--purple),var(--cyan));
+  box-shadow:0 0 12px var(--purple)}
+
+/* ═══ grade de fundo ══════════════════════════════════════════════ */
+.gridbg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;
+  background-image:linear-gradient(var(--line-2) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--line-2) 1px,transparent 1px);
+  background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(130% 95% at 50% 0%,#000 10%,transparent 74%);
+          mask-image:radial-gradient(130% 95% at 50% 0%,#000 10%,transparent 74%)}
+main{position:relative;z-index:1}
+
+/* ═══ nav ═════════════════════════════════════════════════════════ */
+header.nav{position:sticky;top:0;z-index:70;backdrop-filter:blur(14px) saturate(150%);
+  background:color-mix(in srgb,var(--bg) 78%,transparent);border-bottom:1px solid var(--line-2)}
+.nav-in{display:flex;align-items:center;height:60px;gap:clamp(10px,3vw,24px)}
+.brand{font-size:var(--s--1);text-decoration:none;font-weight:700;letter-spacing:.04em;white-space:nowrap;
+  text-shadow:1.5px 1.5px 0 var(--cyan)}
+.brand span{color:var(--ink-3);text-shadow:none;font-weight:400}
+.nav-links{display:flex;gap:22px;margin-left:auto;font-size:var(--s--1);color:var(--ink-2)}
+.nav-links a{text-decoration:none;position:relative;transition:color .2s}
+.nav-links a::before{content:"";position:absolute;left:0;right:100%;bottom:-4px;height:1px;
+  background:var(--purple);transition:right .28s cubic-bezier(.2,.8,.2,1)}
+.nav-links a:hover,.nav-links a.here{color:var(--purple)}
+.nav-links a:hover::before,.nav-links a.here::before{right:0}
+@media(max-width:880px){.nav-links{display:none}}
+.switches{display:flex;gap:7px;margin-left:auto}
+.nav-links+.switches{margin-left:22px}
+.sw{font-family:inherit;font-size:var(--s--2);letter-spacing:.08em;background:transparent;color:var(--ink-2);
+  border:1px solid var(--line);padding:6px 10px;border-radius:var(--radius);cursor:pointer;transition:.2s}
+.sw:hover{color:var(--purple);border-color:var(--purple);background:var(--purple-dim)}
+
+/* ═══ botões ══════════════════════════════════════════════════════ */
+.btn{font-size:var(--s--1);text-decoration:none;padding:12px 20px;border-radius:var(--radius);
+  border:1px solid var(--line);transition:.22s;display:inline-flex;gap:10px;align-items:center;font-weight:500}
+.btn.solid{background:var(--purple);color:#0A0A0A;border-color:var(--purple)}
+.btn.solid:hover{box-shadow:0 0 28px -4px var(--purple);transform:translateY(-1px)}
+.btn.ghost:hover{border-color:var(--purple);color:var(--purple);background:var(--purple-dim)}
+.btn .ar{transition:transform .25s}
+.btn:hover .ar{transform:translateX(4px)}
+
+/* ═══ HERO · ROBOT SIGNAL FIELD ════════════════════════════════════ */
+.hero{position:relative;isolation:isolate;min-height:min(96vh,940px);display:flex;align-items:center;
+  overflow:hidden;background:var(--bg)}
+.hero::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(10,10,10,.28) 0%,rgba(10,10,10,.06) 38%,transparent 62%),
+    radial-gradient(ellipse 36% 62% at 77% 46%,rgba(168,91,208,.075),transparent 72%),
+    radial-gradient(ellipse 58% 82% at 78% 48%,transparent 38%,rgba(10,10,10,.08) 72%,rgba(10,10,10,.50) 112%),
+    linear-gradient(180deg,rgba(10,10,10,.34),transparent 18%,transparent 76%,rgba(10,10,10,.58));
+  box-shadow:inset 0 0 150px rgba(0,0,0,.24)}
+#stage{position:absolute;inset:0;z-index:0}
+#photo{position:absolute;filter:contrast(1.04) saturate(1.04);
+  -webkit-mask-image:radial-gradient(108% 98% at 68% 46%,#000 42%,transparent 90%);
+          mask-image:radial-gradient(108% 98% at 68% 46%,#000 42%,transparent 90%)}
+#asciiSource{display:none}
+#ascii{position:absolute;inset:0}
+.hero-in{position:relative;z-index:2;width:100%;padding-block:clamp(76px,10vh,124px);pointer-events:none}
+.hero-in a,.hero-in button{pointer-events:auto}
+.hero-copy{position:relative;width:min(740px,61vw)}
+.hero-copy::before{content:"01 / LIVE SYSTEM";display:block;margin-bottom:13px;color:var(--ink-hero);
+  font-size:9px;letter-spacing:.24em;font-weight:500}
+
+.kicker{display:inline-flex;align-items:center;gap:9px;font-size:var(--s--1);color:var(--ink-2);
+  padding:0;margin-bottom:24px;letter-spacing:.04em}
+.kicker i{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 2.4s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--ok) 60%,transparent)}70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+.hero h1{font-size:var(--s-4);letter-spacing:-.06em;line-height:.84;
+  text-shadow:1.5px 1.5px 0 rgba(93,58,113,.72)}
+.hero h1 .l2{display:block;color:var(--purple)}
+.role{margin-top:24px;font-size:clamp(.86rem,.78rem + .25vw,1rem);line-height:1.55;
+  font-weight:700;letter-spacing:-.01em;padding-left:14px;
+  border-left:1px solid color-mix(in srgb,var(--purple) 70%,transparent)}
+.role b{color:var(--purple);font-weight:700}
+.one-line{margin-top:14px;max-width:34ch;font-size:var(--s-1);font-weight:300;color:var(--ink-2);line-height:1.45}
+.hero-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:32px}
+.hero .btn{border-radius:2px;position:relative;overflow:hidden}
+.hero .btn::before{content:"";position:absolute;inset:0;translate:-105% 0;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transition:translate .46s ease}
+.hero .btn:hover::before{translate:105% 0}
+.hint{margin-top:30px;font-size:var(--s--2);color:var(--ink-hero);letter-spacing:.1em;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px}
+.hint b{width:16px;height:1px;overflow:hidden;color:transparent;background:var(--purple);font-weight:400;
+  box-shadow:8px 0 14px color-mix(in srgb,var(--purple) 60%,transparent);animation:hintline 2.8s ease-in-out infinite}
+@keyframes hintline{0%,100%{transform:scaleX(.45);transform-origin:left;opacity:.55}50%{transform:scaleX(1);opacity:1}}
+.core-status{position:absolute;right:var(--gut);bottom:clamp(76px,9vh,110px);z-index:3;width:clamp(170px,16vw,238px);
+  display:grid;grid-template-columns:1fr auto;gap:7px 12px;color:var(--ink-hero);font-size:9px;
+  letter-spacing:.16em;pointer-events:none;text-transform:uppercase}
+.core-status b{color:var(--purple);font-weight:700;font-variant-numeric:tabular-nums}
+.core-status i{grid-column:1/-1;height:2px;background:color-mix(in srgb,var(--purple) 16%,transparent);overflow:hidden}
+.core-status em{display:block;width:100%;height:100%;background:linear-gradient(90deg,var(--purple-deep),var(--purple),var(--cyan));
+  transform:scaleX(0);transform-origin:left;box-shadow:0 0 12px var(--purple)}
+.scrollcue{position:absolute;bottom:22px;left:50%;translate:-50% 0;z-index:3;
+  font-size:var(--s--2);letter-spacing:.28em;color:var(--ink-hero);display:flex;flex-direction:column;
+  align-items:center;gap:9px}
+.scrollcue s{text-decoration:none;width:1px;height:34px;background:linear-gradient(var(--purple),transparent);
+  animation:cue 2.2s ease-in-out infinite}
+@keyframes cue{0%,100%{opacity:.25;transform:scaleY(.5)}50%{opacity:1;transform:scaleY(1)}}
+@media(max-width:900px){
+  .hero{min-height:max(820px,100svh);align-items:flex-end}
+  .hero-in{padding-top:min(48vh,430px);padding-bottom:66px}
+  .hero-copy{width:min(100%,620px)}
+  .core-status{top:74px;right:18px;bottom:auto;width:150px}
+}
+@media(max-width:780px){
+  .scrollcue{display:none}
+  .hero::before{background:linear-gradient(180deg,transparent 0 34%,rgba(10,10,10,.68) 53%,var(--bg) 78%)}
+  .hero-in{padding-top:min(44vh,390px)}
+  .role{max-width:31ch;font-size:.9rem}
+  .one-line{font-size:1rem}
+  .hint{margin-top:24px;letter-spacing:.06em}
+}
+
+/* ═══ seções ══════════════════════════════════════════════════════ */
+section.sec{padding-block:clamp(62px,9vw,120px);position:relative}
+.head{display:flex;align-items:baseline;gap:16px;margin-bottom:clamp(20px,3vw,34px);
+  border-bottom:1px solid var(--line-2);padding-bottom:14px}
+.head .slug{font-size:var(--s--1);color:var(--purple);font-weight:500;padding:5px 13px;
+  border:1px solid color-mix(in srgb,var(--purple) 34%,transparent);background:var(--purple-dim);
+  border-radius:999px;line-height:1}
+.head .note{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.14em;margin-left:auto}
+h2.t{font-size:var(--s-3);max-width:19ch}
+h2.t em{font-style:normal;color:var(--ink-3)}
+.sub{margin-top:14px;max-width:56ch;color:var(--ink-2);font-weight:300;font-size:var(--s-1);line-height:1.5;
+  font-family:"Archivo",sans-serif}
+
+/* ═══ marquee ═════════════════════════════════════════════════════ */
+.track{overflow:hidden;border-block:1px solid var(--line-2);padding-block:12px;position:relative;z-index:1;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 7%,#000 93%,transparent);
+          mask-image:linear-gradient(to right,transparent,#000 7%,#000 93%,transparent)}
+.track+.track{border-top:none}
+.tick{display:flex;width:max-content;will-change:transform}
+.tick span{padding:0 22px;font-size:var(--s--1);color:var(--ink-2);white-space:nowrap;letter-spacing:.04em}
+.tick span::after{content:"/";margin-left:22px;color:var(--purple)}
+
+/* ═══ stats com contador ══════════════════════════════════════════ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-2);
+  border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden}
+@media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--bg);padding:clamp(18px,2.6vw,28px)}
+.stat .n{font-size:var(--s-2);font-weight:800;letter-spacing:-.05em;font-variant-numeric:tabular-nums;color:var(--purple)}
+.stat .l{margin-top:7px;font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;line-height:1.5}
+.tbd{border-bottom:1px dotted currentColor}
+
+/* ═══ 01 · parede de assets ═══════════════════════════════════════ */
+.wall{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(7px,.9vw,12px)}
+.tile{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line-2);
+  display:block;text-decoration:none;height:100%;border-radius:4px}
+.tile img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.7,.2,1),filter .5s;
+  filter:saturate(.55) contrast(1.06)}
+.tile:hover img{transform:scale(1.06);filter:saturate(1.06) contrast(1.08)}
+.tile::after{content:"";position:absolute;inset:0;z-index:1;transition:opacity .4s;
+  background:linear-gradient(to top,rgba(5,5,5,.9) 0%,rgba(5,5,5,.12) 48%,transparent 64%)}
+.tile::before{content:"";position:absolute;inset:0;z-index:2;opacity:0;transition:opacity .4s;
+  background:linear-gradient(120deg,transparent 30%,var(--purple-dim) 55%,transparent 75%);mix-blend-mode:screen}
+.tile:hover::before{opacity:1}
+.tile .cap{position:absolute;left:11px;right:11px;bottom:10px;z-index:3;font-size:var(--s--2);
+  letter-spacing:.06em;color:#FAFAFA;display:flex;justify-content:space-between;gap:8px;
+  transform:translateY(7px);opacity:0;transition:.35s}
+.tile:hover .cap,.tile:focus-visible .cap{transform:none;opacity:1}
+.tile .cap i{font-style:normal;color:var(--purple)}
+.t-a,.t-c,.t-f{grid-column:span 3;aspect-ratio:9/16}
+.t-b{grid-column:span 6}.t-d{grid-column:span 4}.t-e{grid-column:span 5}
+@media(max-width:820px){.wall{grid-template-columns:repeat(2,1fr)}
+  .t-a,.t-b,.t-c,.t-d,.t-e,.t-f{grid-column:span 1;aspect-ratio:4/5}}
+
+/* ═══ 02 · três verbos ════════════════════════════════════════════ */
+.verbs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-2);
+  border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden}
+@media(max-width:800px){.verbs{grid-template-columns:1fr}}
+.verb{background:var(--bg);padding:clamp(20px,2.8vw,32px);transition:background .3s;position:relative;overflow:hidden;
+  /* coluna + 'ic' com margin-top:auto: as fichas de ferramenta quebram em
+     numeros diferentes de linhas, e sem isto o icone de cada cartao para
+     numa altura diferente. */
+  display:flex;flex-direction:column}
+.verb::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--purple);
+  transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.verb:hover{background:var(--card)}
+.verb:hover::after{transform:scaleX(1)}
+.verb .n{font-size:var(--s--1);color:var(--purple)}
+.verb h3{font-size:var(--s-2);margin:14px 0 8px}
+.verb p{color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif}
+/* as ferramentas de verdade, dentro do cartao: o marquee mostra o inventario,
+   isto mostra QUAL ferramenta serve para QUAL verbo. */
+.verb .tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.verb .tools span{font-size:var(--s--2);letter-spacing:.06em;color:var(--ink-2);
+  border:1px solid var(--line);border-radius:999px;padding:3px 9px;transition:border-color .3s,color .3s}
+.verb:hover .tools span{border-color:var(--purple-dim);color:var(--ink)}
+.verb .ic{margin-top:auto;padding-top:22px;color:var(--ink-3);transition:color .3s}
+.verb:hover .ic{color:var(--purple)}
+.verb .ic svg{stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+
+/* ═══ 03 · trabalhos: painel + lista (padrão do ascii-motion) ═════ */
+.works{display:grid;grid-template-columns:1fr minmax(250px,330px);gap:1px;background:var(--line-2);
+  border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden}
+@media(max-width:900px){.works{grid-template-columns:1fr}}
+.w-left{background:var(--bg);display:flex;flex-direction:column;min-width:0}
+.w-stage{position:relative;aspect-ratio:16/10;display:grid;padding:clamp(14px,2vw,26px);
+  background:linear-gradient(140deg,color-mix(in srgb,var(--purple) 30%,transparent) 0%,
+    color-mix(in srgb,var(--purple) 7%,transparent) 48%,color-mix(in srgb,var(--cyan) 12%,transparent) 100%)}
+.w-media{grid-area:1/1;background:var(--card-2);border:1px solid var(--line);border-radius:6px;
+  padding:clamp(12px,1.8vw,20px);display:flex;flex-direction:column;justify-content:center;min-width:0;
+  opacity:0;visibility:hidden;transform:scale(.985);transition:opacity .4s,transform .4s,visibility .4s}
+.w-media.on{opacity:1;visibility:visible;transform:none}
+.w-bar{position:absolute;left:0;bottom:0;height:3px;width:20%;overflow:hidden;
+  background:color-mix(in srgb,var(--purple) 22%,transparent);
+  transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.w-bar i{display:block;height:100%;background:var(--purple);transform:scaleX(0);transform-origin:left;
+  box-shadow:0 0 14px color-mix(in srgb,var(--purple) 70%,transparent)}
+/* demo parada e demo parada de verdade: nada anima fora do painel ativo */
+.w-media *{animation-play-state:paused}
+.w-media.on *{animation-play-state:running}
+.w-detail{padding:clamp(20px,2.6vw,32px);border-top:1px solid var(--line-2);min-width:0}
+.w-body{display:none}
+.w-body.on{display:block}
+.w-body h3{font-size:var(--s-2);margin-bottom:10px}
+.w-body p{color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif;max-width:58ch}
+.w-links{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+.w-links .btn{padding:10px 16px}
+.w-links .gh{width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round}
+.icons{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
+.ico{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;
+  padding:5px 11px 5px 8px;font-size:var(--s--2);color:var(--ink-2);transition:.25s;background:var(--bg)}
+.ico svg{width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;flex:none}
+.w-body.on .ico:hover{border-color:color-mix(in srgb,var(--purple) 45%,transparent);color:var(--ink)}
+.w-list{background:var(--bg);display:flex;flex-direction:column}
+.w-item{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;
+  padding:16px 20px;border-bottom:1px solid var(--line-2);position:relative;
+  transition:background .25s;font-family:inherit}
+.w-item:last-child{border-bottom:none}
+.w-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--purple);
+  transform:scaleY(0);transform-origin:top;transition:transform .32s cubic-bezier(.2,.8,.2,1)}
+.w-item:hover,.w-item.on{background:var(--card)}
+.w-item.on::before{transform:scaleY(1)}
+.w-item .wi-n{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.16em}
+.w-item .wi-name{font-weight:700;letter-spacing:-.02em;color:var(--ink-2);transition:color .25s}
+.w-item.on .wi-name{color:var(--purple)}
+.w-item .wi-tag{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.04em}
+@media(max-width:900px){.w-list{flex-direction:row;overflow-x:auto}
+  .w-item{border-bottom:none;border-right:1px solid var(--line-2);min-width:200px}
+  .w-item::before{top:auto;bottom:0;left:0;right:0;width:auto;height:2px;transform:scaleX(0);transform-origin:left}
+  .w-item.on::before{transform:scaleX(1)}}
+
+.demo{background:var(--card-2);border:1px solid var(--line-2);border-radius:6px;padding:15px;position:relative;overflow:hidden}
+.demo .lab{font-size:10px;letter-spacing:.14em;color:var(--ink-3);display:flex;justify-content:space-between;margin-bottom:11px}
+.demo .lane{height:15px;background:var(--line-2);margin-bottom:6px;position:relative;border-radius:2px}
+.demo .lane.vid{background:color-mix(in srgb,var(--cyan) 24%,transparent)}
+.clipx{position:absolute;top:0;height:100%;background:var(--purple);border-radius:2px;
+  animation:snap 6.4s cubic-bezier(.2,.8,.25,1) infinite}
+@keyframes snap{0%{opacity:0;transform:translateY(-15px) scaleX(.5)}9%{opacity:.95;transform:none}
+  86%{opacity:.95;transform:none}100%{opacity:0;transform:none}}
+.play{position:absolute;top:32px;bottom:32px;width:1px;background:var(--ink);opacity:.5;animation:sweep 6.4s linear infinite}
+@keyframes sweep{0%{left:15px}100%{left:calc(100% - 15px)}}
+.demo .score{font-size:10px;letter-spacing:.1em;color:var(--ok);margin-top:11px}
+.thumbstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.thumbstrip img{aspect-ratio:1;object-fit:cover;filter:saturate(.4) contrast(1.06);opacity:.6;transition:.45s;border-radius:3px}
+.w-media.on .thumbstrip img{opacity:1;filter:saturate(1)}
+.flow{display:grid;gap:5px;font-size:10px;letter-spacing:.06em;color:var(--ink-3)}
+.fnode{border:1px solid var(--line);border-radius:5px;padding:9px 11px;background:var(--card-2);
+  display:flex;justify-content:space-between;gap:10px}
+.fnode em{font-style:normal;color:var(--purple)}
+
+/* ── 02 · fila de download ─────────────────────────────────────── */
+.dl{display:grid;gap:clamp(7px,1.1vw,12px)}
+.dlrow{display:grid;grid-template-columns:44px minmax(0,124px) 1fr 14px;align-items:center;gap:10px;
+  font-size:10px;letter-spacing:.05em;color:var(--ink-3);opacity:0;animation:rowin 5.4s ease-out infinite var(--d)}
+.dlrow .wv{display:flex;align-items:flex-end;gap:2px;height:16px}
+.dlrow .wv b{flex:1;background:color-mix(in srgb,var(--cyan) 55%,transparent);border-radius:1px}
+.dlrow .fn{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dlrow .pb{position:relative;height:4px;border-radius:2px;background:var(--line-2);overflow:hidden}
+.dlrow .pb::after{content:"";position:absolute;inset:0;background:var(--purple);border-radius:2px;
+  transform:scaleX(0);transform-origin:left;animation:dlfill 5.4s cubic-bezier(.35,.75,.4,1) infinite var(--d)}
+.dlrow .ok{text-decoration:none;color:var(--ok);opacity:0;animation:dlok 5.4s infinite var(--d)}
+@keyframes rowin{0%{opacity:0;transform:translateY(4px)}9%,92%{opacity:1;transform:none}100%{opacity:0}}
+@keyframes dlfill{0%,6%{transform:scaleX(0)}46%,92%{transform:scaleX(1)}100%{transform:scaleX(1)}}
+@keyframes dlok{0%,44%{opacity:0}52%,92%{opacity:1}100%{opacity:0}}
+
+/* ── 03 · o token descendo o pipeline ──────────────────────────── */
+.flow{position:relative;padding-left:19px}
+.rail{position:absolute;left:6px;top:5px;bottom:5px;width:1px;background:var(--line)}
+.rail i{position:absolute;left:-2.5px;top:0;width:6px;height:6px;border-radius:50%;background:var(--purple);
+  box-shadow:0 0 10px var(--purple);animation:railrun 5s cubic-bezier(.6,0,.4,1) infinite}
+.fnode{animation:lit 5s infinite var(--d)}
+@keyframes railrun{0%{top:0}100%{top:calc(100% - 6px)}}
+@keyframes lit{0%,3%{border-color:var(--line);background:var(--card-2)}
+  10%,17%{border-color:color-mix(in srgb,var(--purple) 70%,transparent);
+    background:color-mix(in srgb,var(--purple) 14%,var(--card-2))}
+  30%,100%{border-color:var(--line);background:var(--card-2)}}
+
+/* ── 04 · o silêncio sendo espremido ───────────────────────────── */
+.wave{display:flex;align-items:flex-end;gap:2px;height:clamp(56px,8vw,92px);margin:6px 0 2px}
+.wave i{flex:1 1 2px;background:var(--purple);border-radius:1px;opacity:.88}
+.wave i.q{flex:0 0 26px;height:11%;background:transparent;border-radius:2px;opacity:1;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cyan) 52%,transparent);
+  animation:squeeze 5.4s cubic-bezier(.5,0,.3,1) infinite var(--d)}
+@keyframes squeeze{0%,24%{flex-basis:26px;opacity:1}46%,88%{flex-basis:0;opacity:0}100%{flex-basis:26px;opacity:1}}
+
+/* ── 05 · a sessão sendo gravada ───────────────────────────────── */
+.recdot{color:var(--kill,#E5484D);display:inline-flex;align-items:center;gap:5px}
+.recdot::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite}
+@keyframes blink{0%,45%{opacity:1}55%,100%{opacity:.15}}
+.recgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0}
+.win{position:relative;border:1px solid var(--line);border-radius:5px;background:var(--card-2);
+  min-height:clamp(84px,11vw,124px);overflow:hidden}
+.win::before{content:"";position:absolute;left:0;right:0;top:0;height:13px;background:var(--line-2);
+  border-bottom:1px solid var(--line)}
+.win::after{content:"";position:absolute;left:7px;top:5px;width:4px;height:4px;border-radius:50%;
+  background:var(--ink-3);box-shadow:7px 0 0 var(--ink-3),14px 0 0 var(--ink-3)}
+.win .wbtn{position:absolute;width:38px;height:11px;border-radius:3px;
+  background:color-mix(in srgb,var(--ink) 13%,transparent);animation:hit 5.4s infinite var(--d)}
+.win .cur{position:absolute;width:9px;height:9px;border-radius:50%;border:1px solid var(--ink);
+  background:color-mix(in srgb,var(--purple) 70%,transparent);animation:curmove 5.4s infinite}
+@keyframes hit{0%,4%{background:color-mix(in srgb,var(--ink) 13%,transparent);transform:none}
+  8%,13%{background:var(--purple);transform:scale(1.06)}
+  20%,100%{background:color-mix(in srgb,var(--ink) 13%,transparent);transform:none}}
+@keyframes curmove{0%,6%{left:12%;top:26%}22%,30%{left:56%;top:44%}
+  48%,58%{left:24%;top:70%}78%,100%{left:12%;top:26%}}
+.jsonl{display:grid;align-content:start;gap:4px;font-size:9px;line-height:1.5;color:var(--ink-3);min-width:0}
+.jsonl code{opacity:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border-left:2px solid color-mix(in srgb,var(--purple) 60%,transparent);padding-left:7px;
+  animation:linein 5.4s ease-out infinite var(--d)}
+@keyframes linein{0%{opacity:0;transform:translateX(-5px)}7%,90%{opacity:1;transform:none}100%{opacity:0}}
+.fnode.hi{border-color:color-mix(in srgb,var(--cyan) 45%,transparent);color:var(--ink-2)}
+
+/* ═══ 04 · ficou / morreu ═════════════════════════════════════════ */
+/* ═══ /decisions: trade-off, nao "ficou / morreu" ══════════════════
+   Cada linha e' UMA decisao com tres partes: o que eu escolhi, a
+   alternativa que eu nao escolhi, e o motivo em uma frase. O formato de
+   duas colunas ("Kept / Killed") saiu: "morreu" e' palavra forte demais e
+   a coluna da direita lia como lista de fracasso em vez de criterio.     */
+.trades{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-2);
+  border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden}
+@media(max-width:820px){.trades{grid-template-columns:1fr}}
+.trade{background:var(--bg);padding:clamp(20px,2.6vw,28px);position:relative;
+  transition:background .3s}
+.trade:hover{background:var(--card)}
+.trade .n{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;transition:color .3s}
+.trade:hover .n{color:var(--purple)}
+.trade .pick{margin-top:10px;font-size:var(--s-1);font-weight:700;letter-spacing:-.025em;
+  line-height:1.25;color:var(--ink)}
+/* a alternativa: riscada de leve, para dizer "esta eu nao levei" sem
+   precisar da palavra. O <s> e' semantico aqui, ao contrario do resto
+   da pagina, onde ele so servia de marcador. */
+.trade .alt{margin-top:9px;font-size:var(--s--1);color:var(--ink-3);
+  display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.trade .alt em{font-style:normal;letter-spacing:.1em;text-transform:uppercase;
+  font-size:var(--s--2);color:var(--ink-3);flex:none}
+.trade .alt s{color:var(--ink-3);text-decoration-color:var(--line);opacity:.85}
+.trade .why{margin-top:12px;padding-top:12px;border-top:1px solid var(--line-2);
+  font-family:"Archivo",sans-serif;font-weight:300;color:var(--ink-2);line-height:1.6;
+  font-size:var(--s-0)}
+.trade .why b{color:var(--ink);font-weight:600}
+
+/* ═══ 05 · trilha ═════════════════════════════════════════════════ */
+/* ═══ o bloco "sobre": paragrafo + a frase-diferencial + grade de fatos ══
+   A grade e' a resposta ao "FOCO DE ATUACAO" do alissonlimadev: quatro fatos
+   secos que o recrutador le em 3 segundos, sem virar mais um paragrafo. */
+.bio{max-width:62ch;color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif;
+  font-size:var(--s-1);line-height:1.65}
+.pull{margin-top:clamp(20px,2.6vw,30px);border-left:2px solid var(--purple);
+  padding:2px 0 2px clamp(14px,1.8vw,22px);max-width:60ch;
+  font-size:var(--s-1);letter-spacing:-.02em;line-height:1.5}
+.pull b{color:var(--purple);font-weight:800}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-2);
+  border:1px solid var(--line-2);margin-top:clamp(24px,3.2vw,36px)}
+@media(max-width:860px){.facts{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:440px){.facts{grid-template-columns:1fr}}
+.fact{background:var(--bg);padding:clamp(16px,2.2vw,24px)}
+.fact .k{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase}
+.fact .v{margin-top:8px;font-size:var(--s-0);font-weight:500;line-height:1.45}
+.rows{border-top:1px solid var(--line-2);position:relative;padding-left:28px}
+.rows::before{content:"";position:absolute;left:7px;top:0;bottom:18px;width:1px;background:var(--line)}
+.row{position:relative;display:grid;grid-template-columns:145px 1fr auto;gap:clamp(12px,3vw,30px);
+  padding:18px 0;border-bottom:1px solid var(--line-2);align-items:baseline;transition:padding-left .3s}
+.row::before{content:"";position:absolute;left:-25px;top:26px;width:7px;height:7px;border-radius:50%;
+  background:var(--bg);border:1px solid var(--purple);transition:background .3s}
+.row:hover::before{background:var(--purple)}
+.row:hover{padding-left:10px}
+@media(max-width:700px){.row{grid-template-columns:1fr;gap:4px}
+  /* numa coluna so, o 'where' e' o cargo/empresa e tem que vir logo abaixo
+     da data; sem o order ele cai depois dos bullets e vira rodape solto. */
+  .row .where{text-align:left}.row .what{order:1;margin-top:6px}}
+.row .when{font-size:var(--s--1);color:var(--ink-3)}
+.row .what{font-weight:700;font-size:var(--s-1);letter-spacing:-.025em;transition:color .3s}
+.row:hover .what>h3{color:var(--purple)}
+.row .what>h3{font-size:inherit;font-weight:inherit;letter-spacing:inherit;transition:color .3s}
+/* bullets do cargo, no formato do dyegocruz.com.br: o que eu fiz, e depois
+   uma linha "Ambiente:" com a stack daquela funcao. */
+.row .bul{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:5px}
+.row .bul li{position:relative;padding-left:16px;font-size:var(--s-0);line-height:1.6;
+  font-weight:300;font-family:"Archivo",sans-serif;color:var(--ink-2)}
+.row .bul li::before{content:"▹";position:absolute;left:0;top:0;color:var(--purple);font-size:.85em}
+.row .env{margin-top:10px;font-size:var(--s--2);color:var(--ink-3);line-height:1.6}
+.row .env b{color:var(--ink-2);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.row .where{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;text-align:right}
+
+/* ═══ 06 · contato ════════════════════════════════════════════════ */
+.contact{border-top:1px solid var(--line-2);position:relative;overflow:hidden;isolation:isolate;
+  background:radial-gradient(80% 120% at 50% 128%,var(--purple-dim),transparent 60%)}
+/* o pulso mora atras de tudo e nao intercepta clique nenhum */
+#ping{position:absolute;inset:0;z-index:0;pointer-events:none}
+.contact .wrap{position:relative;z-index:1}
+.big-mail{display:inline-block;font-weight:800;font-size:clamp(1.25rem,5.2vw,3.4rem);letter-spacing:-.055em;
+  text-decoration:none;line-height:1.05;margin-top:18px;overflow-wrap:anywhere;
+  border-bottom:2px solid transparent;transition:.25s}
+.big-mail:hover{color:var(--purple);border-bottom-color:var(--purple)}
+.socials{display:flex;flex-wrap:wrap;gap:9px;margin-top:30px}
+footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--2);color:var(--ink-3)}
+.foot{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:center;letter-spacing:.08em}
+.foot-nav{display:flex;gap:16px}
+.foot-nav a{text-decoration:none;transition:color .2s}
+.foot-nav a:hover{color:var(--purple)}
+
+/* ═══ reveals ═════════════════════════════════════════════════════ */
+.js [data-rv]{opacity:0;transition:opacity .8s cubic-bezier(.2,.7,.25,1),transform .8s cubic-bezier(.2,.7,.25,1),clip-path .9s cubic-bezier(.2,.7,.25,1)}
+.js [data-rv="up"]{transform:translateY(26px)}
+.js [data-rv="scale"]{transform:scale(.965)}
+.js [data-rv="wipe"]{clip-path:inset(0 100% 0 0);opacity:1}
+.js [data-rv].in{opacity:1;transform:none;clip-path:inset(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){.js [data-rv]{opacity:1!important;transform:none!important;clip-path:none!important}}
+</style>
+
+<script>document.documentElement.classList.add("js");</script>
+
+<!-- ícones de conceito (não são logos de marca) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-term" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="16" rx="2"/><path d="M6.5 9.5 9.5 12l-3 2.5M12.5 15h5"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M12 2.8 21 7.4v9.2L12 21.2 3 16.6V7.4z"/><path d="M3 7.4 12 12l9-4.6M12 12v9.2"/></symbol>
+<symbol id="i-flow" viewBox="0 0 24 24"><circle cx="5" cy="5.5" r="2.4"/><circle cx="19" cy="5.5" r="2.4"/><circle cx="12" cy="18.5" r="2.4"/><path d="M6.6 7.4 10.6 16.4M17.4 7.4 13.4 16.4M7.4 5.5h9.2"/></symbol>
+<symbol id="i-wave" viewBox="0 0 24 24"><path d="M2.5 12h2M7 7.5v9M11 4v16M15 8.5v7M19 10.5v3"/></symbol>
+<symbol id="i-film" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M7 5v14M17 5v14M2.5 12h19"/></symbol>
+<symbol id="i-brain" viewBox="0 0 24 24"><path d="M12 5.2a3.2 3.2 0 0 0-6 1.4A3 3 0 0 0 4.4 12 3 3 0 0 0 6 17.2 3.2 3.2 0 0 0 12 18.8z"/><path d="M12 5.2a3.2 3.2 0 0 1 6 1.4A3 3 0 0 1 19.6 12 3 3 0 0 1 18 17.2a3.2 3.2 0 0 1-6 1.6z"/><path d="M12 5.2v13.6"/></symbol>
+<symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6.5 8h11v3.5a5.5 5.5 0 0 1-11 0zM12 17v4"/></symbol>
+<symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="8" ry="3.2"/><path d="M4 6v12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2V6M4 12c0 1.8 3.6 3.2 8 3.2s8-1.4 8-3.2"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3l2.7 2.7L16 9.5"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18.5a4.2 4.2 0 0 1-.4-8.4 5.6 5.6 0 0 1 10.8-1.3A3.9 3.9 0 0 1 17.8 18.5z"/></symbol>
+<symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6.5" cy="5" r="2.2"/><circle cx="6.5" cy="19" r="2.2"/><circle cx="17.5" cy="9" r="2.2"/><path d="M6.5 7.2v9.6M6.5 12h6.8a4.2 4.2 0 0 0 4.2-2.6"/></symbol>
+<symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+</defs></svg>
+
+<div id="prog"></div>
+<div class="gridbg"></div>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#top">RAFAGUIAR<span>.DEV</span></a>
+    <nav class="nav-links">
+      <a href="#reel">/reel</a>
+      <a href="#do">/stack</a>
+      <a href="#work">/work</a>
+      <a href="#decisions">/decisions</a>
+      <a href="#contact">/contact</a>
+    </nav>
+    <div class="switches">
+      <button class="sw" id="lang" aria-label="Trocar idioma">PT</button>
+      </div>
+  </div>
+</header>
+
+<main id="top">
+
+<!-- ══ HERO ═══════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div id="stage">
+    <img id="photo" src="hero.png" data-embed="{{HERO}}" alt="Rafael Aguiar">
+    <img id="asciiSource" src="hero-ascii-robot.png" data-embed="{{ASCII_ROBOT}}" alt="" aria-hidden="true">
+    <canvas id="ascii"></canvas>
+  </div>
+
+  <div class="wrap hero-in">
+    <div class="hero-copy">
+      <div class="kicker"><i></i><span data-pt="Disponível para trabalho remoto">Available for remote work</span></div>
+      <h1>RAFAEL<span class="l2">AGUIAR</span></h1>
+      <p class="role">AI Automation Engineer <b>/</b> <span data-pt="Criativo de IA para Direct Response">Creative AI for Direct Response</span></p>
+      <p class="one-line sans" data-pt="Transformo copy em vídeo pronto — e construo os pipelines que fazem isso em escala.">
+        I turn copy into finished video — and build the pipelines that do it at scale.</p>
+      <div class="hero-cta">
+        <a class="btn solid" href="#work" data-pt="Ver o trabalho">See the work <span class="ar">→</span></a>
+        <a class="btn ghost" href="#contact" data-pt="Falar comigo">Get in touch</a>
+      </div>
+      <p class="hint"><b>▚</b><span data-pt="desvie o fluxo · clique para revelar">bend the flow · click to reveal</span></p>
+    </div>
+  </div>
+
+  <div class="scrollcue"><span>SCROLL</span><s></s></div>
+  <div class="core-status" aria-hidden="true"><span>CORE SYNC</span><b id="corePct">000%</b><i><em id="coreFill"></em></i></div>
+</section>
+
+<div class="track"><div class="tick" id="t1"></div></div>
+<div class="track"><div class="tick" id="t2"></div></div>
+
+<!-- ══ 01 REEL ════════════════════════════════════════════════════ -->
+<section class="sec" id="reel">
+  <div class="wrap">
+    <div class="head" data-rv="wipe"><span class="slug">/reel</span><span class="note">01</span></div>
+    <h2 class="t" data-rv="up" data-pt="Nada disso foi feito à mão.">None of this was made by hand.</h2>
+    <p class="sub" data-rv="up" data-pt="Avatares, cenas e gradações gerados por IA — saída dos pipelines que estão logo abaixo.">
+      Avatars, scenes and color grades generated by AI — output of the pipelines below.</p>
+
+    <div class="wall" data-rv="scale" style="margin-top:clamp(24px,3.6vw,40px)">
+      <a class="tile t-a" href="#" data-par="0.05"><img src="{{W1}}" alt="" loading="lazy">
+        <div class="cap"><b>avatar_014</b><i>MiniMax</i></div></a>
+      <a class="tile t-b" href="#" data-par="-0.04"><img src="{{W5}}" alt="" loading="lazy">
+        <div class="cap"><b>scene_007</b><i data-pt="30 planos">30 shots</i></div></a>
+      <a class="tile t-c" href="#" data-par="0.06"><img src="{{W2}}" alt="" loading="lazy">
+        <div class="cap"><b>avatar_022</b><i data-pt="lote de 40">batch of 40</i></div></a>
+      <a class="tile t-d" href="#" data-par="-0.03"><img src="{{W4}}" alt="" loading="lazy">
+        <div class="cap"><b>grade_cine_03</b><i>Magnific</i></div></a>
+      <a class="tile t-e" href="#" data-par="0.04"><img src="{{W6}}" alt="" loading="lazy">
+        <div class="cap"><b>parallax_p0</b><i data-pt="mapa de profundidade">depth map</i></div></a>
+      <a class="tile t-f" href="#" data-par="-0.05"><img src="{{W3}}" alt="" loading="lazy">
+        <div class="cap"><b>avatar_031</b><i data-pt="voz clonada">cloned voice</i></div></a>
+    </div>
+
+    <div class="stats" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
+      <div class="stat"><div class="n"><span data-count="1500" data-suffix="+">0</span></div>
+        <div class="l" data-pt="criativos entregues">creatives shipped</div></div>
+      <div class="stat"><div class="n"><span data-count="12" data-suffix="">0</span></div>
+        <div class="l" data-pt="modelos de IA em produção">AI models in production</div></div>
+      <div class="stat"><div class="n"><span data-count="9" data-suffix="">0</span></div>
+        <div class="l" data-pt="ferramentas internas">internal tools built</div></div>
+      <div class="stat"><div class="n"><span data-count="3" data-suffix="+">0</span></div>
+        <div class="l" data-pt="anos em performance">years in performance</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 02 STACK ═══════════════════════════════════════════════════ -->
+<section class="sec" id="do">
+  <div class="wrap">
+    <div class="head" data-rv="wipe"><span class="slug">/stack</span><span class="note">02</span></div>
+    <h2 class="t" data-rv="up" data-pt="Três verbos. <em>Nessa ordem.</em>">Three verbs. <em>In that order.</em></h2>
+
+    <div class="verbs" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
+      <div class="verb">
+        <div class="n">01</div>
+        <h3 data-pt="Gero">Generate</h3>
+        <p data-pt="Vídeo, voz, imagem e avatar com IA — aderentes à narrativa da copy. Em lote, com custo por execução medido.">
+          AI video, voice, image and avatars that hold the copy's narrative. In batch, with
+          measured cost per run.</p>
+        <div class="tools"><span>MiniMax</span><span>ElevenLabs</span><span>Higgsfield</span><span>HeyGen</span><span>Magnific</span><span>Freepik</span></div>
+        <div class="ic"><svg width="34" height="34"><use href="#i-brain"/></svg></div>
+      </div>
+      <div class="verb">
+        <div class="n">02</div>
+        <h3 data-pt="Integro">Integrate</h3>
+        <p data-pt="Ligo as ferramentas por API e orquestro em n8n self-hosted, com workers em Python, retry e fallback entre provedores. Ninguém empurra arquivo.">
+          I wire the tools over APIs and orchestrate in self-hosted n8n — Python workers, retry,
+          fallback between providers. Nobody moves files by hand.</p>
+        <div class="tools"><span>n8n</span><span>REST</span><span>Webhooks</span><span>Playwright</span><span>Chrome MV3</span><span>Google Drive</span></div>
+        <div class="ic"><svg width="34" height="34"><use href="#i-flow"/></svg></div>
+      </div>
+      <div class="verb">
+        <div class="n">03</div>
+        <h3 data-pt="Construo">Build</h3>
+        <p data-pt="Quando a ferramenta não existe, eu escrevo. CLI, extensão, API e o painel de operação que roda tudo isso.">
+          When the tool doesn't exist, I write it. CLI, extension, API — and the operator panel
+          that runs it all.</p>
+        <div class="tools"><span>Python</span><span>FastAPI</span><span>FFmpeg</span><span>Whisper</span><span>JavaScript</span><span>Docker</span></div>
+        <div class="ic"><svg width="34" height="34"><use href="#i-term"/></svg></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 WORK (cartões empilhados) ═══════════════════════════════ -->
+<section class="sec" id="work">
+  <div class="wrap">
+    <div class="head" data-rv="wipe"><span class="slug">/work</span><span class="note">03</span></div>
+    <h2 class="t" data-rv="up" data-pt="Tarefas que eu me recusei <em>a fazer duas vezes.</em>">Tasks I refused <em>to do twice.</em></h2>
+
+    <div class="works" data-rv="up" style="margin-top:clamp(24px,3.6vw,42px)">
+
+      <div class="w-left">
+        <div class="w-stage">
+          <div class="w-media on" data-i="0">
+            <div class="demo">
+              <div class="lab"><span>TIMELINE.FCPXML</span><span>AUTO-SYNC</span></div>
+              <div class="lane vid"></div>
+              <div class="lane"><i class="clipx" style="left:4%;width:17%;animation-delay:.1s"></i>
+                                <i class="clipx" style="left:26%;width:12%;animation-delay:.45s"></i>
+                                <i class="clipx" style="left:44%;width:21%;animation-delay:.8s"></i></div>
+              <div class="lane"><i class="clipx" style="left:12%;width:14%;animation-delay:1.15s"></i>
+                                <i class="clipx" style="left:52%;width:18%;animation-delay:1.5s"></i>
+                                <i class="clipx" style="left:76%;width:15%;animation-delay:1.85s"></i></div>
+              <div class="play"></div>
+              <div class="score">&#10003; 38/40 matched &middot; avg confidence 0.91</div>
+            </div>
+          </div>
+          <div class="w-media" data-i="1">
+            <div class="demo">
+              <div class="lab"><span>MINIMAX &middot; QUEUE</span><span>BATCH 40</span></div>
+              <div class="dl">
+                <div class="dlrow" style="--d:0s">
+                  <i class="wv"><b style="height:34%"></b><b style="height:86%"></b><b style="height:52%"></b><b style="height:100%"></b><b style="height:44%"></b><b style="height:72%"></b></i>
+                  <span class="fn">vsl-01-hook.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
+                <div class="dlrow" style="--d:.34s">
+                  <i class="wv"><b style="height:62%"></b><b style="height:38%"></b><b style="height:94%"></b><b style="height:56%"></b><b style="height:80%"></b><b style="height:30%"></b></i>
+                  <span class="fn">vsl-02-lead.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
+                <div class="dlrow" style="--d:.68s">
+                  <i class="wv"><b style="height:48%"></b><b style="height:74%"></b><b style="height:36%"></b><b style="height:88%"></b><b style="height:60%"></b><b style="height:96%"></b></i>
+                  <span class="fn">vsl-03-proof.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
+                <div class="dlrow" style="--d:1.02s">
+                  <i class="wv"><b style="height:90%"></b><b style="height:44%"></b><b style="height:68%"></b><b style="height:34%"></b><b style="height:98%"></b><b style="height:52%"></b></i>
+                  <span class="fn">vsl-04-close.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
+              </div>
+              <div class="score" data-pt="&darr; 40 arquivos &middot; um clique &middot; nome aplicado ao salvar">&darr; 40 files &middot; one click &middot; named on save</div>
+            </div>
+          </div>
+
+          <div class="w-media" data-i="2">
+            <div class="demo">
+              <div class="lab"><span>PIPELINE</span><span>RUN 014</span></div>
+              <div class="flow">
+                <span class="rail"><i></i></span>
+                <div class="fnode hi" style="--d:0s"><span data-pt="BRIEF DA COPY">COPY BRIEF</span><em>&rarr;</em></div>
+                <div class="fnode" style="--d:1s"><span>n8n orchestrator</span><em>1</em></div>
+                <div class="fnode" style="--d:2s"><span>python workers</span><em>&times;6</em></div>
+                <div class="fnode" style="--d:3s"><span data-pt="storage + nomes">storage + naming</span><em>&#10003;</em></div>
+                <div class="fnode hi" style="--d:4s"><span data-pt="ENTREGA">DELIVERY</span><em>&#9670;</em></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="w-media" data-i="3">
+            <div class="demo">
+              <div class="lab"><span>NARRATION.WAV</span><span>&minus;35 dB &middot; 0.35 s</span></div>
+              <div class="wave">
+              <i style="height:24%"></i><i style="height:32%"></i><i style="height:23%"></i><i style="height:26%"></i><i style="height:46%"></i><i style="height:22%"></i><i style="height:52%"></i><i style="height:29%"></i><i style="height:49%"></i><i style="height:24%"></i>
+              <i style="height:28%"></i><i class="q" style="--d:.0s"></i><i style="height:22%"></i><i style="height:70%"></i><i style="height:44%"></i><i style="height:32%"></i><i style="height:32%"></i><i style="height:71%"></i><i style="height:73%"></i><i style="height:45%"></i>
+              <i style="height:31%"></i><i style="height:26%"></i><i style="height:17%"></i><i style="height:33%"></i><i style="height:37%"></i><i style="height:26%"></i><i style="height:28%"></i><i class="q" style="--d:.55s"></i><i style="height:37%"></i><i style="height:72%"></i>
+              <i style="height:34%"></i><i style="height:55%"></i><i style="height:36%"></i><i style="height:40%"></i><i style="height:27%"></i><i style="height:19%"></i><i style="height:36%"></i><i style="height:24%"></i><i style="height:30%"></i><i style="height:47%"></i>
+              <i style="height:33%"></i><i style="height:55%"></i><i style="height:42%"></i><i style="height:24%"></i><i class="q" style="--d:1.05s"></i><i style="height:29%"></i><i style="height:64%"></i><i style="height:17%"></i><i style="height:58%"></i><i style="height:81%"></i>
+              <i style="height:26%"></i><i style="height:19%"></i><i style="height:42%"></i><i style="height:32%"></i><i style="height:18%"></i><i style="height:63%"></i><i style="height:43%"></i><i style="height:37%"></i><i class="q" style="--d:1.6s"></i><i style="height:46%"></i>
+              <i style="height:63%"></i><i style="height:27%"></i><i style="height:19%"></i><i style="height:58%"></i><i style="height:36%"></i><i style="height:36%"></i><i style="height:30%"></i><i style="height:57%"></i><i style="height:47%"></i><i style="height:33%"></i>
+              </div>
+              <div class="score" data-pt="137 pausas removidas &middot; rascunho encurtado &middot; sem reencode">137 pauses removed &middot; draft trimmed &middot; no re-encode</div>
+            </div>
+          </div>
+
+          <div class="w-media" data-i="4">
+            <div class="demo">
+              <div class="lab"><span data-pt="SESS&Atilde;O 07 &middot; OPERADOR 03">SESSION 07 &middot; OPERATOR 03</span><span class="recdot">REC</span></div>
+              <div class="recgrid">
+                <div class="win">
+                  <b class="wbtn" style="left:12%;top:26%;--d:.15s"></b>
+                  <b class="wbtn" style="left:56%;top:44%;--d:1.5s"></b>
+                  <b class="wbtn" style="left:24%;top:70%;--d:2.9s"></b>
+                  <span class="cur"></span>
+                </div>
+                <div class="jsonl">
+                  <code style="--d:.25s">{"t":0.0,"ev":"click","sel":"#generate"}</code>
+                  <code style="--d:1.6s">{"t":2.6,"ev":"wait","for":"img.ready"}</code>
+                  <code style="--d:3.0s">{"t":9.1,"ev":"click","sel":".download"}</code>
+                  <code style="--d:4.1s">{"t":9.8,"ev":"save","as":"avatar_014.png"}</code>
+                </div>
+              </div>
+              <div class="score" data-pt="1 sess&atilde;o gravada &rarr; 1 script do Playwright">1 recorded session &rarr; 1 Playwright script</div>
+            </div>
+          </div>
+          <div class="w-bar" id="wbar"><i id="wfill"></i></div>
+        </div>
+
+        <div class="w-detail">
+          <div class="w-body on" data-i="0">
+            <h3>subtitle-audio-sync</h3>
+            <p data-pt="40 áudios soltos, um vídeo de uma hora. Um comando transcreve, casa cada arquivo com o trecho certo e exporta a timeline montada.">
+              40 loose audio files, a one-hour video. One command transcribes, matches each file to
+              the right passage and exports the assembled timeline.</p>
+            <div class="icons">
+              <span class="ico"><svg><use href="#i-term"/></svg>Python</span>
+              <span class="ico"><svg><use href="#i-wave"/></svg>Whisper</span>
+              <span class="ico"><svg><use href="#i-film"/></svg>FCPXML</span>
+              <span class="ico"><svg><use href="#i-box"/></svg>Docker</span>
+              <span class="ico"><svg><use href="#i-check"/></svg>GitHub Actions</span>
+            </div>
+            <div class="w-links">
+              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+              <a class="btn ghost" href="#" data-pt="Ver a demo">Watch the demo &#8599;</a>
+            </div>
+          </div>
+
+          <div class="w-body" data-i="1">
+            <h3>minimax-audio-downloader</h3>
+            <p data-pt="Dezenas de áudios gerados, um clique por vez. A extensão baixa o lote inteiro já com o padrão de nome aplicado.">
+              Dozens of generated audio files, one click each. The extension takes the whole batch
+              with the naming convention already applied.</p>
+            <div class="icons">
+              <span class="ico"><svg><use href="#i-eye"/></svg>Chrome MV3</span>
+              <span class="ico"><svg><use href="#i-wave"/></svg>Batch audio</span>
+              <span class="ico"><svg><use href="#i-term"/></svg>JavaScript</span>
+              <span class="ico"><svg><use href="#i-branch"/></svg>MIT</span>
+            </div>
+            <div class="w-links">
+              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            </div>
+          </div>
+
+          <div class="w-body" data-i="2">
+            <h3>content-pipeline-architecture</h3>
+            <p data-pt="A arquitetura do pipeline que eu opero. Sem código proprietário — só o desenho, as decisões e o que eu mudaria hoje.">
+              The architecture of the pipeline I operate. No proprietary code &mdash; just the design,
+              the decisions and what I would change today.</p>
+            <div class="icons">
+              <span class="ico"><svg><use href="#i-flow"/></svg>n8n</span>
+              <span class="ico"><svg><use href="#i-plug"/></svg>REST</span>
+              <span class="ico"><svg><use href="#i-db"/></svg>Storage</span>
+              <span class="ico"><svg><use href="#i-cloud"/></svg>VPS + Docker</span>
+            </div>
+            <div class="w-links">
+              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            </div>
+          </div>
+
+          <div class="w-body" data-i="3">
+            <h3>capcut-silence-trim</h3>
+            <p data-pt="Uma hora de narra&ccedil;&atilde;o esconde 137 pausas de respiro. Isto acha todas e transforma cada uma em ponto de corte dentro do rascunho do CapCut &mdash; a timeline encurta sem reencodar um quadro.">
+              One hour of narration hides 137 breathing pauses. This finds every one and turns it
+              into an in/out point inside the CapCut draft &mdash; the timeline gets shorter without
+              a single frame being re-encoded.</p>
+            <div class="icons">
+              <span class="ico"><svg><use href="#i-term"/></svg>Python</span>
+              <span class="ico"><svg><use href="#i-wave"/></svg>silencedetect</span>
+              <span class="ico"><svg><use href="#i-film"/></svg>ffmpeg</span>
+              <span class="ico"><svg><use href="#i-box"/></svg>CapCut draft</span>
+            </div>
+            <div class="w-links">
+              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            </div>
+          </div>
+
+          <div class="w-body" data-i="4">
+            <h3>browser-session-recorder</h3>
+            <p data-pt="Cinco operadores, o mesmo trabalho manual no navegador. Uma extens&atilde;o MV3 grava o que eles realmente fazem &mdash; cada clique, cada espera, cada nova tentativa &mdash; e isso vira o conjunto de dados que um script do Playwright repete.">
+              Five operators, the same manual job in the browser. An MV3 extension records what they
+              actually do &mdash; every click, every wait, every retry &mdash; and that becomes the
+              dataset a Playwright script replays.</p>
+            <div class="icons">
+              <span class="ico"><svg><use href="#i-eye"/></svg>Chrome MV3</span>
+              <span class="ico"><svg><use href="#i-flow"/></svg>Playwright</span>
+              <span class="ico"><svg><use href="#i-db"/></svg>JSONL</span>
+              <span class="ico"><svg><use href="#i-check"/></svg>Validator</span>
+            </div>
+            <div class="w-links">
+              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="w-list" role="tablist">
+        <button class="w-item on" data-i="0" role="tab" aria-selected="true">
+          <span class="wi-n">01</span><span class="wi-name">subtitle-audio-sync</span>
+          <span class="wi-tag">Python &middot; Whisper &middot; FCPXML</span></button>
+        <button class="w-item" data-i="1" role="tab" aria-selected="false">
+          <span class="wi-n">02</span><span class="wi-name">minimax-audio-downloader</span>
+          <span class="wi-tag">Chrome MV3 &middot; Batch I/O</span></button>
+        <button class="w-item" data-i="2" role="tab" aria-selected="false">
+          <span class="wi-n">03</span><span class="wi-name">content-pipeline-architecture</span>
+          <span class="wi-tag" data-pt="Arquitetura &middot; ADR">Architecture &middot; ADR</span></button>
+        <button class="w-item" data-i="3" role="tab" aria-selected="false">
+          <span class="wi-n">04</span><span class="wi-name">capcut-silence-trim</span>
+          <span class="wi-tag">Python &middot; ffmpeg &middot; CapCut</span></button>
+        <button class="w-item" data-i="4" role="tab" aria-selected="false">
+          <span class="wi-n">05</span><span class="wi-name">browser-session-recorder</span>
+          <span class="wi-tag">Chrome MV3 &middot; Playwright</span></button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ 04 DECISIONS ═══════════════════════════════════════════════ -->
+<section class="sec" id="decisions">
+  <div class="wrap">
+    <div class="head" data-rv="wipe"><span class="slug">/decisions</span><span class="note">04</span></div>
+    <h2 class="t" data-rv="up" data-pt="Toda decisão tem uma alternativa <em>que eu não escolhi.</em>">Every decision has an alternative <em>I didn't take.</em></h2>
+    <p class="sub" data-rv="up" data-pt="A escolha só vale alguma coisa junto com o que ela custou.">A choice only means something next to what it cost.</p>
+
+    <div class="trades" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
+      <div class="trade">
+        <div class="n">01</div>
+        <div class="pick" data-pt="n8n orquestra, Python executa">n8n orchestrates, Python executes</div>
+        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="lógica pesada dentro do nó">heavy logic inside the node</s></div>
+        <div class="why" data-pt="Um nó não versiona, não testa e não devolve <b>stack trace</b>. O fluxo decide a ordem; o worker faz o trabalho.">A node doesn't version, doesn't test and returns no <b>stack trace</b>. The flow decides the order; the worker does the work.</div>
+      </div>
+      <div class="trade">
+        <div class="n">02</div>
+        <div class="pick" data-pt="Playwright determinístico">Deterministic Playwright</div>
+        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="agente visual de IA (UI-TARS, Browser-Use, Skyvern)">a visual AI agent (UI-TARS, Browser-Use, Skyvern)</s></div>
+        <div class="why" data-pt="Avaliei os três. Quando a tarefa é a <b>mesma toda vez</b>, previsível ganha de flexível — e custa uma fração por execução.">I evaluated all three. When the task is the <b>same every time</b>, predictable beats flexible — at a fraction of the cost per run.</div>
+      </div>
+      <div class="trade">
+        <div class="n">03</div>
+        <div class="pick" data-pt="Voz premium">Premium voice</div>
+        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="TTS barato">cheap TTS</s></div>
+        <div class="why" data-pt="A narração é <b>88% do custo</b> da execução, e mesmo assim o barato saiu caro: derrubou retenção e o CPA subiu.">Narration is <b>88% of the run cost</b>, and the cheap option still cost more: retention dropped and CPA went up.</div>
+      </div>
+      <div class="trade">
+        <div class="n">04</div>
+        <div class="pick" data-pt="Um passo manual de aprovação">One manual approval step</div>
+        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="automatizar de ponta a ponta">full end-to-end automation</s></div>
+        <div class="why" data-pt="<b>Julgamento editorial não automatiza.</b> Todo o resto do caminho, sim — e é por isso que o passo que sobrou cabe em um clique."><b>Editorial judgment doesn't automate.</b> Everything else on the path does — which is why the one step left fits in a single click.</div>
+      </div>
+      <div class="trade">
+        <div class="n">05</div>
+        <div class="pick" data-pt="Menos chamadas em paralelo">Fewer parallel calls</div>
+        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="abrir o máximo de chamadas simultâneas">opening as many simultaneous calls as possible</s></div>
+        <div class="why" data-pt="Passado o limite do provedor, o que volta é <b>rate limit</b>. O retry come mais tempo do que o paralelismo economizou.">Past the provider's limit, what comes back is a <b>rate limit</b>. The retry eats more time than the parallelism saved.</div>
+      </div>
+      <div class="trade">
+        <div class="n">06</div>
+        <div class="pick" data-pt="Corte seco e imagem forte">Hard cuts and a strong image</div>
+        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="parallax 2.5D e callouts animados">2.5D parallax and animated callouts</s></div>
+        <div class="why" data-pt="Lindo no teste, invisível no feed — e o render já é <b>58% do tempo</b> de execução. Cada segundo a mais atrasa a esteira inteira.">Beautiful in the test, invisible in the feed — and render is already <b>58% of the run time</b>. Every extra second delays the whole line.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 05 TRACK RECORD ════════════════════════════════════════════ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="head" data-rv="wipe"><span class="slug">/track-record</span><span class="note">05</span></div>
+    <h2 class="t" data-rv="up" data-pt="Da ilha de edição <em>para a esteira.</em>">From the edit bay <em>to the assembly line.</em></h2>
+
+    <p class="bio" data-rv="up" style="margin-top:clamp(20px,2.6vw,30px)"
+       data-pt="Produzo criativos de IA para VSLs e ads de Direct Response no mercado internacional — e automatizo o processo que gera esses assets. No trabalho isso vira workflow novo de geração e a ferramenta interna que o time usa; por conta própria virou um pipeline de produção inteiro em Python e n8n, que leva um tema até o vídeo publicado. Comecei em Técnico em Informática, passei por webdesign e arquitetura, e cheguei aqui pelo lado da produção audiovisual — automatizando o meu próprio trabalho até virar engenharia.">
+      I produce AI creatives for international Direct Response VSLs and ads — and I automate the
+      process that generates them. At work that means new generation workflows and the internal
+      tools the team uses; on my own it became a full production pipeline in Python and n8n that
+      takes a topic all the way to a published video. I started in a technical IT program, went
+      through web design and architecture, and arrived here from the audiovisual side: automating
+      my own work until it turned into engineering.</p>
+
+    <p class="pull" data-rv="up"
+       data-pt="Pouca gente que escreve código de produção entende funil de Direct Response por dentro. Pouca gente que entende o funil escreve código. <b>Eu faço os dois.</b>">
+      Few people who write production code understand a Direct Response funnel from the inside.
+      Few people who understand the funnel write code. <b>I do both.</b></p>
+
+    <div class="facts" data-rv="up">
+      <div class="fact"><div class="k" data-pt="Atuação">Working</div>
+        <div class="v" data-pt="Remoto · fuso do Brasil">Remote · Brazil timezone</div></div>
+      <div class="fact"><div class="k" data-pt="Mercado">Market</div>
+        <div class="v" data-pt="VSLs e ads internacionais · Nutra">International VSLs &amp; ads · Nutra</div></div>
+      <div class="fact"><div class="k" data-pt="Idioma">Language</div>
+        <div class="v" data-pt="Português nativo · inglês intermediário/avançado">Portuguese native · English intermediate/advanced</div></div>
+      <div class="fact"><div class="k" data-pt="Ambiente">Environment</div>
+        <div class="v" data-pt="Tudo self-hosted · Ryzen 7 + RTX 3060">All self-hosted · Ryzen 7 + RTX 3060</div></div>
+    </div>
+
+    <div class="rows" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
+      <div class="row"><div class="when" data-pt="2024 — atual">2024 — now</div>
+        <div class="what">
+          <h3 data-pt="IA Creator Sênior">Senior AI Creator</h3>
+          <ul class="bul">
+            <li data-pt="Traduzo o briefing do time de Copy em vídeo, voz, imagem e avatar de IA para VSLs, ads, upsells e leads — com realismo e aderência à narrativa.">Turn the Copy team's briefing into AI video, voice, image and avatars for VSLs, ads, upsells and leads — with realism and narrative fit.</li>
+            <li data-pt="Produzo variações de ângulo, gancho e formato para alimentar teste, e ajusto o material a partir do feedback de performance.">Produce angle, hook and format variations to feed testing, and adjust the material from performance feedback.</li>
+            <li data-pt="Desenho e testo novos workflows de geração, e automatizo a etapa manual que trava o time — o que aumenta a capacidade de entrega do departamento.">Design and test new generation workflows, and automate the manual step that blocks the team — which raises the department's delivery capacity.</li>
+            <li data-pt="Construí ferramentas internas: extensão de Chrome, CLIs e scripts que acabaram com o download e a nomeação de arquivo feitos um a um.">Built internal tools: a Chrome extension, CLIs and scripts that ended one-by-one downloading and file naming.</li>
+            <li data-pt="Sou referência técnica dos creators juniores: documento processo, avalio ferramenta e modelo novos, e faço o onboarding.">Act as technical reference for junior creators: I document process, evaluate new tools and models, and run onboarding.</li>
+          </ul>
+          <div class="env"><b data-pt="Ambiente:">Environment:</b> MiniMax · ElevenLabs · Higgsfield · HeyGen · Magnific · Freepik · Premiere Pro · CapCut · n8n</div>
+        </div>
+        <div class="where" data-pt="Direct Response · Nutra">Direct Response · Nutra</div></div>
+
+      <div class="row"><div class="when" data-pt="Em paralelo">Alongside</div>
+        <div class="what">
+          <h3 data-pt="Canal automatizado, do tema ao vídeo publicado">An automated channel, from topic to published video</h3>
+          <ul class="bul">
+            <li data-pt="Projeto pessoal, e é onde eu construo de verdade: ~4k linhas de Python levam um tema até o vídeo pronto — roteiro, narração, imagem, composição e render.">A personal project, and where I actually build: ~4k lines of Python take a topic all the way to a finished video — script, narration, imagery, compositing and render.</li>
+            <li data-pt="6+ APIs de geração num único fluxo, orquestrado em n8n self-hosted, com workers em Python e um painel de operação próprio em FastAPI.">6+ generation APIs in a single flow, orchestrated in self-hosted n8n, with Python workers and my own FastAPI operator panel.</li>
+            <li data-pt="Custo-alvo de ~US$1 por vídeo finalizado, sustentado por fallback entre provedores, cache em disco e telemetria de custo e tempo por etapa.">A ~US$1 target cost per finished video, held up by provider fallback, disk cache and per-step cost and time telemetry.</li>
+            <li data-pt="É a bancada onde eu testo arquitetura antes de propor qualquer coisa em produção — inclusive as decisões da seção acima.">It is the bench where I test architecture before proposing anything in production — including the decisions in the section above.</li>
+          </ul>
+          <div class="env"><b data-pt="Ambiente:">Environment:</b> Python · FastAPI · n8n · FFmpeg · NVENC · Whisper · Depth Anything V2 · Playwright · Claude API</div>
+        </div>
+        <div class="where" data-pt="Projeto pessoal">Personal project</div></div>
+
+      <div class="row"><div class="when">2022 — 2024</div>
+        <div class="what">
+          <h3 data-pt="Editor de VSL, ads e criativos">VSL, ads &amp; creative editor</h3>
+          <ul class="bul">
+            <li data-pt="Edição de VSL e criativos de performance para o mercado internacional, dentro de guideline e prazo de campanha.">VSL and performance creative editing for the international market, inside campaign guidelines and deadlines.</li>
+            <li data-pt="Variações de ângulo, gancho e formato para alimentar teste — foi onde eu descobri que o gargalo era manual.">Angle, hook and format variations to feed testing — where I found out the bottleneck was manual.</li>
+            <li data-pt="Primeiras automações: organização e nomenclatura de assets, geração em lote, download em massa.">First automations: asset naming and organization, batch generation, bulk download.</li>
+          </ul>
+          <div class="env"><b data-pt="Ambiente:">Environment:</b> Premiere Pro · After Effects · CapCut · Photoshop</div>
+        </div>
+        <div class="where" data-pt="Freelance">Freelance</div></div>
+
+      <div class="row"><div class="when" data-pt="Antes">Before</div>
+        <div class="what">
+          <h3 data-pt="Técnico em Informática, webdesign e arquitetura">Technical IT program, web design and architecture</h3>
+          <ul class="bul">
+            <li data-pt="A base técnica veio do curso; o olho de composição e de espaço veio da arquitetura e do webdesign.">The technical base came from the program; the eye for composition and space came from architecture and web design.</li>
+          </ul>
+        </div>
+        <div class="where" data-pt="Formação">Background</div></div>
+
+      <div class="row"><div class="when" data-pt="Sempre">Ongoing</div>
+        <div class="what">
+          <h3 data-pt="Aprendi a programar construindo o que eu precisava">Learned to code by building what I needed</h3>
+          <ul class="bul">
+            <li data-pt="Desenvolvimento assistido por LLM com contexto versionado, decomposição da tarefa e revisão do que sai — não é colar resposta de chat.">LLM-assisted development with versioned context, task decomposition and review of the output — not pasting chat answers.</li>
+            <li data-pt="Toda decisão de arquitetura fica escrita, junto com a alternativa que eu descartei e o porquê.">Every architecture decision gets written down, together with the alternative I set aside and why.</li>
+          </ul>
+        </div>
+        <div class="where" data-pt="Autodidata">Self-taught</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 06 CONTACT ═════════════════════════════════════════════════ -->
+<section class="sec contact" id="contact">
+  <canvas id="ping" aria-hidden="true"></canvas>
+  <div class="wrap">
+    <div class="head" data-rv="wipe"><span class="slug">/contact</span><span class="note">06</span></div>
+    <h2 class="t" data-rv="up" style="max-width:23ch" data-pt="Volume de criativo sem perder qualidade. <em>É esse o problema que eu resolvo.</em>">Creative volume without losing quality. <em>That is the problem I solve.</em></h2>
+    <a class="big-mail" data-rv="up" href="mailto:rafael@rafaguiar.dev">rafael@rafaguiar.dev</a>
+    <div class="socials" data-rv="up">
+      <a class="btn ghost" href="#">GitHub ↗</a>
+      <a class="btn ghost" href="#">LinkedIn ↗</a>
+      <a class="btn ghost" href="#">Instagram ↗</a>
+      <a class="btn solid" href="#" data-pt="Baixar CV">Download CV <span class="ar">→</span></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <span>© 2026 RAFAEL AGUIAR — ALL RIGHTS RESERVED</span>
+    <nav class="foot-nav">
+      <a href="#reel">/reel</a><a href="#work">/work</a><a href="#contact">/contact</a>
+    </nav>
+    <span data-pt="FEITO À MÃO · HTML, CSS E UM CANVAS">HAND-BUILT · HTML, CSS AND ONE CANVAS</span>
+  </div>
+</footer>
+
+</main>
+
+<script>
+"use strict";
+const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const root = document.documentElement;
+
+/* ═══════════════════════════════════════════════════════════════════
+   HERO — ROBOT SIGNAL FIELD. A arte robotica alimenta exclusivamente o
+   retrato ASCII; a fotografia original permanece limpa para o reveal.
+
+   IDLE     ondas de dados nascem atras do operador e tres pipelines o alimentam.
+   CLIQUE   uma onda curta propaga os caracteres e a foto se revela por
+             trás dela; segura 2 s e o ASCII volta.
+   SYNC     a barra enche em 25 s; ao completar, a foto normal aparece.
+   ═══════════════════════════════════════════════════════════════════ */
+const Ascii = (() => {
+  const hero  = document.querySelector(".hero");
+  const stage = document.getElementById("stage");
+  const cv    = document.getElementById("ascii");
+  const photo = document.getElementById("photo");
+  const asciiSource = document.getElementById("asciiSource");
+  const corePct = document.getElementById("corePct");
+  const coreFill = document.getElementById("coreFill");
+  const ctx   = cv.getContext("2d");
+  const off   = document.createElement("canvas");   // campo + foto, composto
+  const octx  = off.getContext("2d");
+  const offP  = document.createElement("canvas");   // só a foto em ASCII (estática)
+  const pctx  = offP.getContext("2d");
+  const lum   = document.createElement("canvas");
+  const lctx  = lum.getContext("2d", { willReadFrequently: true });
+
+  const RAMP = " .·':-=+*xX#%@";
+  const WAVE_RAMP = " .·:-=+xX#@";
+  const CW = 7, CH = 11;
+  const FONT = `500 ${CH - 3}px "JetBrains Mono", ui-monospace, monospace`;
+
+  // ── ajustes ────────────────────────────────────────────────────────
+  const AMB_EVERY   = 2;     // 30 fps para o campo; canvas principal continua a 60
+  const HEAT_R      = 49;    // raio do carimbo do rastro, em px
+  const HEAT_FADE   = .960;  // rastro longo o suficiente para o gesto ser lido
+  const HEAT_MIN    = .012;  // cauda delicada, mas ainda visível no vazio
+  const WAVE_MAX    = 1800;  // a crista pode atravessar todo o hero
+  const WAVE_SPD    = 1.30;  // px por ms — a crista corre na frente
+  const WAVE_W      = 52;    // largura da crista
+  const WAVES_MAX   = 4;     // ondas simultâneas
+  const REVEAL_SPD  = 1.15;  // px/ms — a revelação vem logo atrás da onda
+  const REVEAL_EDGE = 110;   // borda macia da revelação
+  const REVEAL_HOLD = 2000;  // foto limpa (era 5000 na v6; ele pediu 2 s)
+  const REVEAL_FADE = 900;   // o ASCII voltando
+  const AUTO_EVERY  = 25000; // ciclo completo da barra de sincronizacao
+  const BLACK_FLOOR = .052;  // piso de preto — abaixo disso não vira caractere
+  const FIELD_PERIOD = 2.15; // um novo pulso nasce no núcleo
+  const FIELD_LIFE   = 9.20; // tempo para alcançar e desaparecer na borda
+
+  // Derivada diretamente da paleta do site: fundo, roxos, ciano e tinta.
+  const P = { bg:"#0A0A0A", far:"#2D2037", rain:"#68458A",
+              mid:"#9938FA", high:"#BF85F9", amb:"#382744", amb2:"#765098",
+              hot:"#FAFAFA", crest:"#BF85F9", warm:"#A965E5",
+              cyan:"#2DD4BF", cyanHot:"#9AFFF2", neutral:"#8F779A",
+              // o rotulo do modulo e' informacao, nao ambiente: sai do roxo
+              // escuro e passa a viver no mesmo cinza do "BEND THE FLOW"
+              label:"#8E8E98", };
+
+  /* ── DATA GRAVITY · condutos ───────────────────────────
+     Quatro modulos fixos: SCRIPT (canto superior esquerdo), MEDIA (faixa
+     esquerda), AUTOMATION (canto inferior esquerdo) e RENDER (faixa livre
+     da direita, na meia altura). Cada um emite 2 ou 3 raios — dez no total
+     — que convergem no operador por pontos diferentes do corpo: visor,
+     pescoco, ombro, peito, costela, tronco, flanco e os tres da direita.
+
+     Cada raio e' UMA curva so, da fonte ate o corpo. Nada de correr em
+     faixa horizontal e virar em esquina: quem da a forma de leque e' o
+     ponto onde cada raio decide subir (o `turn`), espalhado ao longo da
+     faixa livre. O `route` engorda a barriga da curva ate a rota sair
+     inteira de cima do texto.
+
+     Da fisica do "Data Gravity" da v15 sobrou o que interessa: atracao
+     (o alvo puxa o pacote), curvatura (o giro tangencial acompanha os
+     aneis concentricos), aceleracao (a chegada e mais rapida que a
+     partida) e absorcao (o pacote some atras da silhueta e vira uma
+     resposta local nos glifos). O campo denso daquela versao ficou fora. */
+  const TUBE_TRAVEL = 6.10;   // s de viagem de ponta a ponta
+  const TUBE_PAUSE  = 1.45;   // s de pausa antes da proxima emissao
+  const TUBE_ACCEL  = .34;    // 0 = velocidade constante; ~2,0x na chegada
+  const TUBE_SWIRL  = .40;    // giro tangencial junto ao nucleo (rad)
+  const TUBE_TAIL   = 12;     // glifos na cauda do pacote
+
+  // origem -> destino no corpo; o ciano fica reservado a dois condutos
+  const MODULES = [
+    { label:"SCRIPT",     anchor:"top",  phase:.00,
+      limbs:[{ at:"visor",  tone:0, phase:.00 }, { at:"neck",  tone:0, phase:.46 }] },
+    { label:"MEDIA",      anchor:"left", phase:.31,
+      limbs:[{ at:"shoulder", tone:1, phase:.00 }, { at:"chest", tone:0, phase:.52 }] },
+    { label:"AUTOMATION", anchor:"bot",  phase:.63,
+      limbs:[{ at:"torso",  tone:0, phase:.00 }, { at:"flank", tone:1, phase:.49 },
+             { at:"rib",    tone:0, phase:.26 }] },
+    // Sobram ~220 px livres a direita do operador em quase toda a altura.
+    // RENDER ocupa essa faixa e alimenta o outro lado do corpo, para o
+    // fluxo nao parecer que vem todo de um lado so.
+    { label:"RENDER",     anchor:"right", phase:.17,
+      limbs:[{ at:"visorR", tone:0, phase:.00 }, { at:"shoulderR", tone:1, phase:.35 },
+             { at:"chestR", tone:0, phase:.69 }] }
+  ];
+
+  let dpr = 1, cols = 0, rows = 0, vals = null, tones = null, base = null, chars = null;
+  let edgeLeft = null, edgeRight = null, bodyTop = -1, bodyBot = -1;
+  let copyBox = null;                 // envelope do nome/cargo/texto/botoes
+  let copyRects = [];                 // uma caixa por linha — e' o que protege de fato
+  let guardBox = null;                // envoltoria de tudo que e' proibido (texto + readouts)
+  let bodyLeft = 0, bodyRight = 0;    // bordas reais da silhueta, em px
+  let conduits = [];                  // condutos ja resolvidos em px do palco
+  let drops = [];                     // as gotas: onde caem e em que fio encostam
+  let modulesRT = [];                 // as tres fontes fixas, em px do palco
+  let px = 0, py = 0, pw = 0, ph = 0, frame = 0, t = 0;
+
+  let heat = null;                    // energia do rastro por célula
+  const lit = new Set();              // só as células acesas são redesenhadas
+  const waves = [];                   // {x, y, t0}
+  let reveal = null;                  // {x, y, t0, maxR, openMs}
+  let lastClick = 0;
+  let rmTimer = 0;
+  const ptr = { x: -9999, y: -9999, on: false };
+  let lastX = -9999, lastY = -9999;
+
+  const noise = (x, y) =>
+    (Math.sin(x * .27) * Math.cos(y * .31) + Math.sin((x + y) * .13)) * .25 + .5;
+  const hash = (x, y, seed = 0) => {
+    const n = Math.sin(x * 127.1 + y * 311.7 + seed * 74.7) * 43758.5453123;
+    return n - Math.floor(n);
+  };
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const smooth = p => p * p * (3 - 2 * p);
+  const ease = p => 1 - Math.pow(1 - p, 3);
+  const flowPtr = { x:0, y:0, energy:0 };
+
+  /* ── posição compartilhada pelo ASCII robótico e pela foto real ─── */
+  function layoutPhoto() {
+    const sw = stage.clientWidth, sh = stage.clientHeight;
+    let size = Math.min(sw * .60, sh * 1.42, 940);
+    px = sw - size + size * .13;
+    py = sh * .46 - size * .32;
+    if (sw < 900) { size = Math.min(sw * .93, sh * .54); px = (sw - size) / 2; py = sh * .02; }
+    pw = ph = size;
+    Object.assign(photo.style, { left: px + "px", top: py + "px", width: size + "px", height: size + "px" });
+    measureCopy();
+  }
+
+  /* A area protegida e medida, nao chutada — e nao e' um bloco unico:
+     `getClientRects` devolve UMA caixa por linha renderizada, entao o
+     retangulo do titulo nao "reserva" o vazio ao lado dele. Sem isso o
+     tubo abria um buraco atravessando area onde nao ha texto nenhum. */
+  function measureCopy() {
+    const el = hero.querySelector(".hero-copy");
+    copyRects = [];
+    if (!el) { copyBox = null; guardBox = null; return; }
+    const b = stage.getBoundingClientRect(), PAD = 16;
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+    const eat = rc => {
+      if (!rc || rc.width < 2 || rc.height < 2) return;
+      const q = { x: rc.left - b.left - PAD, y: rc.top - b.top - PAD,
+                  w: rc.width + PAD * 2, h: rc.height + PAD * 2 };
+      for (const o of copyRects)                    // o Range repete caixas
+        if (Math.abs(o.x - q.x) < 3 && Math.abs(o.y - q.y) < 3
+         && Math.abs(o.w - q.w) < 3 && Math.abs(o.h - q.h) < 3) return;
+      copyRects.push(q);
+      x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y);
+      x1 = Math.max(x1, q.x + q.w); y1 = Math.max(y1, q.y + q.h);
+    };
+
+    // cada LINHA de texto de verdade
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+      if (!n.nodeValue.trim()) continue;
+      const rg = document.createRange(); rg.selectNodeContents(n);
+      for (const rc of rg.getClientRects()) eat(rc);
+    }
+    // botoes: a caixa vale inteira, nao so o rotulo
+    for (const q of el.querySelectorAll(".btn")) eat(q.getBoundingClientRect());
+    // enfeites sem texto (o ponto do kicker, o traco do hint)
+    for (const q of el.querySelectorAll("i,b,s,em"))
+      if (!q.textContent.trim()) eat(q.getBoundingClientRect());
+    // "01 / LIVE SYSTEM" e' ::before, nao e' filho: reserva a faixa do topo
+    const kid = el.firstElementChild;
+    if (kid) {
+      const er = el.getBoundingClientRect(), fr = kid.getBoundingClientRect();
+      if (fr.top - er.top > 8)
+        eat({ left: er.left, top: er.top, width: 190, height: fr.top - er.top - 8 });
+    }
+    if (!copyRects.length) eat(el.getBoundingClientRect());
+    // copyBox = envoltoria SO do texto: e' ela que posiciona as faixas
+    copyBox = copyRects.length ? { x: x0, y: y0, w: x1 - x0, h: y1 - y0 } : null;
+
+    // os dois readouts desenhados por cima do canvas tambem sao proibidos,
+    // mas entram depois: nao podem esticar a envoltoria das faixas
+    for (const sel of [".core-status", ".scrollcue"]) {
+      const q = hero.querySelector(sel);
+      if (q) eat(q.getBoundingClientRect());
+    }
+    guardBox = { x: x0, y: y0, w: x1 - x0, h: y1 - y0 };
+  }
+
+  function inCopy(x, y) {
+    if (!guardBox || x < guardBox.x || x > guardBox.x + guardBox.w
+                  || y < guardBox.y || y > guardBox.y + guardBox.h) return false;
+    for (let i = 0; i < copyRects.length; i++) {
+      const q = copyRects[i];
+      if (x > q.x && x < q.x + q.w && y > q.y && y < q.y + q.h) return true;
+    }
+    return false;
+  }
+
+  /* ── arte robótica → luminância, contorno e tom por célula ───── */
+  function buildLuma() {
+    if (!asciiSource.complete || !asciiSource.naturalWidth) return false;
+    lum.width = cols; lum.height = rows;
+    // compor SOBRE o fundo da página antes de medir: no PNG recortado a franja
+    // da silhueta é branca com alfa baixo, e medindo o RGB cru ela virava um
+    // halo de '@' em volta da cabeça
+    lctx.clearRect(0, 0, cols, rows);
+    lctx.drawImage(asciiSource, px / CW, py / CH, pw / CW, ph / CH);
+    const d = lctx.getImageData(0, 0, cols, rows).data;
+    const n = cols * rows, L = new Float32Array(n), A = new Float32Array(n);
+    const BG_L = .039;                       // a luminância de #0A0A0A
+
+    // a faixa útil sai da PRÓPRIA foto (p20–p97 do sujeito). Sem isto a curva
+    // teria que ser recalibrada à mão toda vez que ele trocar o retrato: esta
+    // aqui é escura (mediana 0,10) e uma curva fixa transformava o rosto inteiro
+    // num bloco de '@'.
+    const HB = 128, hist = new Uint32Array(HB);
+    let cnt = 0;
+    for (let i = 0; i < n; i++) {
+      const a = d[i * 4 + 3] / 255;
+      // compor na mão sobre o fundo da página: a franja da silhueta é branca
+      // com alfa baixo, e medir o RGB cru fazia um halo de '@' na cabeça
+      const l = ((d[i * 4] * .299 + d[i * 4 + 1] * .587 + d[i * 4 + 2] * .114) / 255) * a
+              + BG_L * (1 - a);
+      L[i] = l; A[i] = a;
+      if (a > .35) { hist[Math.min(HB - 1, (l * HB) | 0)]++; cnt++; }
+    }
+    let lo = -1, hi = 1, acc = 0;
+    for (let b = 0; b < HB; b++) {
+      acc += hist[b];
+      if (lo < 0 && acc >= cnt * .09) lo = b / HB;
+      if (acc >= cnt * .97) { hi = (b + 1) / HB; break; }
+    }
+    if (lo < 0 || hi - lo < .08) { lo = BLACK_FLOOR; hi = 1; }   // rede de segurança
+
+    vals = new Float32Array(n);
+    tones = new Uint8Array(n);
+    for (let r = 0; r < rows; r++) {
+      // o corpo se dissolve no campo em vez de virar chuvisco
+      const fade = Math.pow(Math.min(1, Math.max(0, (.90 - r / rows) / .44)), 1.3);
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c, l = L[i], inside = A[i] > .35;
+        let v = Math.pow(Math.min(1, Math.max(0, (l - lo) / (hi - lo))), .88);
+        // O desenho tem muitas placas escuras: o gradiente local preserva juntas,
+        // parafusos, óculos e cabos que luminância pura apagaria.
+        const il = r > 0 && r < rows - 1 && c > 0 && c < cols - 1;
+        const edge = il ? Math.min(1, (Math.abs(L[i + 1] - L[i - 1]) + Math.abs(L[i + cols] - L[i - cols])) * 2.8) : 0;
+        // o alfa do PNG sabe onde ele está mesmo onde a foto é quase preta
+        // (cabelo, camisa): sem este piso a silhueta sumia e sobrava um rosto
+        // flutuando
+        // O retrato nasce do mesmo material do fundo: a silhueta começa no
+        // valor da grade e ganha densidade conforme a luminância da foto.
+        // Isso evita a sensação de uma imagem colada por cima da textura.
+        if (inside) v = Math.max(v, .26 + edge * .62);
+        v *= fade;
+        vals[i] = (inside && v > .09) ? v : -1;
+        if (inside) {
+          const rr = d[i * 4], gg = d[i * 4 + 1], bb = d[i * 4 + 2];
+          tones[i] = (gg + bb - rr * 1.35 > 92) ? 1
+                   : (rr + bb - gg * 1.28 > 118) ? 2
+                   : (rr + gg * .48 - bb * 1.12 > 105) ? 3 : 0;
+        }
+      }
+    }
+    return true;
+  }
+
+  /* ── camada da foto: estática, só muda no resize ─────────────────── */
+  function renderPhoto() {
+    const w = cv.clientWidth, h = cv.clientHeight;
+    offP.width = cv.width; offP.height = cv.height;
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pctx.clearRect(0, 0, w, h);
+    pctx.font = FONT;
+    pctx.textBaseline = "top";
+    const n = cols * rows;
+    if (!base || base.length !== n) {
+      base = new Float32Array(n); chars = new Uint8Array(n); heat = new Float32Array(n);
+    }
+    edgeLeft = new Int32Array(rows); edgeLeft.fill(-1);
+    edgeRight = new Int32Array(rows); edgeRight.fill(-1);
+    bodyTop = -1; bodyBot = -1;
+    base.fill(0); chars.fill(0);
+    for (let r = 0; r < rows; r++) {
+      let first = -1, last = -1;
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c, v = vals ? vals[i] : -1;
+        if (v < 0) continue;
+        if (first < 0) first = c;
+        last = c;
+        const k = Math.min(RAMP.length - 1, Math.round(v * (RAMP.length - 1)));
+        if (k === 0) continue;
+        base[i] = v; chars[i] = k;
+        // o piso do alfa desenha a silhueta inteira; em P.low (#242424) ela
+        // ficava invisivel no fundo #0A0A0A, entao o grave usa as cores do campo
+        const tone = tones ? tones[i] : 0;
+        // Branco é brilho especular, não matéria: só uma fração rara dos pontos
+        // de luminância máxima chega a P.hot. O volume permanece roxo/ciano.
+        const spec = tone !== 1 && v > .93 && hash(c, r, 103) > .78;
+        pctx.fillStyle = spec ? P.hot
+                        : tone === 1 ? (v > .76 ? P.cyanHot : P.cyan)
+                        : tone === 2 ? (v > .58 ? P.high : v > .34 ? P.mid : P.amb2)
+                        : tone === 3 ? (v > .72 ? P.neutral : P.amb2)
+                        : v > .76 ? P.high : v > .48 ? P.warm : v > .26 ? P.amb2 : P.amb;
+        pctx.fillText(RAMP[k], c * CW, r * CH);
+      }
+      edgeLeft[r] = first; edgeRight[r] = last;
+      if (first >= 0) { if (bodyTop < 0) bodyTop = r; bodyBot = r; }
+    }
+    let bl = cols, br = 0;
+    const rLim = bodyTop + (bodyBot - bodyTop) * .80;   // a base se dissolve e alarga
+    for (let r = 0; r < rows; r++) {
+      if (edgeLeft[r] < 0) continue;
+      if (edgeLeft[r] < bl) bl = edgeLeft[r];
+      if (r <= rLim && edgeRight[r] > br) br = edgeRight[r];
+    }
+    bodyLeft = bl < cols ? bl * CW : px;
+    bodyRight = br ? br * CW : px + pw;
+    buildConduits();
+  }
+
+  /* ── ancoragem no corpo ────────────────────────────────────────────
+     O ponto de entrada nao e' uma fracao chutada do quadro: e' a borda
+     real da silhueta naquela altura. `inset` positivo entra no corpo,
+     negativo cai fora dele (usado para nascer ao lado do personagem). */
+  function bodyAnchor(fy, side, inset) {
+    if (bodyTop < 0 || !edgeLeft) return { x: px + pw * .30, y: py + ph * fy };
+    const r0 = clamp(Math.round(bodyTop + (bodyBot - bodyTop) * fy), 0, rows - 1);
+    let rr = r0;
+    for (let k = 1; k <= 26 && edgeLeft[rr] < 0; k++) rr = clamp(r0 + (k % 2 ? k : -k), 0, rows - 1);
+    const L = edgeLeft[rr] < 0 ? Math.round(px / CW) : edgeLeft[rr];
+    const R = edgeRight[rr] < 0 ? Math.round((px + pw) / CW) : edgeRight[rr];
+    const span = Math.max(1, R - L);
+    const c = side < 0 ? L + span * inset : R - span * inset;
+    return { x: c * CW + CW / 2, y: rr * CH + CH / 2 };
+  }
+
+  /* Catmull-Rom: a curva passa por todos os pontos de rota, entao um
+     conduto se descreve pelos lugares por onde ele TEM que passar. */
+  function splinePoint(pts, u) {
+    const n = pts.length - 1;
+    if (n <= 0) return { x: pts[0].x, y: pts[0].y };
+    const s = clamp(u, 0, 1) * n;
+    const i = Math.min(n - 1, Math.floor(s)), f = s - i;
+    const a = pts[Math.max(0, i - 1)], b = pts[i], c = pts[i + 1], d = pts[Math.min(n, i + 2)];
+    const f2 = f * f, f3 = f2 * f;
+    return {
+      x: .5 * (2 * b.x + (c.x - a.x) * f + (2 * a.x - 5 * b.x + 4 * c.x - d.x) * f2 + (-a.x + 3 * b.x - 3 * c.x + d.x) * f3),
+      y: .5 * (2 * b.y + (c.y - a.y) * f + (2 * a.y - 5 * b.y + 4 * c.y - d.y) * f2 + (-a.y + 3 * b.y - 3 * c.y + d.y) * f3)
+    };
+  }
+
+  /* Ponto do conduto com a fisica de gravidade: perto do nucleo a rota
+     gira no sentido dos aneis concentricos em vez de entrar reta. O giro
+     zera nas duas pontas, entao origem e ponto de entrada ficam fixos. */
+  function conduitPoint(cd, u) {
+    const q = clamp(u, 0, 1);
+    const p = splinePoint(cd.pts, q);
+    const cx = px + pw * .50, cy = py + ph * .48;
+    const dx = p.x - cx, dy = p.y - cy;
+    const R = Math.max(140, pw * .70);
+    // o giro so vale na APROXIMACAO. Antes ele comecava no meio do caminho e,
+    // no modulo da direita (que nasce perto do nucleo), torcia o montante
+    // inteiro para dentro do corpo — o tubo sumia atras da silhueta.
+    const taper = Math.pow(Math.sin(Math.PI * q), .65)
+                * smooth(clamp((q - .34) / .34, 0, 1));
+    const g = Math.exp(-(dx * dx + dy * dy) / (R * R)) * TUBE_SWIRL * cd.spin * taper;
+    let x = p.x, y = p.y;
+    if (Math.abs(g) > .0015) {
+      const sn = Math.sin(g), cs = Math.cos(g);
+      x = cx + dx * cs - dy * sn;
+      y = cy + dx * sn + dy * cs;
+    }
+    if (flowPtr.energy > .01) {                      // o cursor ainda dobra o fluxo
+      const ax = x - flowPtr.x, ay = y - flowPtr.y;
+      const inf = Math.exp(-(ax * ax + ay * ay) / 26000) * flowPtr.energy * taper;
+      y += clamp(ay, -64, 64) * .34 * inf;
+      x += clamp(ax, -22, 22) * .34 * inf;
+    }
+    return { x: x, y: y };
+  }
+
+  // partida lenta, chegada rapida: a gravidade puxa o pacote no fim
+  const gravU = p => p * (1 - TUBE_ACCEL) + TUBE_ACCEL * p * p * p;
+
+  /* ── montagem dos condutos ──────────────────────────────────────────
+     Tres origens fixas nas faixas livres (superior, esquerda, inferior),
+     um tronco curto ate o no de bifurcacao e dois ramos por modulo. */
+  function buildConduits() {
+    const w = cv.clientWidth, h = cv.clientHeight;
+    conduits = []; modulesRT = [];
+    if (!w || !h || !edgeLeft) return;
+
+    const A = {
+      visor:    bodyAnchor(.085, -1, .30), neck:  bodyAnchor(.190, -1, .27),
+      shoulder: bodyAnchor(.270, -1, .17), chest: bodyAnchor(.400, -1, .21),
+      torso:    bodyAnchor(.545, -1, .19), flank: bodyAnchor(.690, -1, .15),
+      rib:      bodyAnchor(.465, -1, .16),
+      visorR:   bodyAnchor(.100,  1, .26), shoulderR: bodyAnchor(.290, 1, .21),
+      chestR:   bodyAnchor(.520,  1, .23)
+    };
+
+    const arc = (a, b, k) => {
+      const dx = b.x - a.x, dy = b.y - a.y;
+      return { x: (a.x + b.x) / 2 - dy * k, y: (a.y + b.y) / 2 + dx * k };
+    };
+    const push = (mod, limb, pts, spin) => {
+      // passo proporcional ao comprimento: com passo fixo as rotas longas
+      // saltavam celulas e o fio virava tracejado. ~3 px por amostra.
+      let len = 0, a = splinePoint(pts, 0);
+      for (let u = .025; u <= 1.0001; u += .025) {
+        const b2 = splinePoint(pts, u);
+        len += Math.hypot(b2.x - a.x, b2.y - a.y); a = b2;
+      }
+      conduits.push({ id: conduits.length + 1, mod: mod, pts: pts, spin: spin,
+                      tone: limb.tone, phase: (mod.phase + limb.phase) % 1,
+                      step: clamp(3.1 / Math.max(60, len), .0009, .006),
+                      entry: pts[pts.length - 1] });
+    };
+
+    if (w < 900) {
+      /* Mobile: o operador ocupa quase toda a largura e as unicas areas
+         livres sao as laterais dele. Tres condutos curtos, sem rotulos. */
+      // as unicas colunas livres sao as bordas da tela: as fontes moram la,
+      // na altura do proprio ponto de entrada, e nunca por cima dos glifos
+      const near = (fy, side) => {
+        const q = bodyAnchor(fy, side, 0);
+        return { x: side < 0 ? 13 : w - 13, y: clamp(q.y, 26, h - 26) };
+      };
+      const spec = [
+        { m: MODULES[0], o: near(.10, -1), e: A.visor, side: -1, spin: 1 },
+        { m: MODULES[1], o: near(.30,  1), e: bodyAnchor(.300, 1, .18), side: 1, spin: -1 },
+        { m: MODULES[2], o: near(.62, -1), e: bodyAnchor(.620, -1, .19), side: -1, spin: 1 }
+      ];
+      for (const sp of spec) {
+        const node = { x: sp.o.x, y: sp.o.y, label: sp.m.label, labelX: 0, labelY: 0,
+                       showLabel: false, fork: null, charge: 0, flash: 0 };
+        modulesRT.push(node);
+        const mid = arc(sp.o, sp.e, sp.side < 0 ? -.10 : .10);
+        push({ node: node, phase: sp.m.phase }, sp.m.limbs[0], [sp.o, mid, sp.e], sp.spin);
+      }
+      buildDrops();
+      return;
+    }
+
+    const box = copyBox || { x: w * .05, y: h * .20, w: w * .38, h: h * .60 };
+    const boxB = box.y + box.h;
+    const gapL = Math.max(0, box.x);
+    const hasLeft = gapL >= 86;                       // cabe um modulo a esquerda?
+    const laneTop = clamp(box.y * .40, 40, h * .14);  // faixa livre acima do texto
+    const laneBot = clamp(h - 58, boxB + 34, h - 34); // faixa livre abaixo do texto
+    const originX = clamp(gapL * .46, 14, w * .16);
+
+    /* Roteador. Cada fio e' UMA curva so, da fonte ate o corpo — nada de
+       correr em faixa e virar em esquina. A barriga da curva vai crescendo
+       ate a rota sair inteira de cima do texto; e' isso que deixa o
+       desenho radial sem nunca encostar no nome, no cargo ou nos botoes. */
+    const clear = pts => {
+      for (let u = 0; u <= 1.0001; u += .012) {
+        const p = splinePoint(pts, u);
+        if (inCopy(p.x, p.y)) return false;
+      }
+      return true;
+    };
+    const hits = pts => {
+      let n = 0;
+      for (let u = 0; u <= 1.0001; u += .012) {
+        const p = splinePoint(pts, u);
+        if (inCopy(p.x, p.y)) n++;
+      }
+      return n;
+    };
+    const route = (S, E, k, pre) => {
+      const head = pre ? [S].concat(pre) : [S];
+      const a = head[head.length - 1];
+      let best = null, bestN = 1e9;
+      for (let i = 0; i < 9; i++) {
+        const cand = head.concat([arc(a, E, k * (1 + i * .24)), E]);
+        const n = hits(cand);
+        if (!n) return cand;                 // rota limpa: para aqui
+        if (n < bestN) { bestN = n; best = cand; }
+      }
+      return best;                           // nunca estoura a barriga a toa
+    };
+    // empurra um ponto de virada para fora do texto sem mover a rota inteira
+    const freeY = (x, y, dir) => {
+      for (let i = 0; i < 9; i++) {
+        const yy = clamp(y + dir * i * 9, 16, h - 16);
+        if (!inCopy(x, yy)) return yy;
+      }
+      return y;
+    };
+    // ponto de virada: quanto mais longe da fonte, mais tarde o fio sobe
+    const turn = (S, E, f, bandY, dir) => {
+      const x = S.x + (E.x - S.x) * f;
+      return [{ x: x, y: freeY(x, bandY, dir) }];
+    };
+
+    const mk = (x, y, m, limit, flip) => {
+      const lw = (m.label.length + 4) * 5.6;
+      const lx = flip ? x - 15 - lw : (limit ? Math.min(x + 15, limit - lw - 4) : x + 15);
+      const n = { x: x, y: y, label: m.label, fork: null, charge: 0, flash: 0,
+                  labelX: lx, labelY: y - 4, showLabel: lx > 6 && lx + lw < w - 4 };
+      modulesRT.push(n);
+      return n;
+    };
+    const fan = (node, m, specs) => {
+      for (let i = 0; i < specs.length; i++) {
+        const sp = specs[i];
+        push({ node: node, phase: m.phase }, m.limbs[i],
+             route({ x: node.x, y: node.y }, A[m.limbs[i].at], sp.k, sp.pre), sp.spin);
+      }
+    };
+
+    /* 1 · SCRIPT — canto superior esquerdo. Os dois raios correm a faixa de
+       cima por distancias DIFERENTES antes de mergulhar: e' o que os separa
+       um do outro em vez de deixar os dois no mesmo corredor. */
+    const nS = mk(originX + w * .015, laneTop, MODULES[0], 0);
+    const eS = [A.visor, A.neck];
+    fan(nS, MODULES[0], [
+      { k: -.040, spin: 1, pre: turn(nS, eS[0], .52, laneTop - 4,  -1) },
+      { k: -.014, spin: 1, pre: turn(nS, eS[1], .24, laneTop + 26, -1) }
+    ]);
+
+    /* 2 · MEDIA — faixa esquerda. Os dois raios saem do mesmo no e
+       contornam o bloco de texto, um por cima e outro por baixo. Quando
+       nao ha faixa esquerda (tela estreita) o modulo sobe para o topo. */
+    let nM;
+    if (hasLeft) {
+      const oy = clamp(h * .52, box.y + 50, boxB - 50);
+      nM = mk(originX, oy, MODULES[1], box.x);
+      const sideX = clamp(originX + 30, originX + 14, box.x - 12);
+      fan(nM, MODULES[1], [
+        { k: -.055, spin:  1, pre: [{ x: sideX, y: clamp(box.y - 40, laneTop + 26, oy - 40) }] },
+        { k:  .062, spin: -1, pre: [{ x: sideX - 10, y: clamp(boxB + 36, oy + 40, laneBot - 18) }] }
+      ]);
+    } else {
+      nM = mk(clamp(box.x + box.w * .16, originX + 40, w * .40), laneTop + 34, MODULES[1], 0);
+      fan(nM, MODULES[1], [{ k: -.030, spin: 1 }, { k: .034, spin: -1 }]);
+    }
+
+    /* 3 · AUTOMATION — canto inferior esquerdo. Tres raios que correm a
+       faixa de baixo ate pontos diferentes e sobem em leque sobre o flanco. */
+    const nA = mk(originX + w * .025, laneBot, MODULES[2], 0);
+    const eA = [A.torso, A.flank, A.rib];
+    fan(nA, MODULES[2], [
+      { k: .040, spin: -1, pre: turn(nA, eA[0], .46, laneBot - 30, -1) },
+      { k: .018, spin: -1, pre: turn(nA, eA[1], .66, laneBot - 4,   1) },
+      { k: .062, spin: -1, pre: turn(nA, eA[2], .22, laneBot - 62, -1) }
+    ]);
+
+    /* 4 · RENDER — faixa livre da direita, na meia altura. Tres raios
+       curtos que abrem para fora e voltam para o outro lado do corpo,
+       para o fluxo nao parecer que vem todo de um lado so. */
+    const bandR = Math.max(bodyRight || w * .78, w * .70);
+    if (w - bandR > 96) {
+      const rx = clamp((bandR + w) * .5, bandR + 34, w - 28);
+      const ry = clamp(h * .46, laneTop + 150, laneBot - 150);
+      const nR = mk(rx, ry, MODULES[3], 0, true);
+      const spread = Math.min(158, (laneBot - laneTop) * .22);
+      // os tres saem do mesmo no, abrem na vertical junto da borda e so
+      // entao viram para dentro: e' o leque que aparece do lado direito
+      fan(nR, MODULES[3], [
+        { k:  .070, spin: -1, pre: [{ x: rx + 3, y: clamp(ry - spread, 26, h - 26) }] },
+        { k:  .026, spin: -1, pre: [{ x: rx + 7, y: ry - 8 }] },
+        { k: -.062, spin:  1, pre: [{ x: rx + 3, y: clamp(ry + spread, 26, h - 26) }] }
+      ]);
+    }
+
+    buildDrops();
+  }
+
+  /* ── CHUVA ──────────────────────────────────────────────────────────
+     Poucas gotas, e nenhuma cai no vazio: cada uma nasce num ponto de ceu
+     limpo exatamente acima de um fio, cai, encosta nele e vira um pulso
+     que desce o resto do conduto ate o operador. E' o que da a leitura de
+     "caiu do ceu e entrou no sistema" em vez de particula solta. */
+  const DROP_FALL  = 1.15;   // s de queda
+  const DROP_RUN   = 2.30;   // s do pulso descendo o fio depois do impacto
+  const DROP_REST  = 7.50;   // s de silencio antes da proxima gota
+
+  function skyClear(x, y0, y1) {
+    const c = Math.round(x / CW);
+    if (c < 1 || c >= cols - 1) return false;
+    for (let y = y0; y <= y1; y += CH) {
+      const r = Math.round(y / CH);
+      if (r < 0 || r >= rows) return false;
+      if (vals && vals[r * cols + c] >= 0) return false;   // silhueta
+      if (inCopy(x, y)) return false;                      // texto / readouts
+    }
+    return true;
+  }
+
+  function buildDrops() {
+    drops = [];
+    if (!conduits.length) return;
+    const alvo = [.30, .46, .34, .52, .40];
+    for (let i = 0; i < conduits.length && drops.length < 5; i++) {
+      // uma gota a cada dois condutos: o pedido era "poucas"
+      if (i % 2) continue;
+      const cd = conduits[i];
+      for (let tent = 0; tent < 7; tent++) {
+        const u = clamp(alvo[drops.length % alvo.length] + tent * .055, .18, .74);
+        const p = splinePoint(cd.pts, u);
+        const dropH = 74 + ((hash(i, tent, 23) * 130) | 0);
+        const top = p.y - dropH;
+        if (top < 16 || !skyClear(p.x, top, p.y)) continue;
+        drops.push({ cd: cd, u: u, x: p.x, y: p.y, top: top,
+                     cycle: DROP_FALL + DROP_RUN + DROP_REST + hash(i, 7, 41) * 5.5,
+                     phase: hash(i, 3, 19), tone: (i % 4) === 2 ? 1 : 0 });
+        break;
+      }
+    }
+  }
+
+  function drawRain(g, receipts) {
+    for (const d of drops) {
+      const tp = ((t / d.cycle + d.phase) % 1) * d.cycle;
+      if (tp > DROP_FALL + DROP_RUN) continue;             // descansando
+
+      if (tp < DROP_FALL) {                                // 1 · a queda
+        const q = tp / DROP_FALL;
+        const e = q * q * .74 + q * .26;                   // acelera caindo
+        const y = d.top + (d.y - d.top) * e;
+        const c = Math.round(d.x / CW);
+        for (let j = 0; j < 5; j++) {
+          const r = Math.round((y - j * CH * .92) / CH);
+          if (r < 0 || r >= rows) continue;
+          const i = r * cols + c;
+          if (vals && vals[i] >= 0) continue;
+          const k = 1 - j / 5;
+          g.globalAlpha = 1; g.fillStyle = P.bg;
+          g.fillRect(c * CW, r * CH, CW, CH);
+          g.globalAlpha = clamp((.16 + k * .74) * (.35 + e * .65), 0, 1);
+          g.fillStyle = j === 0 ? (d.tone ? P.cyan : P.crest)
+                      : j < 3 ? (d.tone ? P.cyan : P.high) : P.amb2;
+          g.fillText(j === 0 ? "o" : j < 3 ? ":" : "·", c * CW, r * CH);
+        }
+        continue;
+      }
+
+      // 2 · o impacto no fio e o pulso que desce ate o operador
+      const q = (tp - DROP_FALL) / DROP_RUN;
+      const splash = 1 - smooth(clamp(q / .16, 0, 1));
+      if (splash > .02) {
+        const c0 = Math.round(d.x / CW), r0 = Math.round(d.y / CH);
+        for (let dc = -2; dc <= 2; dc++) {
+          const c = c0 + dc, r = r0 + (Math.abs(dc) > 1 ? 1 : 0);
+          if (c < 0 || c >= cols || r < 0 || r >= rows) continue;
+          if (vals && vals[r * cols + c] >= 0) continue;
+          g.globalAlpha = clamp(splash * (1 - Math.abs(dc) * .26), 0, 1);
+          g.fillStyle = d.tone ? P.cyanHot : P.crest;
+          g.fillText(dc ? "-" : "*", c * CW, r * CH);
+        }
+      }
+      // o pulso herda a rota do fio: a gota virou dado
+      const uu = d.u + (1 - d.u) * smooth(q);
+      for (let j = 0; j < 7; j++) {
+        const p = conduitPoint(d.cd, uu - j * .012);
+        const c = Math.round(p.x / CW), r = Math.round(p.y / CH);
+        if (c < 0 || c >= cols || r < 0 || r >= rows) continue;
+        const i = r * cols + c;
+        if (vals && vals[i] >= 0) continue;
+        const k = 1 - j / 7;
+        g.globalAlpha = 1; g.fillStyle = P.bg;
+        g.fillRect(c * CW, r * CH, CW, CH);
+        g.globalAlpha = clamp((.20 + k * .70) * (1 - smooth(clamp((q - .90) / .10, 0, 1))), 0, 1);
+        g.fillStyle = d.tone ? (j < 2 ? P.cyanHot : P.cyan) : (j < 2 ? P.crest : P.high);
+        g.fillText(j === 0 ? "@" : j < 3 ? "+" : "·", c * CW, r * CH);
+      }
+      if (q > .88) {
+        const e = conduitPoint(d.cd, 1);
+        receipts.push({ x: e.x, y: e.y, tone: d.tone,
+                        energy: Math.sin(clamp((q - .88) / .12, 0, 1) * Math.PI) * .82 });
+      }
+    }
+    g.globalAlpha = 1;
+  }
+
+  /* ── o ciclo de cada pacote ────────────────────────────────────────
+     fonte fixa -> emissao -> viagem -> aceleracao -> absorcao atras da
+     silhueta -> resposta local no operador -> pausa -> nova emissao.
+     Nao ha "% 1" na posicao: a viagem termina dentro do corpo e o proximo
+     pacote so nasce depois da pausa, entao nunca ha teleporte visivel. */
+  function drawConduits(g, w, sync, receipts) {
+    const CYCLE = TUBE_TRAVEL + TUBE_PAUSE;
+    for (const n of modulesRT) { n.charge = 0; n.flash = 0; }
+
+    for (const cd of conduits) {
+      // 1 · o tubo, visivel de ponta a ponta. Percorre a rota celula a
+      //     celula (sem repetir e sem furo) e limpa o fundo antes de
+      //     escrever: assim o conduto se le como um canal e nao se
+      //     confunde com a poeira do campo concentrico.
+      let prev = -1, seg = 0;
+      for (let u = 0; u <= 1.0001; u += cd.step) {
+        const p = conduitPoint(cd, u);
+        const c = Math.round(p.x / CW), r = Math.round(p.y / CH);
+        if (c < 0 || c >= cols || r < 0 || r >= rows) continue;
+        const i = r * cols + c;
+        if (i === prev) continue;
+        prev = i;
+        if (vals && vals[i] >= 0) continue;             // atras da silhueta: some
+        if (inCopy(p.x, p.y)) continue;                 // rede de seguranca do texto
+        // marcas a cada 6 celulas: dao ritmo de conduto construido em vez
+        // de linha continua, e e' o que separa o tubo da poeira do campo
+        const mark = (seg++ % 6) === 0;
+        const e = .17 + u * .32 + sync * .04 + (mark ? .10 : 0);
+        const k = mark ? (u > .52 ? 5 : 4) : 2;
+        if (e > base[i]) { base[i] = e; chars[i] = k; }
+        g.globalAlpha = 1;
+        g.fillStyle = P.bg;
+        g.fillRect(c * CW, r * CH, CW, CH);
+        g.globalAlpha = (mark ? .78 : .56) + u * .20;
+        g.fillStyle = u > .80 ? P.high : mark ? P.mid : P.amb2;
+        g.fillText(RAMP[k], c * CW, r * CH);
+      }
+
+      // 2 · o pacote
+      const tp = ((t / CYCLE + cd.phase) % 1) * CYCLE;
+      const node = cd.mod.node;
+      if (tp < TUBE_TRAVEL) {
+        const prog = tp / TUBE_TRAVEL;
+        node.flash = Math.max(node.flash, Math.max(0, 1 - prog / .09));
+        const fade = 1 - smooth(clamp((prog - .93) / .07, 0, 1));    // some por completo
+        for (let j = 0; j < TUBE_TAIL; j++) {
+          const pj = prog - j * .016;
+          if (pj <= 0) continue;
+          const p = conduitPoint(cd, gravU(pj));
+          const c = Math.round(p.x / CW), r = Math.round(p.y / CH);
+          if (c < 0 || c >= cols || r < 0 || r >= rows) continue;
+          const i = r * cols + c;
+          if (vals && vals[i] >= 0) continue;           // entrou no corpo: absorvido
+          const q = 1 - j / TUBE_TAIL;
+          g.globalAlpha = 1;
+          g.fillStyle = P.bg;
+          g.fillRect(c * CW, r * CH, CW, CH);
+          g.globalAlpha = clamp((.24 + q * .70) * fade, 0, 1);
+          g.fillStyle = cd.tone ? (j < 2 ? P.cyanHot : j < 6 ? P.cyan : P.amb2)
+                                : (j < 2 ? P.crest : j < 6 ? P.high : P.mid);
+          g.fillText(j === 0 ? "@" : j < 4 ? "#" : j < 8 ? "+" : "·", c * CW, r * CH);
+        }
+      } else {
+        node.charge = Math.max(node.charge, (tp - TUBE_TRAVEL) / TUBE_PAUSE);
+      }
+
+      // 3 · a resposta no operador, comecando quando o pacote encosta
+      const R0 = TUBE_TRAVEL * .90, R1 = TUBE_TRAVEL * .10 + TUBE_PAUSE * .60;
+      if (tp > R0 && tp < R0 + R1) {
+        const e = conduitPoint(cd, 1);
+        receipts.push({ x: e.x, y: e.y, tone: cd.tone,
+                        energy: Math.sin(((tp - R0) / R1) * Math.PI) });
+      }
+    }
+
+    // 4 · as fontes: caixa do modulo, no de bifurcacao e rotulo
+    g.lineWidth = 1;
+    for (const n of modulesRT) {
+      const live = clamp(n.charge * .55 + n.flash, 0, 1);
+      const nx = Math.round(n.x), ny = Math.round(n.y);
+      g.globalAlpha = .58 + live * .40;
+      g.strokeStyle = live > .5 ? P.high : P.neutral;
+      g.strokeRect(nx - 5.5, ny - 6.5, 11, 13);
+      g.globalAlpha = .24 + live * .74;
+      g.fillStyle = live > .55 ? P.crest : live > .20 ? P.mid : P.amb2;
+      const gh = Math.round(live * 4);
+      g.fillRect(nx - 2, ny - 2 - Math.round(live * 2), 4, 4 + gh);
+      if (n.fork) {
+        g.globalAlpha = .34 + live * .28;
+        g.fillStyle = P.amb2;
+        g.fillRect(Math.round(n.fork.x) - 2, Math.round(n.fork.y) - 2, 4, 4);
+      }
+      if (n.showLabel && w >= 900) {
+        g.globalAlpha = .76 + live * .24;
+        g.font = '500 9px "JetBrains Mono", ui-monospace, monospace';
+        g.fillStyle = live > .5 ? P.high : P.label;
+        g.fillText("[ " + n.label + " ]", n.labelX, n.labelY);
+        g.font = FONT;
+      }
+    }
+    g.globalAlpha = 1;
+  }
+
+  /* ── campo concêntrico: a energia nasce atrás do operador ─────────
+     Cada anel tem nascimento, viagem e morte. Não há módulo/reset visível:
+     a primeira onda realmente começa no raio zero e morre fora da tela. */
+  function drawSignalField(g, sync) {
+    const w = cv.clientWidth, h = cv.clientHeight;
+    const cx = px + pw * .50, cy = py + ph * .48;
+    const maxR = Math.hypot(Math.max(cx, w - cx), Math.max(cy, h - cy));
+    const newest = Math.floor(t / FIELD_PERIOD);
+    const oldest = Math.max(0, newest - Math.ceil(FIELD_LIFE / FIELD_PERIOD));
+
+    for (let r = 0; r < rows; r++) {
+      const y = r * CH, dy = (y - cy) * 1.18;
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c;
+        // A silhueta é um recorte opaco: o campo não aparece nos vazios entre
+        // glifos e passa a ser percebido inequivocamente atrás do personagem.
+        if (vals && vals[i] >= 0) continue;
+        const x = c * CW, dx = x - cx;
+        const d = Math.hypot(dx, dy), nd = d / maxR;
+        if (nd > 1.08) continue;
+
+        let ring = 0;
+        for (let born = oldest; born <= newest; born++) {
+          const age = t - born * FIELD_PERIOD;
+          if (age < 0 || age > FIELD_LIFE) continue;
+          const phase = age / FIELD_LIFE;
+          const radius = Math.pow(phase, .88) * 1.06;
+          const birth = smooth(clamp(age / .72, 0, 1));
+          const death = smooth(clamp((FIELD_LIFE - age) / 1.65, 0, 1));
+          const q = Math.abs(nd - radius);
+          ring = Math.max(ring, Math.exp(-(q * q) / .00118) * birth * death);
+        }
+        const outer = Math.pow(clamp(1 - nd, 0, 1), .52);
+        const startup = smooth(clamp(t / 1.35, 0, 1));
+        const core = Math.exp(-(nd * nd) / .040) * (.12 + sync * .08) * startup;
+        const copyMask = (x < w * .425 && y > h * .10 && y < h * .88) ? .10 : 1;
+        const energy = (ring * .72 + core) * (.14 + outer * .86) * copyMask;
+        const density = .09 + energy * .67;
+        if (energy < .028 || hash(c, r, 71) > density) continue;
+
+        const shimmer = .84 + .16 * Math.sin(t * 1.8 + c * .12 - r * .08);
+        const value = clamp(energy * shimmer, 0, 1);
+        const k = Math.min(WAVE_RAMP.length - 1, Math.max(1, Math.round(value * (WAVE_RAMP.length - 1))));
+        g.globalAlpha = clamp(.11 + value * .64, .11, .78);
+        g.fillStyle = value > .68 ? P.crest : value > .34 ? P.mid : nd > .72 ? P.far : P.amb2;
+        g.fillText(WAVE_RAMP[k], x, y);
+      }
+    }
+    g.globalAlpha = 1;
+  }
+
+  /* O pacote some atrás da silhueta e reaparece como uma resposta local
+     nos próprios glifos do operador. Assim o recebimento fica legível. */
+  function drawReceipts(g, receipts) {
+    for (const rec of receipts) {
+      if (rec.energy < .015) continue;
+      const radius = 22 + rec.energy * 74;
+      const c0 = Math.max(0, Math.floor((rec.x - radius) / CW));
+      const c1 = Math.min(cols - 1, Math.ceil((rec.x + radius) / CW));
+      const r0 = Math.max(0, Math.floor((rec.y - radius) / CH));
+      const r1 = Math.min(rows - 1, Math.ceil((rec.y + radius) / CH));
+      for (let r = r0; r <= r1; r++) {
+        for (let c = c0; c <= c1; c++) {
+          const i = r * cols + c;
+          if (!vals || vals[i] < 0 || !chars[i]) continue;
+          const d = Math.hypot(c * CW + CW / 2 - rec.x, r * CH + CH / 2 - rec.y);
+          const q = Math.exp(-(d * d) / (radius * radius * .48)) * rec.energy;
+          if (q < .055 || hash(c, r, 89 + rec.tone) > .32 + q * .62) continue;
+          g.globalAlpha = clamp(.22 + q * .78, .22, 1);
+          // sem branco: a resposta e' roxo claro (ou ciano, no conduto ciano)
+          g.fillStyle = rec.tone ? (q > .68 ? P.cyanHot : P.cyan)
+                                 : q > .58 ? P.crest : q > .30 ? P.high : P.warm;
+          g.fillText(RAMP[chars[i]], c * CW, r * CH);
+        }
+      }
+    }
+    g.globalAlpha = 1;
+  }
+
+  /* ── quadro do ambiente ─────────────────────────────
+     Campo concêntrico, os seis condutos e, por cima de tudo, a camada
+     do retrato — o que garante que pacote e tubo passem por TRÁS. */
+  function renderAmbient() {
+    const w = cv.clientWidth, h = cv.clientHeight;
+    octx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    octx.fillStyle = P.bg;
+    octx.fillRect(0, 0, w, h);
+    octx.font = FONT;
+    octx.textBaseline = "top";
+
+    // Limpa apenas as células do ambiente. Os valores do retrato continuam
+    // servindo de matéria para rastro e onda de clique.
+    const n = rows * cols;
+    for (let i = 0; i < n; i++) {
+      if (!vals || vals[i] < 0) { base[i] = 0; chars[i] = 0; }
+    }
+
+    const now = performance.now();
+    const sync = reveal ? 0 : clamp((now - lastClick) / AUTO_EVERY, 0, 1);
+    const receipts = [];
+
+    drawSignalField(octx, sync);
+    drawConduits(octx, w, sync, receipts);
+    drawRain(octx, receipts);
+
+    octx.globalAlpha = 1;
+    octx.drawImage(offP, 0, 0, w, h);
+    drawReceipts(octx, receipts);
+  }
+
+  /* ── o rastro roxo ───────────────────────────────────────────────── */
+  function stamp(x, y) {
+    const c0 = Math.max(0, Math.floor((x - HEAT_R) / CW)), c1 = Math.min(cols - 1, Math.ceil((x + HEAT_R) / CW));
+    const r0 = Math.max(0, Math.floor((y - HEAT_R) / CH)), r1 = Math.min(rows - 1, Math.ceil((y + HEAT_R) / CH));
+    for (let r = r0; r <= r1; r++) {
+      const cy = r * CH + CH / 2;
+      for (let c = c0; c <= c1; c++) {
+        const d = Math.hypot(c * CW + CW / 2 - x, cy - y);
+        if (d > HEAT_R) continue;
+        const e = Math.pow(1 - d / HEAT_R, 1.5), i = r * cols + c;
+        if (e > heat[i]) { heat[i] = e; lit.add(i); }
+      }
+    }
+  }
+
+  // movimento rápido deixava buraco no rastro: interpola até 14 posições
+  function moveTo(x, y) {
+    if (lastX < -9000) { lastX = x; lastY = y; }
+    const dx = x - lastX, dy = y - lastY;
+    const steps = Math.min(14, Math.max(1, Math.ceil(Math.hypot(dx, dy) / 9)));
+    for (let s = 1; s <= steps; s++) stamp(lastX + dx * s / steps, lastY + dy * s / steps);
+    lastX = x; lastY = y;
+  }
+
+  function drawTrail() {
+    if (!lit.size) return;
+    for (const i of lit) {
+      const v = heat[i] * HEAT_FADE;
+      if (v < HEAT_MIN) { heat[i] = 0; lit.delete(i); continue; }
+      heat[i] = v;
+      const c = i % cols, r = (i - c) / cols;
+      // a energia sozinha já vale um caractere: no lado escuro do campo a
+      // célula está vazia, e sem isso o rastro sumia
+      const k = Math.min(RAMP.length - 1, Math.max(1, Math.round(base[i] * 6 + v * 7)));
+      ctx.fillStyle = P.bg;
+      ctx.fillRect(c * CW, r * CH, CW, CH);
+      ctx.globalAlpha = Math.min(1, .56 + v * .44);
+      ctx.fillStyle = v > .48 ? P.hot : v > .16 ? P.high : P.mid;
+      ctx.fillText(RAMP[k], c * CW, r * CH);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  /* ── a onda: os próprios caracteres mudam num anel que se propaga ──
+     o anel é resolvido linha a linha (interseção com o círculo), então
+     o custo é o perímetro e não a tela: 8.500 fillText viraram ~400.  */
+  function drawWaves(now) {
+    for (let n = waves.length - 1; n >= 0; n--) {
+      const wv = waves[n];
+      const R = (now - wv.t0) * WAVE_SPD;
+      if (R > WAVE_MAX) { waves.splice(n, 1); continue; }
+      const dec = 1 - R / WAVE_MAX;
+      const ro = R + WAVE_W, ri = Math.max(0, R - WAVE_W);
+      for (let r = 0; r < rows; r++) {
+        const cy = r * CH + CH / 2, dy = cy - wv.y, ady = Math.abs(dy);
+        if (ady > ro) continue;
+        const xo = Math.sqrt(ro * ro - dy * dy);
+        const xi = ady < ri ? Math.sqrt(ri * ri - dy * dy) : 0;
+        const spans = xi > 0 ? [[wv.x - xo, wv.x - xi], [wv.x + xi, wv.x + xo]]
+                             : [[wv.x - xo, wv.x + xo]];
+        for (const [x0, x1] of spans) {
+          const ca = Math.max(0, Math.floor(x0 / CW)), cb = Math.min(cols - 1, Math.ceil(x1 / CW));
+          for (let c = ca; c <= cb; c++) {
+            const cx = c * CW + CW / 2;
+            const d = Math.hypot(cx - wv.x, dy);
+            const q = 1 - Math.abs(d - R) / WAVE_W;
+            if (q <= 0) continue;
+            const wgt = Math.sin(q * Math.PI / 2) * dec;
+            if (wgt < .04) continue;
+            const i = r * cols + c;
+            if (vals && vals[i] >= 0) continue;
+            const val = Math.min(1, base[i] * .55 + wgt * .95);
+            const k = Math.min(RAMP.length - 1, Math.round(val * (RAMP.length - 1)));
+            if (k === 0) continue;
+            ctx.fillStyle = P.bg;
+            ctx.fillRect(c * CW, r * CH, CW, CH);
+            ctx.fillStyle = wgt > .62 ? P.crest : wgt > .30 ? P.warm : P.mid;
+            ctx.fillText(RAMP[k], c * CW, r * CH);
+          }
+        }
+      }
+    }
+  }
+
+  /* ── a revelação: apaga a camada de texto e a foto aparece ──────── */
+  function drawReveal(now) {
+    const age = now - reveal.t0;
+    const end = reveal.openMs + REVEAL_HOLD + REVEAL_FADE;
+    if (age >= end) { reveal = null; lastClick = now; return; }
+    const R = Math.min(reveal.maxR, age * REVEAL_SPD);
+    const a = age > reveal.openMs + REVEAL_HOLD
+            ? 1 - (age - reveal.openMs - REVEAL_HOLD) / REVEAL_FADE : 1;
+    ctx.save();
+    ctx.globalCompositeOperation = "destination-out";
+    const g = ctx.createRadialGradient(reveal.x, reveal.y, Math.max(0, R - REVEAL_EDGE),
+                                       reveal.x, reveal.y, R);
+    g.addColorStop(0, "rgba(0,0,0," + a.toFixed(3) + ")");
+    g.addColorStop(.82, "rgba(0,0,0," + (a * .94).toFixed(3) + ")");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(reveal.x, reveal.y, R, 0, 6.2832); ctx.fill();
+    ctx.restore();
+  }
+
+  /* ── quadro ──────────────────────────────────────────────────────── */
+  function paint() {
+    const w = cv.clientWidth, h = cv.clientHeight;
+    const now = performance.now();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.font = FONT;
+    ctx.textBaseline = "top";
+
+    ctx.drawImage(off, 0, 0, w, h);
+    drawTrail();
+    if (reveal) drawReveal(now);
+    if (waves.length) drawWaves(now);   // depois da máscara: a crista não some
+  }
+
+  function loop() {
+    t += .016;
+    const now = performance.now();
+    if (ptr.on) {
+      flowPtr.x += (ptr.x - flowPtr.x) * .12;
+      flowPtr.y += (ptr.y - flowPtr.y) * .12;
+      flowPtr.energy += (1 - flowPtr.energy) * .08;
+    } else flowPtr.energy *= .94;
+    // Durante foto/reveal o próximo ciclo ainda não existe: permanece zerado.
+    const sync = reveal ? 0 : clamp((now - lastClick) / AUTO_EVERY, 0, 1);
+    coreFill.style.transform = `scaleX(${sync.toFixed(4)})`;
+    corePct.textContent = String(Math.round(sync * 100)).padStart(3, "0") + "%";
+    // Ao completar, o proprio sistema dispara a onda no centro do operador.
+    if (!reveal && !waves.length && sync >= 1)
+      click(px + pw * .49, py + ph * .40);
+    if ((frame++ % AMB_EVERY) === 0) renderAmbient();
+    paint();
+    requestAnimationFrame(loop);
+  }
+
+  function resize() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    const w = stage.clientWidth, h = stage.clientHeight;
+    if (!w || !h) return;
+    cv.width = w * dpr; cv.height = h * dpr;
+    cv.style.width = w + "px"; cv.style.height = h + "px";
+    off.width = cv.width; off.height = cv.height;
+    cols = Math.ceil(w / CW) + 1; rows = Math.ceil(h / CH) + 1;
+    lit.clear(); waves.length = 0;
+    layoutPhoto();
+    buildLuma();
+    renderPhoto();
+    renderAmbient();
+    paint();
+  }
+
+  function click(x, y) {
+    const now = performance.now();
+    lastClick = now;
+    if (RM) {
+      clearTimeout(rmTimer);
+      cv.style.opacity = "0";
+      rmTimer = setTimeout(() => { cv.style.opacity = "1"; paint(); }, REVEAL_HOLD);
+      return;
+    }
+    if (waves.length >= WAVES_MAX) waves.shift();
+    waves.push({ x: x, y: y, t0: now });
+    if (reveal) return;                      // já está aberta: só a onda
+    const w = cv.clientWidth, h = cv.clientHeight;
+    const maxR = Math.hypot(Math.max(x, w - x), Math.max(y, h - y)) + REVEAL_EDGE;
+    reveal = { x: x, y: y, t0: now, maxR: maxR, openMs: maxR / REVEAL_SPD };
+  }
+
+  const rel = e => {
+    const b = stage.getBoundingClientRect();
+    ptr.x = e.clientX - b.left; ptr.y = e.clientY - b.top; ptr.on = true;
+  };
+  hero.addEventListener("pointermove", e => { rel(e); moveTo(ptr.x, ptr.y); }, { passive: true });
+  hero.addEventListener("pointerleave", () => { ptr.on = false; lastX = -9999; }, { passive: true });
+  hero.addEventListener("pointerdown", e => { rel(e); click(ptr.x, ptr.y); }, { passive: true });
+  addEventListener("resize", resize, { passive: true });
+  // se o palco nascer com tamanho zero (aba oculta, painel fechado), o canvas
+  // ficaria travado em 300x150 para sempre — o observer conserta sozinho
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(stage);
+
+  resize();
+  if (!photo.complete) photo.addEventListener("load", resize);
+  if (!asciiSource.complete) asciiSource.addEventListener("load", resize);
+  if (document.fonts) document.fonts.ready.then(resize);
+  lastClick = performance.now();
+  if (RM) {
+    corePct.textContent = "READY";
+    coreFill.style.transform = "scaleX(1)";
+    paint();
+  } else loop();
+
+  return { recolor() { renderPhoto(); renderAmbient(); paint(); } };
+})();
+
+/* ═══ 1b. /contact — PING ══════════════════════════════════════════
+   O eco do hero, invertido: la o operador ABSORVE (tudo converge nele),
+   aqui o sistema EMITE. Aneis de ASCII nascem atras do e-mail e saem
+   para fora da secao. Mesma grade, mesma rampa e mesma paleta do hero,
+   so que rarefeitos — e' fecho, nao protagonista.
+   Passar o mouse no e-mail dispara um anel extra: o "sinal enviado".  */
+const Ping = (() => {
+  const sec = document.querySelector(".contact");
+  const cv  = document.getElementById("ping");
+  if (!sec || !cv) return null;
+  const ctx  = cv.getContext("2d");
+  const mail = sec.querySelector(".big-mail");
+  const wrap = sec.querySelector(".wrap");
+
+  const RAMP = " .·:-=+xX#@";
+  const CW = 7, CH = 11;
+  const FONT = '500 8px "JetBrains Mono", ui-monospace, monospace';
+  const P = { far:"#2D2037", amb2:"#765098", mid:"#9938FA", high:"#BF85F9", cyan:"#2DD4BF" };
+
+  const PERIOD = 3.10;   // s entre um anel e o seguinte
+  const LIFE   = 6.60;   // s da borda do e-mail ate se dissolver
+  const BAND   = 33;     // largura da crista, em px
+  const SQUISH = 1.16;   // a secao e' larga e baixa: o anel e' uma elipse
+  const REACH  = .88;    // ate onde o anel chega antes de sumir
+
+  let dpr = 1, w = 0, h = 0, cols = 0, rows = 0;
+  let cx = 0, cy = 0, maxR = 1;
+  let rects = [], t0 = performance.now(), live = false, raf = 0, tick = 0;
+  const extra = [];
+
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+  const smooth = p => p * p * (3 - 2 * p);
+  const hash = (x, y, s) => {
+    const n = Math.sin(x * 127.1 + y * 311.7 + s * 74.7) * 43758.5453123;
+    return n - Math.floor(n);
+  };
+  const blocked = (x, y) => {
+    for (let i = 0; i < rects.length; i++) {
+      const q = rects[i];
+      if (x > q.x && x < q.x + q.w && y > q.y && y < q.y + q.h) return true;
+    }
+    return false;
+  };
+
+  /* Mesma regra do hero: uma caixa por LINHA renderizada. O anel some por
+     tras do texto em vez de passar por cima dele. */
+  function measure() {
+    const b = sec.getBoundingClientRect(), PAD = 13;
+    rects = [];
+    const eat = rc => {
+      if (!rc || rc.width < 3 || rc.height < 3) return;
+      rects.push({ x: rc.left - b.left - PAD, y: rc.top - b.top - PAD,
+                   w: rc.width + PAD * 2, h: rc.height + PAD * 2 });
+    };
+    if (!wrap) return;
+    const tw = document.createTreeWalker(wrap, NodeFilter.SHOW_TEXT);
+    for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+      if (!n.nodeValue.trim()) continue;
+      const rg = document.createRange(); rg.selectNodeContents(n);
+      for (const rc of rg.getClientRects()) eat(rc);
+    }
+    for (const q of wrap.querySelectorAll(".btn")) eat(q.getBoundingClientRect());
+    // o centro do pulso e' o proprio e-mail
+    // o centro sai do e-mail, mas puxado um pouco para o meio da secao:
+    // ancorado so no e-mail o anel batia na borda esquerda cedo demais e
+    // o lado direito ficava vazio
+    const m = (mail || wrap).getBoundingClientRect();
+    cx = (m.left - b.left + m.width * .5) * .56 + w * .22;
+    cy = m.top - b.top + m.height * .5;
+    maxR = Math.hypot(Math.max(cx, w - cx), Math.max(cy, h - cy) * SQUISH) * REACH + BAND;
+  }
+
+  function drawRing(R, a, seed) {
+    const ro = R + BAND, ri = Math.max(0, R - BAND);
+    const r0 = Math.max(0, Math.floor((cy - ro) / CH));
+    const r1 = Math.min(rows - 1, Math.ceil((cy + ro) / CH));
+    for (let r = r0; r <= r1; r++) {
+      const y = r * CH + CH / 2, dy = (y - cy) * SQUISH, ady = Math.abs(dy);
+      if (ady > ro) continue;
+      const xo = Math.sqrt(ro * ro - dy * dy);
+      const xi = ady < ri ? Math.sqrt(ri * ri - dy * dy) : 0;
+      const spans = xi > 0 ? [[cx - xo, cx - xi], [cx + xi, cx + xo]]
+                           : [[cx - xo, cx + xo]];
+      for (const sp of spans) {
+        const ca = Math.max(0, Math.floor(sp[0] / CW));
+        const cb = Math.min(cols - 1, Math.ceil(sp[1] / CW));
+        for (let c = ca; c <= cb; c++) {
+          const x = c * CW + CW / 2;
+          const q = 1 - Math.abs(Math.hypot(x - cx, dy) - R) / BAND;
+          if (q <= 0) continue;
+          const v = Math.sin(q * Math.PI / 2) * a;
+          if (v < .06) continue;
+          if (hash(c, r, seed) > .070 + v * .40) continue;  // rarefeito de proposito
+          if (blocked(x, y)) continue;
+          const k = Math.min(RAMP.length - 1, Math.max(1, Math.round(v * (RAMP.length - 1))));
+          ctx.globalAlpha = clamp(.17 + v * .55, .17, .74);
+          ctx.fillStyle = v > .72 ? P.high : v > .42 ? P.mid : v > .20 ? P.amb2 : P.far;
+          ctx.fillText(RAMP[k], c * CW, r * CH);
+        }
+      }
+    }
+  }
+
+  function paint(t) {
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.font = FONT;
+    ctx.textBaseline = "top";
+    const newest = Math.floor(t / PERIOD);
+    const oldest = Math.max(0, newest - Math.ceil(LIFE / PERIOD));
+    for (let n = oldest; n <= newest; n++) {
+      const age = t - n * PERIOD;
+      if (age < 0 || age > LIFE) continue;
+      const p = clamp(age / LIFE, 0, 1);
+      const a = smooth(clamp(age / .80, 0, 1)) * Math.pow(1 - p, .72);
+      if (a > .012) drawRing(Math.pow(p, .86) * maxR, a, 17 + n * 3);
+    }
+    for (let i = extra.length - 1; i >= 0; i--) {
+      const age = t - extra[i];
+      if (age > LIFE) { extra.splice(i, 1); continue; }
+      const p = clamp(age / LIFE, 0, 1);
+      const a = smooth(clamp(age / .34, 0, 1)) * Math.pow(1 - p, .64);
+      if (a > .012) drawRing(Math.pow(p, .78) * maxR, a * 1.05, 91 + i * 5);
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function loop() {
+    if (!live) return;
+    // 30 fps bastam para um plano de fundo: economiza metade do custo
+    if ((tick++ & 1) === 0) paint((performance.now() - t0) / 1000);
+    raf = requestAnimationFrame(loop);
+  }
+
+  function resize() {
+    w = sec.clientWidth; h = sec.clientHeight;
+    if (!w || !h) return;
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    cv.width = w * dpr; cv.height = h * dpr;
+    cv.style.width = w + "px"; cv.style.height = h + "px";
+    cols = Math.ceil(w / CW) + 1; rows = Math.ceil(h / CH) + 1;
+    measure();
+    paint((performance.now() - t0) / 1000);
+  }
+
+  /* Os elementos do /contact entram com [data-rv="up"] = translateY(26px).
+     Medir antes da revelacao terminar deixava TODA caixa protegida 26 px
+     fora do lugar — e no mobile o anel passava por cima do texto. Remedir
+     no fim da transicao resolve sem chutar tempo. */
+  let pend = 0;
+  const remeasure = () => {
+    if (pend) return;
+    pend = requestAnimationFrame(() => { pend = 0; measure(); });
+  };
+  if (wrap) wrap.addEventListener("transitionend", remeasure, { passive: true });
+  addEventListener("resize", resize, { passive: true });
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(sec);
+  if (document.fonts) document.fonts.ready.then(resize);
+  resize();
+
+  if (RM) {                                  // sem movimento: um anel parado
+    live = false;
+    paint(LIFE * .42);
+    return { ping() {} };
+  }
+
+  // so gasta quadro enquanto a secao esta na tela
+  new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting === live) return;
+    live = e.isIntersecting;
+    if (live) { measure(); raf = requestAnimationFrame(loop); }
+    else { cancelAnimationFrame(raf); }
+  }), { threshold: .04 }).observe(sec);
+
+  const ping = () => {
+    const t = (performance.now() - t0) / 1000;
+    if (extra.length > 2 || (extra.length && t - extra[extra.length - 1] < .5)) return;
+    extra.push(t);
+  };
+  if (mail) {
+    mail.addEventListener("pointerenter", ping, { passive: true });
+    mail.addEventListener("focus", ping);
+  }
+  for (const q of sec.querySelectorAll(".socials .btn"))
+    q.addEventListener("pointerenter", ping, { passive: true });
+
+  return { ping: ping };
+})();
+
+/* ═══ 2. barra de progresso ═══════════════════════════════════════ */
+const prog = document.getElementById("prog");
+const onProg = () => {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  prog.style.width = (max > 0 ? scrollY / max : 0) * 100 + "%";
+};
+
+/* ═══ 3. reveals ══════════════════════════════════════════════════ */
+const rvEls = [...document.querySelectorAll("[data-rv]")];
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}), { rootMargin: "0px 0px -7% 0px", threshold: .05 });
+setTimeout(() => rvEls.forEach(el => el.classList.add("in")), 2800);
+rvEls.forEach((el, i) => { el.style.transitionDelay = (i % 3) * 80 + "ms"; io.observe(el); });
+
+/* ═══ 4. contadores ═══════════════════════════════════════════════ */
+const cio = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  cio.unobserve(e.target);
+  const el = e.target, to = +el.dataset.count, sfx = el.dataset.suffix || "",
+        pfx = el.dataset.prefix || "";
+  if (RM) { el.textContent = pfx + to + sfx; return; }
+  const t0 = performance.now(), D = 1300;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / D);
+    el.textContent = pfx + Math.round(to * (1 - Math.pow(1 - p, 3))) + (p === 1 ? sfx : "");
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}), { threshold: .4 });
+document.querySelectorAll("[data-count]").forEach(el => cio.observe(el));
+
+/* ═══ 5. marquee reagindo à velocidade do scroll ══════════════════ */
+const rowA = ["Python", "FastAPI", "n8n", "Docker", "FFmpeg", "Whisper", "Anthropic API", "OpenAI API",
+              "Nginx", "Linux VPS", "GitHub Actions", "Pytest", "REST", "Webhooks"];
+const rowB = ["Higgsfield", "MiniMax", "HeyGen", "ElevenLabs", "Magnific", "Freepik", "Runway",
+              "Premiere Pro", "After Effects", "CapCut", "Photoshop", "Figma"];
+const marquees = [
+  { el: document.getElementById("t1"), items: rowA, dir: 1, x: 0, half: 0 },
+  { el: document.getElementById("t2"), items: rowB, dir: -1, x: 0, half: 0 }
+];
+marquees.forEach(m => { m.el.innerHTML = [...m.items, ...m.items].map(s => "<span>" + s + "</span>").join(""); });
+
+/* ═══ 6. parallax nos tiles ═══════════════════════════════════════ */
+const pars = [...document.querySelectorAll("[data-par]")];
+let lastY = scrollY, vel = 0;
+
+function tick() {
+  const dy = scrollY - lastY; lastY = scrollY;
+  vel += (dy - vel) * .12;
+  for (const m of marquees) {
+    if (!m.half) { m.half = m.el.scrollWidth / 2; if (m.dir < 0) m.x = -m.half; }
+    m.x -= (m.dir * .55) + vel * .3 * m.dir;
+    if (m.x <= -m.half) m.x += m.half;
+    if (m.x >= 0) m.x -= m.half;
+    m.el.style.transform = "translateX(" + m.x + "px)";
+  }
+  const vh = innerHeight;
+  for (const el of pars) {
+    const b = el.getBoundingClientRect();
+    if (b.bottom < -200 || b.top > vh + 200) continue;
+    const p = (b.top + b.height / 2 - vh / 2) / vh;
+    el.style.transform = "translate3d(0," + (p * +el.dataset.par * 100).toFixed(2) + "px,0)";
+  }
+  onProg();
+  requestAnimationFrame(tick);
+}
+if (!RM) tick(); else { onProg(); addEventListener("scroll", onProg, { passive: true }); }
+
+/* ═══ 7. o site é escuro, ponto ═══════════════════════════════════ */
+root.setAttribute("data-theme", "dark");
+
+/* ═══ 8. idioma ═══════════════════════════════════════════════════ */
+const lBtn = document.getElementById("lang");
+const nodes = [...document.querySelectorAll("[data-pt]")];
+nodes.forEach(n => n.dataset.en = n.innerHTML);
+let lang = "en";
+lBtn.addEventListener("click", () => {
+  lang = lang === "en" ? "pt" : "en";
+  nodes.forEach(n => n.innerHTML = lang === "pt" ? n.dataset.pt : n.dataset.en);
+  lBtn.textContent = lang === "pt" ? "EN" : "PT";
+  root.lang = lang === "pt" ? "pt-BR" : "en";
+});
+
+/* ═══ 9. trabalhos: painel, lista e troca automática ══════════════
+   troca sozinho a cada AUTO_MS; um clique intencional segura o painel
+   por LOCK_MS. O relógio só corre com a seção na tela.              */
+const wItems = [...document.querySelectorAll(".w-item")];
+const wMedia = [...document.querySelectorAll(".w-media")];
+const wBody  = [...document.querySelectorAll(".w-body")];
+const wBar   = document.getElementById("wbar");
+const wFill  = document.getElementById("wfill");
+const AUTO_MS = 10000, LOCK_MS = 30000;
+let wCur = 0, wTimer = null, wOn = false;
+
+function wRunBar(ms) {
+  if (!wFill) return;
+  wFill.style.transition = "none";
+  wFill.style.transform = "scaleX(0)";
+  void wFill.offsetWidth;              // sem o reflow a transição não recomeça
+  wFill.style.transition = "transform " + ms + "ms linear";
+  wFill.style.transform = "scaleX(1)";
+}
+function wFreezeBar() {
+  if (!wFill) return;
+  const t = getComputedStyle(wFill).transform;
+  wFill.style.transition = "none";
+  wFill.style.transform = t === "none" ? "scaleX(0)" : t;
+}
+function wSchedule(ms) {
+  clearTimeout(wTimer);
+  if (RM || !wOn) { wFreezeBar(); return; }
+  wRunBar(ms);
+  wTimer = setTimeout(() => selectWork((wCur + 1) % wItems.length, false), ms);
+}
+function selectWork(i, byUser) {
+  wCur = i;
+  wItems.forEach((el, k) => { el.classList.toggle("on", k === i); el.setAttribute("aria-selected", k === i); });
+  wMedia.forEach((el, k) => el.classList.toggle("on", k === i));
+  wBody.forEach((el, k) => el.classList.toggle("on", k === i));
+  if (wBar) wBar.style.transform = "translateX(" + i * 100 + "%)";
+  wSchedule(byUser ? LOCK_MS : AUTO_MS);
+}
+wItems.forEach((el, i) => {
+  el.addEventListener("click", () => selectWork(i, true));
+  el.addEventListener("keydown", e => {
+    const n = wItems.length;
+    if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); wItems[(i + 1) % n].focus(); selectWork((i + 1) % n, true); }
+    if (e.key === "ArrowUp"   || e.key === "ArrowLeft")  { e.preventDefault(); const j = (i - 1 + n) % n; wItems[j].focus(); selectWork(j, true); }
+  });
+  el.tabIndex = 0;
+});
+const wSec = document.getElementById("work");
+if (wSec && "IntersectionObserver" in window) {
+  new IntersectionObserver(es => es.forEach(e => {
+    wOn = e.isIntersecting;
+    if (wOn) wSchedule(AUTO_MS); else { clearTimeout(wTimer); wFreezeBar(); }
+  }), { threshold: .3 }).observe(wSec);
+} else { wOn = true; wSchedule(AUTO_MS); }
+
+/* ═══ 10. a navegação acompanha a seção em que você está ══════════ */
+const navLinks = [...document.querySelectorAll(".nav-links a")];
+const secs = navLinks.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+const spy = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  navLinks.forEach(a => a.classList.toggle("here", a.getAttribute("href") === "#" + e.target.id));
+}), { rootMargin: "-45% 0px -50% 0px" });
+secs.forEach(el => spy.observe(el));
+</script>

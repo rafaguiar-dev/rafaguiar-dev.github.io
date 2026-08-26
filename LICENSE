@@ -1,0 +1,85 @@
+Copyright (c) 2026 Rafael Aguiar. All rights reserved.
+Todos os direitos reservados.
+
+This repository contains the source code, design, copywriting, imagery and
+personal data of the personal portfolio website of Rafael Aguiar
+(https://rafaguiar.dev).
+
+It is published publicly for the sole purposes of (a) being served as a static
+website by a hosting provider and (b) allowing prospective employers and
+clients to inspect the author's work.
+
+IT IS NOT OPEN SOURCE AND IT IS NOT PLACED IN THE PUBLIC DOMAIN.
+
+-------------------------------------------------------------------------------
+1. WHAT YOU MAY DO
+-------------------------------------------------------------------------------
+
+You may:
+
+  a) view the website and read its source code, in a browser or in this
+     repository;
+  b) fork or clone this repository for the purpose of reading the code or
+     submitting a fix back to the author;
+  c) reuse small, generic technical fragments — an isolated CSS rule, a short
+     helper function, a general animation technique — in your own work, as you
+     would from any public code sample, without attribution and without
+     permission.
+
+-------------------------------------------------------------------------------
+2. WHAT YOU MAY NOT DO
+-------------------------------------------------------------------------------
+
+Without prior written permission from Rafael Aguiar, you may NOT:
+
+  a) copy, reproduce or republish this website, in whole or in substantial
+     part, at any address other than the author's own;
+  b) use the design, layout, visual system, animations or copywriting of this
+     site — together or as a recognisable whole — as the basis of another
+     website, template, theme or product, whether free or paid;
+  c) sell, license, sublicense or distribute this work or any derivative of it,
+     including as part of a template marketplace, course, starter kit or
+     portfolio-generator product;
+  d) use the name, photograph, likeness, voice, signature or professional
+     history of Rafael Aguiar, or any personal or contact data contained here,
+     for any purpose — including training, fine-tuning or benchmarking machine
+     learning models, or building marketing, recruitment or contact databases;
+  e) remove, obscure or alter this notice or the copyright notice displayed in
+     the website footer.
+
+-------------------------------------------------------------------------------
+3. THIRD-PARTY MATERIAL
+-------------------------------------------------------------------------------
+
+Fonts are loaded from Google Fonts and remain under their own licences
+(JetBrains Mono and Archivo, SIL Open Font License 1.1). Some imagery on this
+site was generated with third-party AI tools and is used by the author under
+the terms of those tools; it is not licensed to you by this document.
+
+-------------------------------------------------------------------------------
+4. NO WARRANTY
+-------------------------------------------------------------------------------
+
+THE SOFTWARE AND CONTENT ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO
+EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY
+ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR CONTENT OR THE USE
+OR OTHER DEALINGS IN IT.
+
+-------------------------------------------------------------------------------
+5. PERMISSION AND CONTACT
+-------------------------------------------------------------------------------
+
+For any use beyond section 1, ask first: rafeky.aguiar@gmail.com
+
+-------------------------------------------------------------------------------
+NOTA EM PORTUGUÊS (sem valor de tradução oficial — o texto em inglês prevalece)
+-------------------------------------------------------------------------------
+
+Este é um site de portfólio pessoal. O código está visível porque um site
+estático precisa estar; isso não é permissão para copiar. Você pode ler, pode
+aprender e pode reaproveitar trechos técnicos genéricos. Você não pode
+republicar o site, vender o design como template, nem usar o nome, a foto ou os
+dados pessoais de Rafael Aguiar. Para qualquer outro uso, peça autorização por
+escrito.
