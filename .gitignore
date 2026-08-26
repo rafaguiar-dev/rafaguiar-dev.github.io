@@ -1,0 +1,31 @@
+# ── o que NAO vai para o GitHub ────────────────────────────────────────────
+# Regra: o repositorio publica o site e o que e preciso para reconstrui-lo.
+# Nada de material de trabalho, rascunho ou nota interna.
+
+# a pagina gerada na raiz — a versao que vale para o mundo e docs/index.html
+mockup.html
+mockup.html.tmp
+docs/index.html.tmp
+
+# previas e capturas de teste
+previa-*.png
+c1900-*.png
+r-final.png
+
+# rodadas antigas do template
+versoes/
+
+# variantes descartadas do retrato (hero.png e hero-ascii-robot.png ficam:
+# o build precisa dos dois)
+hero-preto.png
+hero-cyberpunk*.png
+
+# notas internas — raciocinio, precos, decisoes, plano de 30 dias.
+# Se um dia quiser abrir isso, apague as duas linhas.
+NOTAS.md
+CONTINUAR.md
+
+# Python
+__pycache__/
+*.pyc
+.venv/

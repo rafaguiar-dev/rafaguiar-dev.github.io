@@ -1,0 +1,20 @@
+# Buscadores normais: entrem.
+User-agent: *
+Allow: /
+
+# Raspadores de treino de IA: nao. Isto nao tem forca de lei — e um pedido que
+# as empresas serias respeitam. O LICENSE e o que tem valor juridico.
+User-agent: GPTBot
+Disallow: /
+User-agent: CCBot
+Disallow: /
+User-agent: Google-Extended
+Disallow: /
+User-agent: anthropic-ai
+Disallow: /
+User-agent: ClaudeBot
+Disallow: /
+User-agent: PerplexityBot
+Disallow: /
+User-agent: Bytespider
+Disallow: /
