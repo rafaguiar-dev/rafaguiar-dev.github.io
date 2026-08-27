@@ -3,7 +3,7 @@
 Rodar:  python build.py
 Editar: template.html  (nunca mockup.html — ele e' gerado)
 """
-import base64, io, os, re
+import base64, io, os, re, shutil
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -103,7 +103,39 @@ def publicar(html):
     robots = os.path.join(docs, "robots.txt")
     if not os.path.exists(robots):
         io.open(robots, "w", encoding="utf-8").write(ROBOTS)
+    copiar_media(docs)
     print(f"  -> {idx}   (isto e o que o GitHub Pages publica)")
+
+
+def copiar_media(docs):
+    """Espelha PORTIFOLIO/media/ em docs/media/ — os videos do /reel.
+
+    Video nao pode entrar em base64: a pagina inteira tem 900 KB e um unico
+    MP4 vertical de 6 s ja passa disso. Entao ele viaja como arquivo solto, e
+    o tile aponta para "media/<nome>". O caminho e relativo, entao funciona
+    igual no mockup.html da raiz e no docs/index.html publicado.
+    """
+    src = os.path.join(HERE, "media")
+    if not os.path.isdir(src):
+        return
+    dst = os.path.join(docs, "media")
+    os.makedirs(dst, exist_ok=True)
+    n = total = 0
+    for nome in sorted(os.listdir(src)):
+        a = os.path.join(src, nome)
+        if not os.path.isfile(a):
+            continue
+        # o LEIA-ME e para voce, nao para o mundo: so midia atravessa
+        if os.path.splitext(nome)[1].lower() not in (".mp4", ".webm", ".mov", ".gif"):
+            continue
+        b = os.path.join(dst, nome)
+        # so copia o que mudou: video grande nao precisa ser reescrito a cada build
+        if not os.path.exists(b) or os.path.getmtime(a) > os.path.getmtime(b):
+            shutil.copy2(a, b)
+        n += 1
+        total += os.path.getsize(a)
+    if n:
+        print(f"  media: {n} arquivo(s), {total/1024/1024:.1f} MB -> docs/media/")
 
 
 ROBOTS = """# Buscadores normais: entrem.
