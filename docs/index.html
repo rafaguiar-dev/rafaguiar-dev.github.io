@@ -1333,6 +1333,9 @@ const Ascii = (() => {
   const lit = new Set();              // só as células acesas são redesenhadas
   const waves = [];                   // {x, y, t0}
   let reveal = null;                  // {x, y, t0, maxR, openMs}
+  let revealAtivo = false;            // havia revelacao no quadro anterior?
+                                      // serve para repintar os rotulos uma
+                                      // ultima vez quando ela termina.
   let lastClick = 0;
   let rmTimer = 0;
   const ptr = { x: -9999, y: -9999, on: false };
@@ -2087,6 +2090,7 @@ const Ascii = (() => {
       // o vizinho que caiu certo na grade.
       if (n.showLabel) g.fillText("[ " + n.label + " ]", Math.round(n.labelX), Math.round(n.labelY));
     g.globalAlpha = 1;
+    if (reveal) punchReveal(g, performance.now());
   }
 
   function drawReceipts(g, receipts) {
@@ -2232,23 +2236,33 @@ const Ascii = (() => {
   }
 
   /* ── a revelação: apaga a camada de texto e a foto aparece ──────── */
+  /* O buraco e aplicado em DOIS canvas: o campo (#ascii) e a camada dos
+     rotulos (#asciiTop). Quando os rotulos moraram no #ascii, a revelacao
+     os apagava junto; ao subirem para a camada propria (v21, por causa do
+     veu escuro), passaram a ficar boiando por cima da foto. Mesma mascara
+     nos dois resolve. */
+  function punchReveal(g2, now) {
+    const age = now - reveal.t0;
+    const R = Math.min(reveal.maxR, age * REVEAL_SPD);
+    const a = age > reveal.openMs + REVEAL_HOLD
+            ? 1 - (age - reveal.openMs - REVEAL_HOLD) / REVEAL_FADE : 1;
+    g2.save();
+    g2.globalCompositeOperation = "destination-out";
+    const g = g2.createRadialGradient(reveal.x, reveal.y, Math.max(0, R - REVEAL_EDGE),
+                                      reveal.x, reveal.y, R);
+    g.addColorStop(0, "rgba(0,0,0," + a.toFixed(3) + ")");
+    g.addColorStop(.82, "rgba(0,0,0," + (a * .94).toFixed(3) + ")");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    g2.fillStyle = g;
+    g2.beginPath(); g2.arc(reveal.x, reveal.y, R, 0, 6.2832); g2.fill();
+    g2.restore();
+  }
+
   function drawReveal(now) {
     const age = now - reveal.t0;
     const end = reveal.openMs + REVEAL_HOLD + REVEAL_FADE;
     if (age >= end) { reveal = null; lastClick = now; return; }
-    const R = Math.min(reveal.maxR, age * REVEAL_SPD);
-    const a = age > reveal.openMs + REVEAL_HOLD
-            ? 1 - (age - reveal.openMs - REVEAL_HOLD) / REVEAL_FADE : 1;
-    ctx.save();
-    ctx.globalCompositeOperation = "destination-out";
-    const g = ctx.createRadialGradient(reveal.x, reveal.y, Math.max(0, R - REVEAL_EDGE),
-                                       reveal.x, reveal.y, R);
-    g.addColorStop(0, "rgba(0,0,0," + a.toFixed(3) + ")");
-    g.addColorStop(.82, "rgba(0,0,0," + (a * .94).toFixed(3) + ")");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(reveal.x, reveal.y, R, 0, 6.2832); ctx.fill();
-    ctx.restore();
+    punchReveal(ctx, now);
   }
 
   /* ── quadro ──────────────────────────────────────────────────────── */
@@ -2265,6 +2279,10 @@ const Ascii = (() => {
     drawTrail();
     if (reveal) drawReveal(now);
     if (waves.length) drawWaves(now);   // depois da máscara: a crista não some
+
+    // Os rotulos vivem noutro canvas, entao precisam ser redesenhados a cada
+    // quadro enquanto a revelacao estiver aberta — senao ficam por cima da foto.
+    if (reveal || revealAtivo) { drawModuleLabels(w, h); revealAtivo = !!reveal; }
   }
 
   /* ── o relogio do hero ────────────────────────────────────────────
@@ -2341,7 +2359,10 @@ const Ascii = (() => {
     if (RM) {
       clearTimeout(rmTimer);
       cv.style.opacity = "0";
-      rmTimer = setTimeout(() => { cv.style.opacity = "1"; paint(); }, REVEAL_HOLD);
+      cvTop.style.opacity = "0";          // os rotulos somem junto com o campo
+      rmTimer = setTimeout(() => {
+        cv.style.opacity = "1"; cvTop.style.opacity = "1"; paint();
+      }, REVEAL_HOLD);
       return;
     }
     if (waves.length >= WAVES_MAX) waves.shift();
