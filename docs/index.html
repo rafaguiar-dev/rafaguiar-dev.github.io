@@ -1249,7 +1249,7 @@ const Ascii = (() => {
   const FONT = `500 ${CH - 3}px "JetBrains Mono", ui-monospace, monospace`;
 
   // ── ajustes ────────────────────────────────────────────────────────
-  const AMB_EVERY   = 2;     // 30 fps para o campo; canvas principal continua a 60
+  const AMB_MS      = 33;    // ~30 Hz para o campo; o canvas principal segue livre
   const HEAT_R      = 49;    // raio do carimbo do rastro, em px
   const HEAT_FADE   = .960;  // rastro longo o suficiente para o gesto ser lido
   const HEAT_MIN    = .012;  // cauda delicada, mas ainda visível no vazio
@@ -1317,6 +1317,8 @@ const Ascii = (() => {
   ];
 
   let dpr = 1, cols = 0, rows = 0, vals = null, tones = null, base = null, chars = null;
+  // relogio: frameK e a razao entre o quadro que veio e o quadro de 60 fps
+  let lastFrame = 0, frameK = 1, lastAmb = 0, mediaFrame = 16.7;
   let edgeLeft = null, edgeRight = null, bodyTop = -1, bodyBot = -1;
   let copyBox = null;                 // envelope do nome/cargo/texto/botoes
   let copyRects = [];                 // uma caixa por linha — e' o que protege de fato
@@ -2172,7 +2174,7 @@ const Ascii = (() => {
   function drawTrail() {
     if (!lit.size) return;
     for (const i of lit) {
-      const v = heat[i] * HEAT_FADE;
+      const v = heat[i] * Math.pow(HEAT_FADE, frameK);
       if (v < HEAT_MIN) { heat[i] = 0; lit.delete(i); continue; }
       heat[i] = v;
       const c = i % cols, r = (i - c) / cols;
@@ -2265,14 +2267,33 @@ const Ascii = (() => {
     if (waves.length) drawWaves(now);   // depois da máscara: a crista não some
   }
 
+  /* ── o relogio do hero ────────────────────────────────────────────
+     Isto contava QUADROS: `t += .016` supunha 60 fps, e todo amortecimento
+     era uma fracao por quadro. Num navegador que entrega 15 fps — Firefox
+     com este canvas entrega isso — a animacao inteira rodava a 1/4 da
+     velocidade: o CORE SYNC quase parado, o campo parecendo imagem fixa e
+     o rastro do mouse levando quatro vezes mais tempo para apagar, que e
+     exatamente o "rastro infinito" relatado.
+
+     Agora `t` anda com o tempo real e cada amortecimento e corrigido por
+     `k`, a razao entre o quadro que veio e o quadro de 60 fps:
+       taxa por quadro a  ->  1 - (1 - a)^k
+       decaimento    f    ->  f^k
+     O dt e limitado a 100 ms para a aba que volta do segundo plano nao
+     adiantar a animacao de uma vez so.                                  */
   function loop() {
-    t += .016;
     const now = performance.now();
+    const dt = lastFrame ? Math.min((now - lastFrame) / 1000, .1) : .016;
+    lastFrame = now;
+    frameK = dt / .016;
+    const k = frameK;
+    t += dt;
     if (ptr.on) {
-      flowPtr.x += (ptr.x - flowPtr.x) * .12;
-      flowPtr.y += (ptr.y - flowPtr.y) * .12;
-      flowPtr.energy += (1 - flowPtr.energy) * .08;
-    } else flowPtr.energy *= .94;
+      const a = 1 - Math.pow(1 - .12, k), b = 1 - Math.pow(1 - .08, k);
+      flowPtr.x += (ptr.x - flowPtr.x) * a;
+      flowPtr.y += (ptr.y - flowPtr.y) * a;
+      flowPtr.energy += (1 - flowPtr.energy) * b;
+    } else flowPtr.energy *= Math.pow(.94, k);
     // Durante foto/reveal o próximo ciclo ainda não existe: permanece zerado.
     const sync = reveal ? 0 : clamp((now - lastClick) / AUTO_EVERY, 0, 1);
     coreFill.style.transform = `scaleX(${sync.toFixed(4)})`;
@@ -2280,7 +2301,18 @@ const Ascii = (() => {
     // Ao completar, o proprio sistema dispara a onda no centro do operador.
     if (!reveal && !waves.length && sync >= 1)
       click(px + pw * .49, py + ph * .40);
-    if ((frame++ % AMB_EVERY) === 0) renderAmbient();
+    /* O campo e a parte cara do quadro. A regra tem dois lados:
+       · navegador folgado  -> 30 Hz, por relogio (nao por contagem de
+         quadro, senao a taxa mudava junto com o fps);
+       · navegador apertado -> um quadro sim, um nao, que e exatamente a
+         proporcao antiga. E importante NAO passar a redesenhar todo
+         quadro quando o fps cai: seria dar mais trabalho justamente a
+         quem ja nao esta dando conta.
+       mediaFrame e o tempo de quadro suavizado, em ms.               */
+    mediaFrame += ((dt * 1000) - mediaFrame) * .1;
+    const alvoAmb = mediaFrame > 34 ? mediaFrame * 1.9 : AMB_MS;
+    if (now - lastAmb >= alvoAmb) { lastAmb = now; renderAmbient(); }
+
     paint();
     requestAnimationFrame(loop);
   }
@@ -2583,12 +2615,21 @@ marquees.forEach(m => { m.el.innerHTML = [...m.items, ...m.items].map(s => "<spa
 const pars = [...document.querySelectorAll("[data-par]")];
 let lastY = scrollY, vel = 0;
 
+/* Mesma correcao do hero: a esteira andava .55 px POR QUADRO, entao num
+   navegador a 15 fps ela rastejava a um quarto da velocidade. Agora anda
+   por segundo, e o amortecimento da velocidade de scroll e corrigido pelo
+   tamanho do quadro.                                                    */
+let lastTick = 0;
 function tick() {
+  const now = performance.now();
+  const dt = lastTick ? Math.min((now - lastTick) / 1000, .1) : .016;
+  lastTick = now;
+  const k = dt / .016;
   const dy = scrollY - lastY; lastY = scrollY;
-  vel += (dy - vel) * .12;
+  vel += (dy - vel) * (1 - Math.pow(1 - .12, k));
   for (const m of marquees) {
     if (!m.half) { m.half = m.el.scrollWidth / 2; if (m.dir < 0) m.x = -m.half; }
-    m.x -= (m.dir * .55) + vel * .3 * m.dir;
+    m.x -= ((m.dir * .55) + vel * .3 * m.dir) * k;
     if (m.x <= -m.half) m.x += m.half;
     if (m.x >= 0) m.x -= m.half;
     m.el.style.transform = "translateX(" + m.x + "px)";
