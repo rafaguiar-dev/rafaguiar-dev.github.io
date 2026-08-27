@@ -1,0 +1,14 @@
+Coloque aqui os vídeos verticais do /reel (.mp4 ou .webm).
+
+1. Nomeie como quiser — por exemplo reel-01.mp4
+2. Abra template.html, ache o tile e escreva o nome em data-video:
+      <figure class="tile t-a" data-par="0.05" data-video="media/reel-01.mp4">
+3. Rode: python build.py
+
+O build copia esta pasta para docs/media/ e só reescreve o que mudou.
+Enquanto data-video estiver vazio, o tile mostra o poster — e é assim que
+o site está hoje.
+
+Formato: 9:16 nos tiles a / c / f. Sem áudio (toca mudo em loop).
+Peso: mire abaixo de 3 MB por vídeo — o GitHub Pages serve, mas o
+visitante espera.

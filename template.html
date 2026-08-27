@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Rafael Aguiar — AI Automation Engineer. I turn copy into finished video and build the pipelines that do it at scale.">
+<meta name="description" content="Rafael Aguiar — AI Automation Engineer. Transformo copy em vídeo pronto e construo os pipelines que fazem isso em escala.">
 <meta name="theme-color" content="#0A0A0A">
 <meta name="author" content="Rafael Aguiar">
 <meta name="copyright" content="© 2026 Rafael Aguiar. All rights reserved.">
@@ -117,6 +117,9 @@ header.nav{position:sticky;top:0;z-index:70;backdrop-filter:blur(14px) saturate(
           mask-image:radial-gradient(108% 98% at 68% 46%,#000 42%,transparent 90%)}
 #asciiSource{display:none}
 #ascii{position:absolute;inset:0}
+/* z-index 2 poe os rotulos acima do veu (::before, z-index 1). A copy do
+   hero tambem e 2, mas vem depois no HTML, entao continua por cima. */
+#asciiTop{position:absolute;inset:0;z-index:2;pointer-events:none}
 .hero-in{position:relative;z-index:2;width:100%;padding-block:clamp(76px,10vh,124px);pointer-events:none}
 .hero-in a,.hero-in button{pointer-events:auto}
 .hero-copy{position:relative;width:min(740px,61vw)}
@@ -205,6 +208,9 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .stat .n{font-size:var(--s-2);font-weight:800;letter-spacing:-.05em;font-variant-numeric:tabular-nums;color:var(--purple)}
 .stat .l{margin-top:7px;font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;line-height:1.5}
 .tbd{border-bottom:1px dotted currentColor}
+/* so para leitor de tela: entrega o numero final em vez da contagem */
+.sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
 /* ═══ 01 · parede de assets ═══════════════════════════════════════ */
 .wall{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(7px,.9vw,12px)}
@@ -227,6 +233,40 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .t-b{grid-column:span 6}.t-d{grid-column:span 4}.t-e{grid-column:span 5}
 @media(max-width:820px){.wall{grid-template-columns:repeat(2,1fr)}
   .t-a,.t-b,.t-c,.t-d,.t-e,.t-f{grid-column:span 1;aspect-ratio:4/5}}
+
+/* ═══ 01b · o tile aceita video ═══════════════════════════════════
+   O poster e o estado de repouso: ele ja esta la quando o video ainda
+   nao existe, ainda nao carregou, ou o navegador recusou o autoplay.
+   O video entra POR CIMA (opacity) em vez de substituir o <img>, entao
+   nunca ha um quadro vazio entre os dois.                            */
+figure.tile{margin:0}
+.tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;
+  opacity:0;transition:opacity .45s ease;filter:saturate(.62) contrast(1.06);pointer-events:none}
+.tile video.ready{opacity:1}
+.tile:hover video{filter:saturate(1.06) contrast(1.08)}
+.tile::after{z-index:2}.tile::before{z-index:3}.tile .cap{z-index:4}
+/* a legenda e prova, nao enfeite de hover: fica legivel parada e sobe no hover */
+.tile .cap{transform:none;opacity:.62}
+.tile:hover .cap,.tile:focus-within .cap{opacity:1}
+/* a marca de "tem video aqui" so aparece quando ha video de verdade */
+.tile[data-has-video] .cap b::before{content:"B6 ";color:var(--purple);font-size:.85em}
+.tile .cap .dur{margin-left:auto;font-style:normal;text-decoration:none;color:var(--ink-2);
+  font-variant-numeric:tabular-nums}
+/* o botao de play so existe onde ele e o unico caminho: toque e reduced motion */
+.tplay{all:unset;position:absolute;inset:0;z-index:5;cursor:pointer}
+.tplay::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;
+  margin:-22px 0 0 -22px;border-radius:50%;border:1px solid var(--purple);
+  background:rgba(10,10,10,.55) no-repeat center/12px 14px;
+  background-image:linear-gradient(transparent,transparent);
+  box-shadow:inset 0 0 0 12px transparent;transition:opacity .3s,transform .3s}
+.tplay::before{content:"";position:absolute;left:50%;top:50%;z-index:1;
+  margin:-6px 0 0 -3px;border-style:solid;border-width:6px 0 6px 10px;
+  border-color:transparent transparent transparent var(--purple);transition:opacity .3s}
+.tile.playing .tplay::after,.tile.playing .tplay::before{opacity:0}
+@media (hover:hover) and (pointer:fine){
+  /* no desktop o hover ja toca: o botao vira so area de clique, sem desenho */
+  .tplay::after,.tplay::before{display:none}
+}
 
 /* ═══ 02 · três verbos ════════════════════════════════════════════ */
 .verbs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-2);
@@ -289,6 +329,38 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .ico svg{width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:1.6;
   stroke-linecap:round;stroke-linejoin:round;flex:none}
 .w-body.on .ico:hover{border-color:color-mix(in srgb,var(--purple) 45%,transparent);color:var(--ink)}
+/* ═══ case: resultado primeiro, depois problema e construcao ══════
+   A ordem da persuasao e artefato -> resultado -> problema -> como.
+   Por isso .lead vem colada no nome, antes de qualquer explicacao.   */
+.lead{margin:8px 0 0;font-size:var(--s--1);color:var(--ink);
+  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.lead::before{content:"▸ ";color:var(--purple)}
+/* a etiqueta que assume que o demo e representacao, nao captura de tela */
+.prev{position:absolute;right:10px;bottom:9px;z-index:4;font-size:var(--s--2);
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);opacity:.55;
+  pointer-events:none;background:rgba(5,5,5,.55);padding:3px 7px;border-radius:3px}
+.evl{width:100%;font-size:var(--s--2);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);margin-bottom:-4px}
+
+/* ═══ case: problema / sistema / resultado ════════════════════════ */
+.case{display:grid;gap:11px;margin-top:14px;max-width:62ch}
+.ci{display:grid;grid-template-columns:clamp(66px,7vw,84px) 1fr;gap:12px;align-items:baseline}
+.ci b{font-size:var(--s--2);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.ci span{color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif}
+.ci.res b{color:var(--purple)}
+.ci.res span{color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:var(--s--1);
+  font-variant-numeric:tabular-nums}
+@media(max-width:560px){.ci{grid-template-columns:1fr;gap:2px}}
+
+/* o separador e os dois itens menores: 04 e 05 continuam ali, mas nao
+   disputam atencao com os tres cases principais */
+.w-split{padding:13px 20px 8px;font-size:var(--s--2);letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-3);opacity:.6;border-bottom:1px solid var(--line-2)}
+.w-item.minor{opacity:.62;transition:opacity .25s}
+.w-item.minor:hover,.w-item.minor.on{opacity:1}
+.w-item.minor .wi-name{font-weight:400}
+@media(max-width:900px){.w-split{display:none}}
+
 .w-list{background:var(--bg);display:flex;flex-direction:column}
 .w-item{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;
   padding:16px 20px;border-bottom:1px solid var(--line-2);position:relative;
@@ -417,6 +489,18 @@ h2.t em{font-style:normal;color:var(--ink-3)}
   font-size:var(--s-0)}
 .trade .why b{color:var(--ink);font-weight:600}
 
+/* ═══ 04b · as decisoes extras ═══════════════════════════════════
+   Tres ficam guardadas e o botao ocupa a celula que sobrou da grade de
+   duas colunas. Ao abrir, o botao sai e as 6 celulas fecham 3 linhas.  */
+.trade.hid{display:none}
+.more-cell{all:unset;box-sizing:border-box;cursor:pointer;background:var(--bg);
+  padding:clamp(20px,2.6vw,30px);display:flex;align-items:center;gap:10px;
+  font-size:var(--s--1);letter-spacing:.02em;color:var(--ink-3);
+  transition:background .25s,color .25s}
+.more-cell:hover,.more-cell:focus-visible{background:var(--card);color:var(--purple)}
+.more-cell .ar{display:inline-block;color:var(--purple);transition:transform .3s}
+.more-cell:hover .ar{transform:rotate(90deg)}
+
 /* ═══ 05 · trilha ═════════════════════════════════════════════════ */
 /* ═══ o bloco "sobre": paragrafo + a frase-diferencial + grade de fatos ══
    A grade e' a resposta ao "FOCO DE ATUACAO" do alissonlimadev: quatro fatos
@@ -512,8 +596,8 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
     <a class="brand" href="#top">RAFAGUIAR<span>.DEV</span></a>
     <nav class="nav-links">
       <a href="#reel">/reel</a>
-      <a href="#do">/stack</a>
       <a href="#work">/work</a>
+      <a href="#do">/stack</a>
       <a href="#decisions">/decisions</a>
       <a href="#contact">/contact</a>
     </nav>
@@ -532,6 +616,9 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
     <img id="asciiSource" src="hero-ascii-robot.png" data-embed="{{ASCII_ROBOT}}" alt="" aria-hidden="true">
     <canvas id="ascii"></canvas>
   </div>
+  <!-- Os nomes dos modulos moram AQUI, e nao no #ascii, porque o veu do
+       .hero::before fica entre os dois. Ver o comentario em drawModuleLabels. -->
+  <canvas id="asciiTop" aria-hidden="true"></canvas>
 
   <div class="wrap hero-in">
     <div class="hero-copy">
@@ -563,76 +650,64 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
     <p class="sub" data-rv="up" data-pt="Avatares, cenas e gradações gerados por IA — saída dos pipelines que estão logo abaixo.">
       Avatars, scenes and color grades generated by AI — output of the pipelines below.</p>
 
+    <!-- Os dados de cada item ficam no objeto REEL, no topo do bloco de JS.
+         Aqui em baixo fica so o poster: e ele que o build.py converte em
+         base64. Vídeo, alt, categoria e duração NAO se repetem aqui. -->
     <div class="wall" data-rv="scale" style="margin-top:clamp(24px,3.6vw,40px)">
-      <a class="tile t-a" href="#" data-par="0.05"><img src="{{W1}}" alt="" loading="lazy">
-        <div class="cap"><b>avatar_014</b><i>MiniMax</i></div></a>
-      <a class="tile t-b" href="#" data-par="-0.04"><img src="{{W5}}" alt="" loading="lazy">
-        <div class="cap"><b>scene_007</b><i data-pt="30 planos">30 shots</i></div></a>
-      <a class="tile t-c" href="#" data-par="0.06"><img src="{{W2}}" alt="" loading="lazy">
-        <div class="cap"><b>avatar_022</b><i data-pt="lote de 40">batch of 40</i></div></a>
-      <a class="tile t-d" href="#" data-par="-0.03"><img src="{{W4}}" alt="" loading="lazy">
-        <div class="cap"><b>grade_cine_03</b><i>Magnific</i></div></a>
-      <a class="tile t-e" href="#" data-par="0.04"><img src="{{W6}}" alt="" loading="lazy">
-        <div class="cap"><b>parallax_p0</b><i data-pt="mapa de profundidade">depth map</i></div></a>
-      <a class="tile t-f" href="#" data-par="-0.05"><img src="{{W3}}" alt="" loading="lazy">
-        <div class="cap"><b>avatar_031</b><i data-pt="voz clonada">cloned voice</i></div></a>
+      <figure class="tile t-a" data-id="a" data-par="0.05">
+        <img src="{{W1}}" loading="lazy"
+             alt="AI-generated presenter in a clinical setting"
+             data-alt-pt="Apresentador gerado por IA em cenário clínico">
+        <figcaption class="cap"><b>ai_avatar</b><i>MiniMax</i></figcaption></figure>
+
+      <figure class="tile t-b" data-id="b" data-par="-0.04">
+        <img src="{{W5}}" loading="lazy"
+             alt="AI-generated underwater temple scene"
+             data-alt-pt="Cena de templo submerso gerada por IA">
+        <figcaption class="cap"><b>generated_shots</b><i data-pt="30 planos">30 shots</i></figcaption></figure>
+
+      <figure class="tile t-c" data-id="c" data-par="0.06">
+        <img src="{{W2}}" loading="lazy"
+             alt="AI-generated presenter holding a product outdoors"
+             data-alt-pt="Apresentadora gerada por IA segurando um produto em ambiente externo">
+        <figcaption class="cap"><b>batch_creative</b><i data-pt="geração em lote">generation</i></figcaption></figure>
+
+      <figure class="tile t-d" data-id="d" data-par="-0.03">
+        <img src="{{W4}}" loading="lazy"
+             alt="Cinematic colour grade applied to a portrait"
+             data-alt-pt="Gradação cinematográfica aplicada a um retrato">
+        <figcaption class="cap"><b>cinematic_grade</b><i>Magnific</i></figcaption></figure>
+
+      <figure class="tile t-e" data-id="e" data-par="0.04">
+        <img src="{{W6}}" loading="lazy"
+             alt="Depth-map parallax frame: temple with a foreground object"
+             data-alt-pt="Quadro de parallax por mapa de profundidade: templo com objeto em primeiro plano">
+        <figcaption class="cap"><b>depth_map</b><i data-pt="movimento">motion</i></figcaption></figure>
+
+      <figure class="tile t-f" data-id="f" data-par="-0.05">
+        <img src="{{W3}}" loading="lazy"
+             alt="AI-generated presenter outdoors, voice cloned from a reference"
+             data-alt-pt="Apresentador gerado por IA em ambiente externo, voz clonada de uma referência">
+        <figcaption class="cap"><b>cloned_voice</b><i>pipeline</i></figcaption></figure>
     </div>
 
     <div class="stats" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
-      <div class="stat"><div class="n"><span data-count="1500" data-suffix="+">0</span></div>
+      <div class="stat"><div class="n"><span data-count="1500" data-suffix="+" aria-hidden="true">0</span><span class="sr">1500+</span></div>
         <div class="l" data-pt="criativos entregues">creatives shipped</div></div>
-      <div class="stat"><div class="n"><span data-count="12" data-suffix="">0</span></div>
+      <div class="stat"><div class="n"><span data-count="12" data-suffix="" aria-hidden="true">0</span><span class="sr">12</span></div>
         <div class="l" data-pt="modelos de IA em produção">AI models in production</div></div>
-      <div class="stat"><div class="n"><span data-count="9" data-suffix="">0</span></div>
+      <div class="stat"><div class="n"><span data-count="9" data-suffix="" aria-hidden="true">0</span><span class="sr">9</span></div>
         <div class="l" data-pt="ferramentas internas">internal tools built</div></div>
-      <div class="stat"><div class="n"><span data-count="3" data-suffix="+">0</span></div>
+      <div class="stat"><div class="n"><span data-count="3" data-suffix="+" aria-hidden="true">0</span><span class="sr">3+</span></div>
         <div class="l" data-pt="anos em performance">years in performance</div></div>
     </div>
   </div>
 </section>
 
-<!-- ══ 02 STACK ═══════════════════════════════════════════════════ -->
-<section class="sec" id="do">
-  <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/stack</span><span class="note">02</span></div>
-    <h2 class="t" data-rv="up" data-pt="Três verbos. <em>Nessa ordem.</em>">Three verbs. <em>In that order.</em></h2>
-
-    <div class="verbs" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
-      <div class="verb">
-        <div class="n">01</div>
-        <h3 data-pt="Gero">Generate</h3>
-        <p data-pt="Vídeo, voz, imagem e avatar com IA — aderentes à narrativa da copy. Em lote, com custo por execução medido.">
-          AI video, voice, image and avatars that hold the copy's narrative. In batch, with
-          measured cost per run.</p>
-        <div class="tools"><span>MiniMax</span><span>ElevenLabs</span><span>Higgsfield</span><span>HeyGen</span><span>Magnific</span><span>Freepik</span></div>
-        <div class="ic"><svg width="34" height="34"><use href="#i-brain"/></svg></div>
-      </div>
-      <div class="verb">
-        <div class="n">02</div>
-        <h3 data-pt="Integro">Integrate</h3>
-        <p data-pt="Ligo as ferramentas por API e orquestro em n8n self-hosted, com workers em Python, retry e fallback entre provedores. Ninguém empurra arquivo.">
-          I wire the tools over APIs and orchestrate in self-hosted n8n — Python workers, retry,
-          fallback between providers. Nobody moves files by hand.</p>
-        <div class="tools"><span>n8n</span><span>REST</span><span>Webhooks</span><span>Playwright</span><span>Chrome MV3</span><span>Google Drive</span></div>
-        <div class="ic"><svg width="34" height="34"><use href="#i-flow"/></svg></div>
-      </div>
-      <div class="verb">
-        <div class="n">03</div>
-        <h3 data-pt="Construo">Build</h3>
-        <p data-pt="Quando a ferramenta não existe, eu escrevo. CLI, extensão, API e o painel de operação que roda tudo isso.">
-          When the tool doesn't exist, I write it. CLI, extension, API — and the operator panel
-          that runs it all.</p>
-        <div class="tools"><span>Python</span><span>FastAPI</span><span>FFmpeg</span><span>Whisper</span><span>JavaScript</span><span>Docker</span></div>
-        <div class="ic"><svg width="34" height="34"><use href="#i-term"/></svg></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ 03 WORK (cartões empilhados) ═══════════════════════════════ -->
+<!-- ══ 02 WORK (cases) ═══════════════════════════════════════════ -->
 <section class="sec" id="work">
   <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/work</span><span class="note">03</span></div>
+    <div class="head" data-rv="wipe"><span class="slug">/work</span><span class="note">02</span></div>
     <h2 class="t" data-rv="up" data-pt="Tarefas que eu me recusei <em>a fazer duas vezes.</em>">Tasks I refused <em>to do twice.</em></h2>
 
     <div class="works" data-rv="up" style="margin-top:clamp(24px,3.6vw,42px)">
@@ -641,6 +716,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
         <div class="w-stage">
           <div class="w-media on" data-i="0">
             <div class="demo">
+              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
               <div class="lab"><span>TIMELINE.FCPXML</span><span>AUTO-SYNC</span></div>
               <div class="lane vid"></div>
               <div class="lane"><i class="clipx" style="left:4%;width:17%;animation-delay:.1s"></i>
@@ -655,6 +731,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
           </div>
           <div class="w-media" data-i="1">
             <div class="demo">
+              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
               <div class="lab"><span>MINIMAX &middot; QUEUE</span><span>BATCH 40</span></div>
               <div class="dl">
                 <div class="dlrow" style="--d:0s">
@@ -676,6 +753,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 
           <div class="w-media" data-i="2">
             <div class="demo">
+              <span class="prev" data-pt="prévia da arquitetura">architecture preview</span>
               <div class="lab"><span>PIPELINE</span><span>RUN 014</span></div>
               <div class="flow">
                 <span class="rail"><i></i></span>
@@ -690,6 +768,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 
           <div class="w-media" data-i="3">
             <div class="demo">
+              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
               <div class="lab"><span>NARRATION.WAV</span><span>&minus;35 dB &middot; 0.35 s</span></div>
               <div class="wave">
               <i style="height:24%"></i><i style="height:32%"></i><i style="height:23%"></i><i style="height:26%"></i><i style="height:46%"></i><i style="height:22%"></i><i style="height:52%"></i><i style="height:29%"></i><i style="height:49%"></i><i style="height:24%"></i>
@@ -706,6 +785,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 
           <div class="w-media" data-i="4">
             <div class="demo">
+              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
               <div class="lab"><span data-pt="SESS&Atilde;O 07 &middot; OPERADOR 03">SESSION 07 &middot; OPERATOR 03</span><span class="recdot">REC</span></div>
               <div class="recgrid">
                 <div class="win">
@@ -730,9 +810,11 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
         <div class="w-detail">
           <div class="w-body on" data-i="0">
             <h3>subtitle-audio-sync</h3>
-            <p data-pt="40 áudios soltos, um vídeo de uma hora. Um comando transcreve, casa cada arquivo com o trecho certo e exporta a timeline montada.">
-              40 loose audio files, a one-hour video. One command transcribes, matches each file to
-              the right passage and exports the assembled timeline.</p>
+            <p class="lead" data-pt="38/40 casados &middot; confiança média 0.91">38/40 matched &middot; avg confidence 0.91</p>
+            <div class="case">
+              <div class="ci"><b data-pt="problema">problem</b><span data-pt="40 arquivos de áudio soltos para posicionar dentro de um vídeo de uma hora.">40 loose audio files to place inside a one-hour video.</span></div>
+              <div class="ci"><b data-pt="construído">built</b><span data-pt="Uma CLI em Python que transcreve, casa áudio com legenda e exporta uma timeline FCPXML.">A Python CLI that transcribes, matches audio to caption and exports an FCPXML timeline.</span></div>
+            </div>
             <div class="icons">
               <span class="ico"><svg><use href="#i-term"/></svg>Python</span>
               <span class="ico"><svg><use href="#i-wave"/></svg>Whisper</span>
@@ -740,75 +822,81 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
               <span class="ico"><svg><use href="#i-box"/></svg>Docker</span>
               <span class="ico"><svg><use href="#i-check"/></svg>GitHub Actions</span>
             </div>
-            <div class="w-links">
-              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
-              <a class="btn ghost" href="#" data-pt="Ver a demo">Watch the demo &#8599;</a>
+            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
+              <a class="btn ghost" data-link="gh_subtitle"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+              <a class="btn ghost" data-link="demo_subtitle" data-pt="Ver a demo">Watch the demo &#8599;</a>
             </div>
           </div>
 
           <div class="w-body" data-i="1">
             <h3>minimax-audio-downloader</h3>
-            <p data-pt="Dezenas de áudios gerados, um clique por vez. A extensão baixa o lote inteiro já com o padrão de nome aplicado.">
-              Dozens of generated audio files, one click each. The extension takes the whole batch
-              with the naming convention already applied.</p>
+            <p class="lead" data-pt="Baixa o lote inteiro num clique, já com o nome aplicado.">Takes the whole batch in one click, named on save.</p>
+            <div class="case">
+              <div class="ci"><b data-pt="problema">problem</b><span data-pt="Baixar e organizar dezenas de áudios gerados na mão.">Downloading and organising dozens of generated audio files by hand.</span></div>
+              <div class="ci"><b data-pt="construído">built</b><span data-pt="Extensão Chrome MV3: extração via DOM, download em lote, presets persistidos e nomeação determinística.">A Chrome MV3 extension: DOM extraction, batch downloads, persisted presets, deterministic naming.</span></div>
+            </div>
             <div class="icons">
               <span class="ico"><svg><use href="#i-eye"/></svg>Chrome MV3</span>
               <span class="ico"><svg><use href="#i-wave"/></svg>Batch audio</span>
               <span class="ico"><svg><use href="#i-term"/></svg>JavaScript</span>
               <span class="ico"><svg><use href="#i-branch"/></svg>MIT</span>
             </div>
-            <div class="w-links">
-              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
+              <a class="btn ghost" data-link="gh_minimax"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
             </div>
           </div>
 
           <div class="w-body" data-i="2">
             <h3>content-pipeline-architecture</h3>
-            <p data-pt="A arquitetura do pipeline que eu opero. Sem código proprietário — só o desenho, as decisões e o que eu mudaria hoje.">
-              The architecture of the pipeline I operate. No proprietary code &mdash; just the design,
-              the decisions and what I would change today.</p>
+            <p class="lead" data-pt="Produção de ponta a ponta com custo e tempo medidos por etapa.">End-to-end production with cost and time measured per step.</p>
+            <div class="case">
+              <div class="ci"><b data-pt="problema">problem</b><span data-pt="A copy virava asset e vídeo final passando por várias ferramentas e etapas manuais.">Copy became assets and final video across many tools and manual steps.</span></div>
+              <div class="ci"><b data-pt="construído">built</b><span data-pt="n8n, workers em Python, APIs de mídia, FFmpeg, storage, fallback entre provedores e telemetria.">n8n, Python workers, media APIs, FFmpeg, storage, provider fallback and telemetry.</span></div>
+            </div>
             <div class="icons">
               <span class="ico"><svg><use href="#i-flow"/></svg>n8n</span>
               <span class="ico"><svg><use href="#i-plug"/></svg>REST</span>
               <span class="ico"><svg><use href="#i-db"/></svg>Storage</span>
               <span class="ico"><svg><use href="#i-cloud"/></svg>VPS + Docker</span>
             </div>
-            <div class="w-links">
-              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
+              <a class="btn ghost" data-link="gh_pipeline"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
             </div>
           </div>
 
           <div class="w-body" data-i="3">
             <h3>capcut-silence-trim</h3>
-            <p data-pt="Uma hora de narra&ccedil;&atilde;o esconde 137 pausas de respiro. Isto acha todas e transforma cada uma em ponto de corte dentro do rascunho do CapCut &mdash; a timeline encurta sem reencodar um quadro.">
-              One hour of narration hides 137 breathing pauses. This finds every one and turns it
-              into an in/out point inside the CapCut draft &mdash; the timeline gets shorter without
-              a single frame being re-encoded.</p>
+            <p class="lead" data-pt="Timeline mais curta sem reencodar um quadro.">A shorter timeline without a single frame re-encoded.</p>
+            <div class="case">
+              <div class="ci"><b data-pt="problema">problem</b><span data-pt="Uma hora de narração esconde 137 pausas de respiro.">One hour of narration hides 137 breathing pauses.</span></div>
+              <div class="ci"><b data-pt="construído">built</b><span data-pt="O silencedetect acha cada pausa; cada uma vira ponto de corte dentro do rascunho do CapCut.">silencedetect finds every pause; each becomes an in/out point inside the CapCut draft.</span></div>
+            </div>
             <div class="icons">
               <span class="ico"><svg><use href="#i-term"/></svg>Python</span>
               <span class="ico"><svg><use href="#i-wave"/></svg>silencedetect</span>
               <span class="ico"><svg><use href="#i-film"/></svg>ffmpeg</span>
               <span class="ico"><svg><use href="#i-box"/></svg>CapCut draft</span>
             </div>
-            <div class="w-links">
-              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
+              <a class="btn ghost" data-link="gh_capcut"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
             </div>
           </div>
 
           <div class="w-body" data-i="4">
             <h3>browser-session-recorder</h3>
-            <p data-pt="Cinco operadores, o mesmo trabalho manual no navegador. Uma extens&atilde;o MV3 grava o que eles realmente fazem &mdash; cada clique, cada espera, cada nova tentativa &mdash; e isso vira o conjunto de dados que um script do Playwright repete.">
-              Five operators, the same manual job in the browser. An MV3 extension records what they
-              actually do &mdash; every click, every wait, every retry &mdash; and that becomes the
-              dataset a Playwright script replays.</p>
+            <p class="lead" data-pt="1 sessão gravada &rarr; 1 script do Playwright.">1 recorded session &rarr; 1 Playwright script.</p>
+            <div class="case">
+              <div class="ci"><b data-pt="problema">problem</b><span data-pt="Cinco operadores repetindo o mesmo trabalho manual no navegador.">Five operators repeating the same manual job in the browser.</span></div>
+              <div class="ci"><b data-pt="construído">built</b><span data-pt="Uma extensão MV3 grava cada clique, espera e nova tentativa em JSONL.">An MV3 extension records every click, wait and retry as JSONL.</span></div>
+            </div>
             <div class="icons">
               <span class="ico"><svg><use href="#i-eye"/></svg>Chrome MV3</span>
               <span class="ico"><svg><use href="#i-flow"/></svg>Playwright</span>
               <span class="ico"><svg><use href="#i-db"/></svg>JSONL</span>
               <span class="ico"><svg><use href="#i-check"/></svg>Validator</span>
             </div>
-            <div class="w-links">
-              <a class="btn ghost" href="#"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
+            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
+              <a class="btn ghost" data-link="gh_recorder"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
             </div>
           </div>
         </div>
@@ -824,14 +912,53 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
         <button class="w-item" data-i="2" role="tab" aria-selected="false">
           <span class="wi-n">03</span><span class="wi-name">content-pipeline-architecture</span>
           <span class="wi-tag" data-pt="Arquitetura &middot; ADR">Architecture &middot; ADR</span></button>
-        <button class="w-item" data-i="3" role="tab" aria-selected="false">
+        <div class="w-split" aria-hidden="true"><span data-pt="também na caixa de ferramentas">also in the toolbox</span></div>
+        <button class="w-item minor" data-i="3" role="tab" aria-selected="false">
           <span class="wi-n">04</span><span class="wi-name">capcut-silence-trim</span>
           <span class="wi-tag">Python &middot; ffmpeg &middot; CapCut</span></button>
-        <button class="w-item" data-i="4" role="tab" aria-selected="false">
+        <button class="w-item minor" data-i="4" role="tab" aria-selected="false">
           <span class="wi-n">05</span><span class="wi-name">browser-session-recorder</span>
           <span class="wi-tag">Chrome MV3 &middot; Playwright</span></button>
       </div>
 
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 STACK ═══════════════════════════════════════════════════ -->
+<section class="sec" id="do">
+  <div class="wrap">
+    <div class="head" data-rv="wipe"><span class="slug">/stack</span><span class="note">03</span></div>
+    <h2 class="t" data-rv="up" data-pt="Três verbos. <em>Nessa ordem.</em>">Three verbs. <em>In that order.</em></h2>
+
+    <div class="verbs" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
+      <div class="verb">
+        <div class="n">01</div>
+        <h3 data-pt="Gero">Generate</h3>
+        <p data-pt="Vídeo, voz, imagem e avatar com IA — aderentes à narrativa da copy. Em lote, com custo por execução medido.">
+          AI video, voice, image and avatars that hold the copy's narrative. In batch, with
+          measured cost per run.</p>
+        <div class="tools"><span>MiniMax</span><span>ElevenLabs</span><span>Higgsfield</span><span>HeyGen</span><span>Magnific</span><span>Freepik</span></div>
+        <div class="ic"><svg width="34" height="34"><use href="#i-brain"/></svg></div>
+      </div>
+      <div class="verb">
+        <div class="n">02</div>
+        <h3 data-pt="Integro">Integrate</h3>
+        <p data-pt="Ligo as ferramentas por API e orquestro em n8n self-hosted. Retry e fallback entre provedores fazem parte do fluxo — ninguém empurra arquivo.">
+          I wire the tools over APIs and orchestrate them in self-hosted n8n. Retry and provider
+          fallback are part of the flow — nobody moves files by hand.</p>
+        <div class="tools"><span>n8n</span><span>REST</span><span>Webhooks</span><span>Playwright</span><span>Chrome MV3</span><span>Google Drive</span></div>
+        <div class="ic"><svg width="34" height="34"><use href="#i-flow"/></svg></div>
+      </div>
+      <div class="verb">
+        <div class="n">03</div>
+        <h3 data-pt="Construo">Build</h3>
+        <p data-pt="Quando a ferramenta não existe, eu escrevo. CLI, extensão, API e o painel de operação que roda tudo isso.">
+          When the tool doesn't exist, I write it. CLI, extension, API — and the operator panel
+          that runs it all.</p>
+        <div class="tools"><span>Python</span><span>FastAPI</span><span>FFmpeg</span><span>Whisper</span><span>JavaScript</span><span>Docker</span></div>
+        <div class="ic"><svg width="34" height="34"><use href="#i-term"/></svg></div>
+      </div>
     </div>
   </div>
 </section>
@@ -848,39 +975,44 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
         <div class="n">01</div>
         <div class="pick" data-pt="n8n orquestra, Python executa">n8n orchestrates, Python executes</div>
         <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="lógica pesada dentro do nó">heavy logic inside the node</s></div>
-        <div class="why" data-pt="Um nó não versiona, não testa e não devolve <b>stack trace</b>. O fluxo decide a ordem; o worker faz o trabalho.">A node doesn't version, doesn't test and returns no <b>stack trace</b>. The flow decides the order; the worker does the work.</div>
+        <div class="why" data-pt="Nó não versiona, não testa e não devolve <b>stack trace</b>.">A node can't be versioned or tested, and returns no <b>stack trace</b>.</div>
       </div>
       <div class="trade">
         <div class="n">02</div>
         <div class="pick" data-pt="Playwright determinístico">Deterministic Playwright</div>
         <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="agente visual de IA (UI-TARS, Browser-Use, Skyvern)">a visual AI agent (UI-TARS, Browser-Use, Skyvern)</s></div>
-        <div class="why" data-pt="Avaliei os três. Quando a tarefa é a <b>mesma toda vez</b>, previsível ganha de flexível — e custa uma fração por execução.">I evaluated all three. When the task is the <b>same every time</b>, predictable beats flexible — at a fraction of the cost per run.</div>
+        <div class="why" data-pt="Quando a tarefa é a <b>mesma toda vez</b>, previsível ganha de flexível — por uma fração do custo.">When the task is the <b>same every time</b>, predictable beats flexible — at a fraction of the cost.</div>
       </div>
       <div class="trade">
         <div class="n">03</div>
-        <div class="pick" data-pt="Voz premium">Premium voice</div>
-        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="TTS barato">cheap TTS</s></div>
-        <div class="why" data-pt="A narração é <b>88% do custo</b> da execução, e mesmo assim o barato saiu caro: derrubou retenção e o CPA subiu.">Narration is <b>88% of the run cost</b>, and the cheap option still cost more: retention dropped and CPA went up.</div>
-      </div>
-      <div class="trade">
-        <div class="n">04</div>
         <div class="pick" data-pt="Um passo manual de aprovação">One manual approval step</div>
         <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="automatizar de ponta a ponta">full end-to-end automation</s></div>
-        <div class="why" data-pt="<b>Julgamento editorial não automatiza.</b> Todo o resto do caminho, sim — e é por isso que o passo que sobrou cabe em um clique."><b>Editorial judgment doesn't automate.</b> Everything else on the path does — which is why the one step left fits in a single click.</div>
+        <div class="why" data-pt="<b>Julgamento editorial não automatiza.</b> O resto sim — o passo que sobrou cabe em um clique."><b>Editorial judgment doesn't automate.</b> Everything else does — the step left fits one click.</div>
       </div>
-      <div class="trade">
+      <!-- as outras tres so aparecem a pedido: a secao e documentacao de apoio,
+           nao o argumento principal da pagina. Ficam na MESMA grade para que,
+           abertas, as 6 celulas fechem 3 linhas inteiras. -->
+      <div class="trade hid">
+        <div class="n">04</div>
+        <div class="pick" data-pt="Voz premium">Premium voice</div>
+        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="TTS barato">cheap TTS</s></div>
+        <div class="why" data-pt="A narração é <b>88% do custo</b> — e o barato derrubou retenção e subiu o CPA.">Narration is <b>88% of the run cost</b> — and the cheap option dropped retention and raised CPA.</div>
+      </div>
+      <div class="trade hid">
         <div class="n">05</div>
         <div class="pick" data-pt="Menos chamadas em paralelo">Fewer parallel calls</div>
         <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="abrir o máximo de chamadas simultâneas">opening as many simultaneous calls as possible</s></div>
-        <div class="why" data-pt="Passado o limite do provedor, o que volta é <b>rate limit</b>. O retry come mais tempo do que o paralelismo economizou.">Past the provider's limit, what comes back is a <b>rate limit</b>. The retry eats more time than the parallelism saved.</div>
+        <div class="why" data-pt="Passado o limite do provedor volta <b>rate limit</b> — e o retry come mais tempo do que economizou.">Past the provider's limit you get <b>rate limits</b> — and retry eats more time than parallelism saved.</div>
       </div>
-      <div class="trade">
+      <div class="trade hid">
         <div class="n">06</div>
         <div class="pick" data-pt="Corte seco e imagem forte">Hard cuts and a strong image</div>
         <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="parallax 2.5D e callouts animados">2.5D parallax and animated callouts</s></div>
-        <div class="why" data-pt="Lindo no teste, invisível no feed — e o render já é <b>58% do tempo</b> de execução. Cada segundo a mais atrasa a esteira inteira.">Beautiful in the test, invisible in the feed — and render is already <b>58% of the run time</b>. Every extra second delays the whole line.</div>
+        <div class="why" data-pt="Lindo no teste, invisível no feed — e o render já é <b>58% do tempo</b>.">Beautiful in the test, invisible in the feed — and render is already <b>58% of the run time</b>.</div>
       </div>
-    </div>
+      <button class="more-cell" id="moreBtn" aria-expanded="false"
+              data-pt="Ver todas as decisões">View all decisions <span class="ar">+</span></button>
+      </div>
   </div>
 </section>
 
@@ -891,13 +1023,15 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
     <h2 class="t" data-rv="up" data-pt="Da ilha de edição <em>para a esteira.</em>">From the edit bay <em>to the assembly line.</em></h2>
 
     <p class="bio" data-rv="up" style="margin-top:clamp(20px,2.6vw,30px)"
-       data-pt="Produzo criativos de IA para VSLs e ads de Direct Response no mercado internacional — e automatizo o processo que gera esses assets. No trabalho isso vira workflow novo de geração e a ferramenta interna que o time usa; por conta própria virou um pipeline de produção inteiro em Python e n8n, que leva um tema até o vídeo publicado. Comecei em Técnico em Informática, passei por webdesign e arquitetura, e cheguei aqui pelo lado da produção audiovisual — automatizando o meu próprio trabalho até virar engenharia.">
+       data-pt="Produzo criativos de IA para VSLs e ads de Direct Response no mercado internacional — e automatizo o processo que gera esses assets. No trabalho isso vira workflow novo de geração e a ferramenta interna que o time usa; por conta própria virou um pipeline de produção inteiro em Python e n8n, que leva um tema até o vídeo publicado. Eu não só opero as ferramentas — eu construo o sistema em volta delas, porque conheço o funil que elas alimentam: o que um gancho precisa fazer nos três primeiros segundos, e por que um criativo ganha ou morre no teste. Comecei em Técnico em Informática, passei por webdesign e arquitetura, e cheguei aqui pelo lado da produção audiovisual — automatizando o meu próprio trabalho até virar engenharia.">
       I produce AI creatives for international Direct Response VSLs and ads — and I automate the
       process that generates them. At work that means new generation workflows and the internal
       tools the team uses; on my own it became a full production pipeline in Python and n8n that
-      takes a topic all the way to a published video. I started in a technical IT program, went
-      through web design and architecture, and arrived here from the audiovisual side: automating
-      my own work until it turned into engineering.</p>
+      takes a topic all the way to a published video. I don't just operate the tools — I build the
+      systems around them, because I know the funnel they feed: what a hook has to do in the
+      first three seconds, and why a creative wins or dies in testing. I started in a technical IT program, went through web design and
+      architecture, and arrived here from the audiovisual side: automating my own work until it
+      turned into engineering.</p>
 
     <p class="pull" data-rv="up"
        data-pt="Pouca gente que escreve código de produção entende funil de Direct Response por dentro. Pouca gente que entende o funil escreve código. <b>Eu faço os dois.</b>">
@@ -920,11 +1054,9 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
         <div class="what">
           <h3 data-pt="IA Creator Sênior">Senior AI Creator</h3>
           <ul class="bul">
-            <li data-pt="Traduzo o briefing do time de Copy em vídeo, voz, imagem e avatar de IA para VSLs, ads, upsells e leads — com realismo e aderência à narrativa.">Turn the Copy team's briefing into AI video, voice, image and avatars for VSLs, ads, upsells and leads — with realism and narrative fit.</li>
-            <li data-pt="Produzo variações de ângulo, gancho e formato para alimentar teste, e ajusto o material a partir do feedback de performance.">Produce angle, hook and format variations to feed testing, and adjust the material from performance feedback.</li>
-            <li data-pt="Desenho e testo novos workflows de geração, e automatizo a etapa manual que trava o time — o que aumenta a capacidade de entrega do departamento.">Design and test new generation workflows, and automate the manual step that blocks the team — which raises the department's delivery capacity.</li>
+            <li data-pt="Traduzo o briefing do time de Copy em vídeo, voz, imagem e avatar de IA para VSLs e ads.">Turn the Copy team's briefing into AI video, voice, image and avatars for VSLs and ads.</li>
+            <li data-pt="Desenho novos workflows de geração e automatizo a etapa manual que trava o time.">Design new generation workflows and automate the manual step that blocks the team.</li>
             <li data-pt="Construí ferramentas internas: extensão de Chrome, CLIs e scripts que acabaram com o download e a nomeação de arquivo feitos um a um.">Built internal tools: a Chrome extension, CLIs and scripts that ended one-by-one downloading and file naming.</li>
-            <li data-pt="Sou referência técnica dos creators juniores: documento processo, avalio ferramenta e modelo novos, e faço o onboarding.">Act as technical reference for junior creators: I document process, evaluate new tools and models, and run onboarding.</li>
           </ul>
           <div class="env"><b data-pt="Ambiente:">Environment:</b> MiniMax · ElevenLabs · Higgsfield · HeyGen · Magnific · Freepik · Premiere Pro · CapCut · n8n</div>
         </div>
@@ -934,10 +1066,9 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
         <div class="what">
           <h3 data-pt="Canal automatizado, do tema ao vídeo publicado">An automated channel, from topic to published video</h3>
           <ul class="bul">
-            <li data-pt="Projeto pessoal, e é onde eu construo de verdade: ~4k linhas de Python levam um tema até o vídeo pronto — roteiro, narração, imagem, composição e render.">A personal project, and where I actually build: ~4k lines of Python take a topic all the way to a finished video — script, narration, imagery, compositing and render.</li>
+            <li data-pt="Projeto pessoal, e é onde eu construo de verdade: ~4k linhas de Python levam um tema até o vídeo pronto.">A personal project, and where I actually build: ~4k lines of Python take a topic to a finished video.</li>
             <li data-pt="6+ APIs de geração num único fluxo, orquestrado em n8n self-hosted, com workers em Python e um painel de operação próprio em FastAPI.">6+ generation APIs in a single flow, orchestrated in self-hosted n8n, with Python workers and my own FastAPI operator panel.</li>
             <li data-pt="Custo-alvo de ~US$1 por vídeo finalizado, sustentado por fallback entre provedores, cache em disco e telemetria de custo e tempo por etapa.">A ~US$1 target cost per finished video, held up by provider fallback, disk cache and per-step cost and time telemetry.</li>
-            <li data-pt="É a bancada onde eu testo arquitetura antes de propor qualquer coisa em produção — inclusive as decisões da seção acima.">It is the bench where I test architecture before proposing anything in production — including the decisions in the section above.</li>
           </ul>
           <div class="env"><b data-pt="Ambiente:">Environment:</b> Python · FastAPI · n8n · FFmpeg · NVENC · Whisper · Depth Anything V2 · Playwright · Claude API</div>
         </div>
@@ -948,7 +1079,6 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
           <h3 data-pt="Editor de VSL, ads e criativos">VSL, ads &amp; creative editor</h3>
           <ul class="bul">
             <li data-pt="Edição de VSL e criativos de performance para o mercado internacional, dentro de guideline e prazo de campanha.">VSL and performance creative editing for the international market, inside campaign guidelines and deadlines.</li>
-            <li data-pt="Variações de ângulo, gancho e formato para alimentar teste — foi onde eu descobri que o gargalo era manual.">Angle, hook and format variations to feed testing — where I found out the bottleneck was manual.</li>
             <li data-pt="Primeiras automações: organização e nomenclatura de assets, geração em lote, download em massa.">First automations: asset naming and organization, batch generation, bulk download.</li>
           </ul>
           <div class="env"><b data-pt="Ambiente:">Environment:</b> Premiere Pro · After Effects · CapCut · Photoshop</div>
@@ -969,7 +1099,6 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
           <h3 data-pt="Aprendi a programar construindo o que eu precisava">Learned to code by building what I needed</h3>
           <ul class="bul">
             <li data-pt="Desenvolvimento assistido por LLM com contexto versionado, decomposição da tarefa e revisão do que sai — não é colar resposta de chat.">LLM-assisted development with versioned context, task decomposition and review of the output — not pasting chat answers.</li>
-            <li data-pt="Toda decisão de arquitetura fica escrita, junto com a alternativa que eu descartei e o porquê.">Every architecture decision gets written down, together with the alternative I set aside and why.</li>
           </ul>
         </div>
         <div class="where" data-pt="Autodidata">Self-taught</div></div>
@@ -985,10 +1114,10 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
     <h2 class="t" data-rv="up" style="max-width:23ch" data-pt="Volume de criativo sem perder qualidade. <em>É esse o problema que eu resolvo.</em>">Creative volume without losing quality. <em>That is the problem I solve.</em></h2>
     <a class="big-mail" data-rv="up" href="mailto:rafael@rafaguiar.dev">rafael@rafaguiar.dev</a>
     <div class="socials" data-rv="up">
-      <a class="btn ghost" href="#">GitHub ↗</a>
-      <a class="btn ghost" href="#">LinkedIn ↗</a>
-      <a class="btn ghost" href="#">Instagram ↗</a>
-      <a class="btn solid" href="#" data-pt="Baixar CV">Download CV <span class="ar">→</span></a>
+      <a class="btn ghost" data-link="gh_profile">GitHub ↗</a>
+      <a class="btn ghost" data-link="linkedin">LinkedIn ↗</a>
+      <a class="btn ghost" data-link="instagram">Instagram ↗</a>
+      <a class="btn solid" data-link="cv" data-pt="Baixar CV">Download CV <span class="ar">→</span></a>
     </div>
   </div>
 </section>
@@ -1011,6 +1140,83 @@ const RM = matchMedia("(prefers-reduced-motion: reduce)").matches;
 const root = document.documentElement;
 
 /* ═══════════════════════════════════════════════════════════════════
+   MAPA DE LINKS — É AQUI QUE VOCÊ COLA AS URLs REAIS.
+
+   Deixe "" enquanto o endereço não existir: o botão correspondente
+   é REMOVIDO da página, em vez de apontar para lugar nenhum. Se todos
+   os botões de um bloco sumirem, o bloco inteiro sai junto e não fica
+   buraco no layout. Preencher qualquer linha faz o botão voltar
+   sozinho — não há mais nada para mexer.
+
+   O mailto do /contact não passa por aqui: ele é fixo no HTML.
+   ═══════════════════════════════════════════════════════════════════ */
+const LINKS = {
+  gh_profile:    "https://github.com/rafaguiar-dev",   // conferido, existe
+  gh_subtitle:   "",   // repo do subtitle-audio-sync
+  demo_subtitle: "",   // vídeo/gif da demo do subtitle-audio-sync
+  gh_minimax:    "",   // repo do minimax-audio-downloader
+  gh_pipeline:   "",   // repo (ou ADR público) do content-pipeline-architecture
+  gh_capcut:     "",   // repo do capcut-silence-trim
+  gh_recorder:   "",   // repo do browser-session-recorder
+  linkedin:      "",   // perfil do LinkedIn
+  instagram:     "",   // perfil do Instagram
+  cv:            ""    // PDF do CV (ex.: "cv-rafael-aguiar.pdf" dentro de docs/)
+};
+
+for (const a of document.querySelectorAll("[data-link]")) {
+  const url = LINKS[a.dataset.link];
+  if (url) {
+    a.href = url;
+    if (!url.startsWith("mailto:") && !url.startsWith("#")) {
+      a.target = "_blank"; a.rel = "noopener noreferrer";
+    }
+  } else {
+    a.remove();
+  }
+}
+// um contêiner que ficou sem nenhum botão vira espaço morto: tira ele também
+for (const box of document.querySelectorAll(".w-links, .socials")) {
+  if (!box.querySelector("a")) box.remove();
+}
+
+/* ═══ 8. idioma ═══════════════════════════════════════════════════
+   O HTML é escrito em inglês porque é ele que o build.py e os testes
+   leem. O PORTUGUÊS É O PADRÃO NA TELA: a página guarda a versão em
+   inglês de cada nó e já aplica o português no carregamento — por isso
+   o botão nasce escrito "EN", que é para onde ele leva.
+
+   Três coisas viajam junto do texto e não estão no innerHTML:
+   alt de imagem (data-alt-pt), aria-label (data-aria-pt) e o lang do
+   documento — sem isso o leitor de tela continuaria em inglês.
+
+   ⚠️ ESTE BLOCO RODA ANTES DO HERO, e tem que continuar assim. O campo
+   ASCII mede as caixas de texto que ele é proibido de acender; se o
+   português entrasse depois, as caixas estariam medidas em inglês. Já
+   tentei consertar isso disparando um "resize" depois — funciona para a
+   medida, mas reinicia o ciclo das gotas do hero e o pulso passa a
+   cruzar a linha do hint. Aplicar o idioma primeiro não tem esse custo. */
+const lBtn = document.getElementById("lang");
+const nodes = [...document.querySelectorAll("[data-pt]")];
+nodes.forEach(n => n.dataset.en = n.innerHTML);
+const alts = [...document.querySelectorAll("[data-alt-pt]")];
+alts.forEach(n => n.dataset.altEn = n.alt);
+const arias = [...document.querySelectorAll("[data-aria-pt]")];
+arias.forEach(n => n.dataset.ariaEn = n.getAttribute("aria-label") || "");
+
+let lang = "pt";
+function aplicarIdioma() {
+  const pt = lang === "pt";
+  nodes.forEach(n => n.innerHTML = pt ? n.dataset.pt : n.dataset.en);
+  alts.forEach(n => n.alt = pt ? n.dataset.altPt : n.dataset.altEn);
+  arias.forEach(n => n.setAttribute("aria-label", pt ? n.dataset.ariaPt : n.dataset.ariaEn));
+  lBtn.textContent = pt ? "EN" : "PT";
+  root.lang = pt ? "pt-BR" : "en";
+}
+aplicarIdioma();
+lBtn.addEventListener("click", () => { lang = lang === "pt" ? "en" : "pt"; aplicarIdioma(); });
+
+
+/* ═══════════════════════════════════════════════════════════════════
    HERO — ROBOT SIGNAL FIELD. A arte robotica alimenta exclusivamente o
    retrato ASCII; a fotografia original permanece limpa para o reveal.
 
@@ -1023,6 +1229,8 @@ const Ascii = (() => {
   const hero  = document.querySelector(".hero");
   const stage = document.getElementById("stage");
   const cv    = document.getElementById("ascii");
+  const cvTop = document.getElementById("asciiTop");
+  const ctxTop = cvTop.getContext("2d");
   const photo = document.getElementById("photo");
   const asciiSource = document.getElementById("asciiSource");
   const corePct = document.getElementById("corePct");
@@ -1748,6 +1956,7 @@ const Ascii = (() => {
           if (c < 0 || c >= cols || r < 0 || r >= rows) continue;
           const i = r * cols + c;
           if (vals && vals[i] >= 0) continue;           // entrou no corpo: absorvido
+          if (inCopy(p.x, p.y)) continue;               // e nao passa por cima de texto
           const q = 1 - j / TUBE_TAIL;
           g.globalAlpha = 1;
           g.fillStyle = P.bg;
@@ -1786,13 +1995,6 @@ const Ascii = (() => {
         g.globalAlpha = .34 + live * .28;
         g.fillStyle = P.amb2;
         g.fillRect(Math.round(n.fork.x) - 2, Math.round(n.fork.y) - 2, 4, 4);
-      }
-      if (n.showLabel && w >= 900) {
-        g.globalAlpha = .76 + live * .24;
-        g.font = '500 9px "JetBrains Mono", ui-monospace, monospace';
-        g.fillStyle = live > .5 ? P.high : P.label;
-        g.fillText("[ " + n.label + " ]", n.labelX, n.labelY);
-        g.font = FONT;
       }
     }
     g.globalAlpha = 1;
@@ -1851,6 +2053,40 @@ const Ascii = (() => {
 
   /* O pacote some atrás da silhueta e reaparece como uma resposta local
      nos próprios glifos do operador. Assim o recebimento fica legível. */
+  /* ── os nomes dos modulos ─────────────────────────────────────────
+     Eles moram num canvas proprio (#asciiTop), e nao no campo ASCII.
+
+     O motivo: o .hero::before e um veu escuro que existe para a copy ser
+     legivel — mais forte na esquerda (28%), no topo (34%) e embaixo (58%),
+     e praticamente ausente na direita. Os quatro rotulos eram pintados no
+     mesmo canvas do campo, ou seja DEBAIXO do veu: medido, o [ RENDER ]
+     saia em rgb(118,115,127) e o [ SCRIPT ] em rgb(42,40,46) — o mesmo
+     fillText, tres vezes mais apagado, so por estar do lado esquerdo. O
+     [ AUTOMATION ], no canto de baixo, quase sumia.
+
+     Compensar por alpha nao resolvia: com o veu somado, nem branco puro
+     alcanca o tom da direita. Entao a camada sobe para cima do veu.
+
+     E cinza fixo, tambem de proposito: nome de modulo nao pisca quando o
+     pacote sai — quem responde ao disparo e a caixa do no.             */
+  function drawModuleLabels(w, h) {
+    const g = ctxTop;
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, cvTop.width, cvTop.height);
+    if (w < 900) return;
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.textBaseline = "top";
+    g.globalAlpha = .88;
+    g.font = '500 9px "JetBrains Mono", ui-monospace, monospace';
+    g.fillStyle = P.label;
+    for (const n of modulesRT)
+      // coordenada inteira: em fonte de 9px, meio pixel de deslocamento
+      // espalha a tinta entre duas colunas e o rotulo sai mais apagado que
+      // o vizinho que caiu certo na grade.
+      if (n.showLabel) g.fillText("[ " + n.label + " ]", Math.round(n.labelX), Math.round(n.labelY));
+    g.globalAlpha = 1;
+  }
+
   function drawReceipts(g, receipts) {
     for (const rec of receipts) {
       if (rec.energy < .015) continue;
@@ -1906,6 +2142,7 @@ const Ascii = (() => {
     octx.globalAlpha = 1;
     octx.drawImage(offP, 0, 0, w, h);
     drawReceipts(octx, receipts);
+    drawModuleLabels(w, h);         // camada propria, acima do veu do hero
   }
 
   /* ── o rastro roxo ───────────────────────────────────────────────── */
@@ -2054,6 +2291,8 @@ const Ascii = (() => {
     if (!w || !h) return;
     cv.width = w * dpr; cv.height = h * dpr;
     cv.style.width = w + "px"; cv.style.height = h + "px";
+    cvTop.width = cv.width; cvTop.height = cv.height;
+    cvTop.style.width = cv.style.width; cvTop.style.height = cv.style.height;
     off.width = cv.width; off.height = cv.height;
     cols = Math.ceil(w / CW) + 1; rows = Math.ceil(h / CH) + 1;
     lit.clear(); waves.length = 0;
@@ -2369,17 +2608,127 @@ if (!RM) tick(); else { onProg(); addEventListener("scroll", onProg, { passive: 
 /* ═══ 7. o site é escuro, ponto ═══════════════════════════════════ */
 root.setAttribute("data-theme", "dark");
 
-/* ═══ 8. idioma ═══════════════════════════════════════════════════ */
-const lBtn = document.getElementById("lang");
-const nodes = [...document.querySelectorAll("[data-pt]")];
-nodes.forEach(n => n.dataset.en = n.innerHTML);
-let lang = "en";
-lBtn.addEventListener("click", () => {
-  lang = lang === "en" ? "pt" : "en";
-  nodes.forEach(n => n.innerHTML = lang === "pt" ? n.dataset.pt : n.dataset.en);
-  lBtn.textContent = lang === "pt" ? "EN" : "PT";
-  root.lang = lang === "pt" ? "pt-BR" : "en";
-});
+/* ═══════════════════════════════════════════════════════════════════
+   /reel — OS DADOS DE CADA ITEM FICAM AQUI. É O ÚNICO LUGAR A EDITAR.
+
+   Para colocar um vídeo real: ponha o arquivo em PORTIFOLIO/media/ e
+   escreva o nome em mp4 (e webm, se tiver os dois). O build.py copia a
+   pasta para docs/media/. NÃO mexa no HTML: o poster de lá continua
+   valendo e é ele que aparece enquanto não houver vídeo.
+
+   mp4 / webm  caminho do arquivo, ou "" enquanto não existir
+   cat         categoria curta
+   dur         duração, ex.: "0:06" — opcional, só entra na legenda se
+               estiver preenchida
+
+   O poster e o texto alternativo estão no HTML do mosaico, porque o
+   build.py precisa injetar a imagem em base64 exatamente ali.
+   ═══════════════════════════════════════════════════════════════════ */
+const REEL = {
+  a: { mp4: "", webm: "", cat: "avatar",  dur: "" },
+  b: { mp4: "", webm: "", cat: "scene",   dur: "" },
+  c: { mp4: "", webm: "", cat: "batch",   dur: "" },
+  d: { mp4: "", webm: "", cat: "grade",   dur: "" },
+  e: { mp4: "", webm: "", cat: "motion",  dur: "" },
+  f: { mp4: "", webm: "", cat: "voice",   dur: "" }
+};
+
+/* ═══ 8b. /reel: o poster vira vídeo quando existe vídeo ══════════
+   Regras, na ordem em que importam:
+   · sem arquivo em REEL, nada é criado — fica o poster, e ponto;
+   · o <video> entra por cima do poster e só aparece no primeiro quadro
+     decodificado, então nunca há retângulo preto;
+   · um de cada vez: começar um pausa e rebobina o anterior;
+   · sai da viewport, pausa;
+   · no desktop (ponteiro fino) toca no hover e no foco de teclado;
+   · no toque não existe hover: aparece um botão de play no card;
+   · com prefers-reduced-motion nada toca sozinho — só pelo botão.   */
+(() => {
+  const tiles = [...document.querySelectorAll(".tile[data-id]")]
+    .filter(t => { const d = REEL[t.dataset.id]; return d && (d.mp4 || d.webm); });
+  if (!tiles.length) return;
+
+  const fino = matchMedia("(hover: hover) and (pointer: fine)").matches;
+  let tocando = null;
+
+  function parar(v) {
+    if (!v) return;
+    v.pause(); v.currentTime = 0; v.classList.remove("ready");
+    v.closest(".tile").classList.remove("playing");
+    if (tocando === v) tocando = null;
+  }
+  function tocar(v) {
+    if (tocando && tocando !== v) parar(tocando);   // nunca dois ao mesmo tempo
+    tocando = v;
+    v.closest(".tile").classList.add("playing");
+    const pr = v.play();
+    if (pr) pr.catch(() => parar(v));               // autoplay recusado: volta ao poster
+  }
+
+  for (const t of tiles) {
+    const d = REEL[t.dataset.id];
+    const v = document.createElement("video");
+    v.muted = true; v.loop = true; v.playsInline = true;
+    v.preload = "none";                             // nada de vídeo pesado no carregamento
+    v.setAttribute("aria-hidden", "true");
+    for (const [arq, tipo] of [[d.webm, "video/webm"], [d.mp4, "video/mp4"]]) {
+      if (!arq) continue;
+      const src = document.createElement("source");
+      src.src = arq; src.type = tipo; v.appendChild(src);
+    }
+    v.addEventListener("playing", () => v.classList.add("ready"), { once: true });
+    v.addEventListener("error", () => { t.removeAttribute("data-has-video"); v.remove(); });
+    t.insertBefore(v, t.firstElementChild);
+    t.setAttribute("data-has-video", "");
+
+    if (d.dur) {
+      const e = document.createElement("u");
+      e.className = "dur"; e.textContent = d.dur;
+      t.querySelector(".cap").appendChild(e);
+    }
+    if (d.cat) t.dataset.cat = d.cat;
+
+    // botão: é o único caminho no toque e com reduced motion, e no desktop
+    // ele fica escondido porque o hover já resolve
+    const btn = document.createElement("button");
+    btn.className = "tplay";
+    btn.type = "button";
+    btn.setAttribute("aria-label", root.lang === "pt-BR" ? "Reproduzir prévia" : "Play preview");
+    btn.dataset.ariaPt = "Reproduzir prévia";
+    btn.dataset.ariaEn = "Play preview";
+    arias.push(btn);            // para o botão trocar de idioma junto com o resto
+    btn.addEventListener("click", () => (v.paused ? tocar(v) : parar(v)));
+    t.appendChild(btn);
+
+    if (fino && !RM) {
+      t.addEventListener("pointerenter", () => tocar(v));
+      t.addEventListener("pointerleave", () => parar(v));
+      t.addEventListener("focusin",  () => tocar(v));
+      t.addEventListener("focusout", () => parar(v));
+    }
+  }
+
+  // fora da tela ninguém toca
+  const vio = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) parar(e.target.querySelector("video"));
+  }), { threshold: .1 });
+  tiles.forEach(t => vio.observe(t));
+})();
+
+/* ═══ 8c. /decisions: as outras três, a pedido ════════════════════
+   Revelação de mão única: o botão some depois de usado. Trocar o rótulo
+   dele em tempo de execução brigaria com o seletor de idioma, que tira
+   uma cópia do texto de cada [data-pt] quando a página carrega.        */
+(() => {
+  const btn = document.getElementById("moreBtn");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    const escondidas = [...document.querySelectorAll(".trade.hid")];
+    escondidas.forEach(t => t.classList.remove("hid"));
+    btn.remove();
+    if (escondidas[0]) escondidas[0].scrollIntoView({ block: "nearest" });
+  });
+})();
 
 /* ═══ 9. trabalhos: painel, lista e troca automática ══════════════
    troca sozinho a cada AUTO_MS; um clique intencional segura o painel
