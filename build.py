@@ -18,6 +18,23 @@ if not os.path.exists(HERO_SRC):
     HERO_SRC = os.path.join(HERE, "hero-preto.png")
 ASCII_ROBOT_SRC = os.path.join(HERE, "hero-ascii-robot.png")
 
+# ── /reel com placeholders ──────────────────────────────────────────
+# True  = os 6 tiles do /reel saem como imagem cinza generica ("placeholder"),
+#         para mostrar o site sem expor o material real.
+# False = volta as imagens de verdade (assets/ e canal-dark).
+# Os PNG cinza sao gerados aqui mesmo, em assets/placeholder/, na primeira vez.
+PLACEHOLDER_REEL = True
+PLACEHOLDER_DIR = os.path.join(LOCAL_ASSETS, "placeholder")
+# tile -> (largura, altura) na proporcao em que ele aparece na grade
+PLACEHOLDER_SIZES = {
+    "W1": (900, 1600),   # t-a  9:16
+    "W5": (1200, 1067),  # t-b  6 colunas, altura da linha
+    "W2": (900, 1600),   # t-c  9:16
+    "W4": (900, 1200),   # t-d  4 colunas
+    "W6": (1000, 1067),  # t-e  5 colunas
+    "W3": (900, 1600),   # t-f  9:16
+}
+
 ASSETS = {
     "HERO": (HERO_SRC, 1100, 88),
     "ASCII_ROBOT": (ASCII_ROBOT_SRC, 1100, 90),
@@ -29,6 +46,40 @@ ASSETS = {
     "W5":   (os.path.join(CD, "test", "scene4k.jpg"),              980, 74),
     "W6":   (os.path.join(CD, "parallax", "plano-0.webp"),         980, 74),
 }
+
+if PLACEHOLDER_REEL:
+    for k in PLACEHOLDER_SIZES:
+        _, w, q = ASSETS[k]
+        ASSETS[k] = (os.path.join(PLACEHOLDER_DIR, f"{k}.png"), w, q)
+
+
+def gerar_placeholders():
+    """Desenha os PNG cinza do /reel: fundo claro, moldura, montanha e sol.
+
+    E' o icone classico de "imagem generica". Deterministico: mesmo arquivo
+    toda vez, entao pode ser apagado e regenerado sem susto.
+    """
+    from PIL import ImageDraw
+    os.makedirs(PLACEHOLDER_DIR, exist_ok=True)
+    BG, FG, LINE = (214, 218, 224), (142, 150, 160), (160, 167, 176)
+    for k, (W, H) in PLACEHOLDER_SIZES.items():
+        out = os.path.join(PLACEHOLDER_DIR, f"{k}.png")
+        if os.path.exists(out):
+            continue
+        im = Image.new("RGB", (W, H), BG)
+        d = ImageDraw.Draw(im)
+        # o icone ocupa o miolo: sobrevive ao object-fit:cover em qualquer largura
+        s = min(W, H) * 0.42
+        cx, cy = W / 2, H / 2
+        x0, y0, x1, y1 = cx - s / 2, cy - s * 0.38, cx + s / 2, cy + s * 0.38
+        d.rounded_rectangle((x0, y0, x1, y1), radius=s * 0.05, outline=LINE, width=max(3, int(s * 0.03)))
+        r = s * 0.075
+        d.ellipse((x0 + s * .18 - r, y0 + s * .18 - r, x0 + s * .18 + r, y0 + s * .18 + r), fill=FG)
+        base = y1 - s * 0.10
+        d.polygon([(x0 + s * .08, base), (x0 + s * .40, y0 + s * .30), (x0 + s * .62, base)], fill=FG)
+        d.polygon([(x0 + s * .45, base), (x0 + s * .70, y0 + s * .42), (x1 - s * .08, base)], fill=FG)
+        im.save(out, "PNG", optimize=True)
+        print(f"  placeholder gerado: {os.path.relpath(out, HERE)}")
 
 
 _last_mode = ""
@@ -51,6 +102,9 @@ def encode(path, width, quality):
 
 def main():
     tpl = io.open(os.path.join(HERE, "template.html"), encoding="utf-8").read()
+    if PLACEHOLDER_REEL:
+        gerar_placeholders()
+        print("  /reel: PLACEHOLDER (mude PLACEHOLDER_REEL em build.py para voltar)")
     total = 0
     for key, (path, w, q) in ASSETS.items():
         if not os.path.exists(path):
