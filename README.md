@@ -3,7 +3,7 @@
 Site de portfólio de **Rafael Aguiar** — AI Automation Engineer.
 Página única, HTML/CSS/JS puro, sem framework, sem build de node.
 
-**No ar:** https://rafaguiar.dev
+**No ar:** [rafaguiar.dev](https://rafaguiar-dev.github.io/)
 
 ## Como funciona
 
