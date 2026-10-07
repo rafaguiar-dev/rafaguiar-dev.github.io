@@ -498,6 +498,11 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 /* o pulso mora atras de tudo e nao intercepta clique nenhum */
 #ping{position:absolute;inset:0;z-index:0;pointer-events:none}
 .contact .wrap{position:relative;z-index:1}
+.contact h2.t{max-width:29ch;font-size:clamp(1.9rem,1.35rem + 3.1vw,3.9rem);line-height:1.08;text-wrap:balance}
+/* a pergunta vira a linha de chamada: própria linha, menor que a afirmação, em roxo da marca */
+.contact h2.t em{display:block;margin-top:.45em;font-size:.6em;line-height:1.2;letter-spacing:-.035em;
+  color:var(--purple);text-shadow:1.5px 1.5px 0 var(--cyan)}
+.contact .big-mail{margin-top:clamp(28px,3.6vw,48px)}
 .big-mail{display:inline-block;font-weight:800;font-size:clamp(1.25rem,5.2vw,3.4rem);letter-spacing:-.055em;
   text-decoration:none;line-height:1.05;margin-top:18px;overflow-wrap:anywhere;
   border-bottom:2px solid transparent;transition:.25s}
@@ -1078,7 +1083,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
   <canvas id="ping" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="head" data-rv="wipe"><span class="slug">/contact</span><span class="note">05</span></div>
-    <h2 class="t" data-rv="up" style="max-width:23ch" data-pt="Volume de criativo sem perder qualidade. <em>É esse o problema que eu resolvo.</em>">Creative volume without losing quality. <em>That is the problem I solve.</em></h2>
+    <h2 class="t" data-rv="up" data-pt="Vídeo com IA e as automações por trás dele. <em>Vamos conversar sobre o seu projeto?</em>">AI video and the automations behind it. <em>Let's talk about your project.</em></h2>
     <a class="big-mail" data-rv="up" href="mailto:rafaguiar.dev@gmail.com">rafaguiar.dev@gmail.com</a>
     <p class="avail" data-rv="up" data-pt="Remoto, no fuso do Brasil. Português nativo, inglês intermediário a avançado.">Remote, Brazil time zone. Native Portuguese, intermediate to advanced English.</p>
     <div class="socials" data-rv="up">
@@ -2656,7 +2661,8 @@ root.setAttribute("data-theme", "dark");
      e desliza até o filtro escolhido. Quem fica voa até o lugar novo
      (FLIP) e quem entra nasce em ASCII;
    · em "Todos", Personagem, Produto e B-roll são um card só com seis
-     cortes (mural.py). O ASCII roxo marca cada troca;
+     cortes de 3 s. O ASCII roxo ocupa as células em .7 s, segura .12 s
+     e devolve o vídeo em .9 s. A linha acompanha a frente e a barra conta;
    · o <video> só nasce perto da tela e só toca nela. Com movimento
      reduzido nada anda nem toca sozinho: clique/Enter toca.
    Aberto como file:// o navegador não deixa ler os pixels; aí o ASCII
@@ -2809,32 +2815,55 @@ root.setAttribute("data-theme", "dark");
   // desenha o ASCII de uma imagem ou de um quadro de vídeo (fonte com a mesma proporção do card)
   const amostra = document.createElement("canvas");
   const ax = amostra.getContext("2d", { willReadFrequently: true });
-  function pintar(g, W, H, dpr, fonte, iw, ih) {
+  function pintar(g, W, H, dpr, fonte, iw, ih, progresso = 1, entrada = false) {
     const CW = 6.6 * dpr, CH = 11 * dpr;
-    const cols = Math.ceil(W / CW), rows = Math.ceil(H / CH);
-    let lum = null;
+    const cols = Math.ceil(W / CW), rows = Math.ceil(H / CH), total = cols * rows;
+    // A grade guarda luminância e limiares fixos; nenhum sorteio ou vetor por quadro.
+    let grade = g._grade;
+    if (!grade || grade.cols !== cols || grade.rows !== rows) {
+      grade = g._grade = { cols, rows, lum: new Float32Array(total),
+        ruido: new Float32Array(total), frente: new Float32Array(total) };
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        const i = y * cols + x, r = Math.random();
+        grade.ruido[i] = r;
+        grade.frente[i] = .82 * (y + .5) / rows + .18 * r;
+        grade.lum[i] = .3 + .35 * Math.abs(Math.sin(x * .45 + y * .3)) * r;
+      }
+    }
     if (fonte) {
       try {
-        amostra.width = cols; amostra.height = rows;
-        let sw = iw, sh = ih, ox = 0, oy = 0;          // o mesmo recorte do object-fit:cover
-        if (iw / ih > W / H) { sw = ih * W / H; ox = (iw - sw) / 2; } else { sh = iw * H / W; oy = (ih - sh) / 2; }
+        if (amostra.width !== cols) amostra.width = cols;
+        if (amostra.height !== rows) amostra.height = rows;
+        let sw = iw, sh = ih, ox = 0, oy = 0;
+        if (iw / ih > W / H) { sw = ih * W / H; ox = (iw - sw) / 2; }
+        else { sh = iw * H / W; oy = (ih - sh) / 2; }
         ax.drawImage(fonte, ox, oy, sw, sh, 0, 0, cols, rows);
-        const d = ax.getImageData(0, 0, cols, rows).data;
-        lum = new Float32Array(cols * rows);
-        for (let i = 0; i < lum.length; i++) lum[i] = (d[i * 4] * .299 + d[i * 4 + 1] * .587 + d[i * 4 + 2] * .114) / 255;
-      } catch (_) { lum = null; }
+        const pixels = ax.getImageData(0, 0, cols, rows).data;
+        for (let i = 0; i < total; i++) grade.lum[i] =
+          (pixels[i * 4] * .299 + pixels[i * 4 + 1] * .587 + pixels[i * 4 + 2] * .114) / 255;
+      } catch (_) { /* file:// pode impedir a leitura; a grade continua estável. */ }
     }
-    g.fillStyle = "#0A0A0A"; g.fillRect(0, 0, W, H);
+    g.clearRect(0, 0, W, H);
     g.font = (10 * dpr) + "px 'JetBrains Mono', monospace";
     g.textBaseline = "top";
+    const e = progresso * progresso * (3 - 2 * progresso);
+    const frente = e * 1.16 - .08;
+    const brilho = .96 + .04 * Math.sin(progresso * Math.PI * 2);
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      let v = lum ? lum[y * cols + x] : .3 + .35 * Math.abs(Math.sin(x * .45 + y * .3)) * Math.random();
-      v = Math.pow(Math.min(1, Math.max(0, v)), 1.1);
+      const i = y * cols + x, limiar = entrada ? grade.frente[i] : grade.ruido[i];
+      let alpha = Math.min(1, Math.max(0, (frente - limiar + .08) / .16));
+      alpha = alpha * alpha * (3 - 2 * alpha);
+      if (entrada) alpha = 1 - alpha;
+      if (alpha <= 0) continue;
+      g.globalAlpha = alpha;
+      g.fillStyle = "#0A0A0A"; g.fillRect(x * CW, y * CH, CW + .5, CH + .5);
+      const v = Math.pow(Math.min(1, Math.max(0, grade.lum[i])), 1.1);
       const k = Math.round(v * (ASC.length - 1));
       if (!k) continue;
-      g.fillStyle = "rgba(191,133,249," + (.16 + .84 * v).toFixed(2) + ")";
-      g.fillText(ASC[k], x * CW, y * CH);
+      g.globalAlpha = alpha * (.16 + .84 * v) * brilho;
+      g.fillStyle = "#BF85F9"; g.fillText(ASC[k], x * CW, y * CH);
     }
+    g.globalAlpha = 1;
   }
 
   function revelar(c, d) {
@@ -2919,13 +2948,15 @@ root.setAttribute("data-theme", "dark");
     if (monVis) tocaMon(false); else stop(mc);
   }), { threshold: .3 }).observe(mon);
 
-  const D = 2, ANTES = .28, DEPOIS = .45;
+  // ── os cortes dos cards de sequência ──
+  const D = 3, ANTES = .7, DEPOIS = 1.02; // entrada: pausa de .12 s + revelação de .9 s
   function camada(c) {
     if (c._xf) return c._xf;
     const cv = document.createElement("canvas"); cv.className = "xf"; cv.setAttribute("aria-hidden", "true");
     const l = document.createElement("span"); l.className = "xl";
     const segs = c.querySelector(".segs");
     c.insertBefore(cv, segs); c.insertBefore(l, segs);
+    c._xg = cv.getContext("2d");
     c._xl = l; c._segs = [...c.querySelectorAll(".segs i")];
     return (c._xf = cv);
   }
@@ -2934,7 +2965,8 @@ root.setAttribute("data-theme", "dark");
     if (!v || c.hidden || v.paused || v.readyState < 2) return;
     const cv = camada(c), n = c._segs.length;
     const t = v.currentTime, ph = t - Math.floor(t / D) * D, k = Math.floor(t / D) % n;
-    c._segs.forEach((s, i) => s.style.setProperty("--p", i < k ? "100%" : i > k ? "0%" : (ph / D * 100).toFixed(1) + "%"));
+    for (let i = 0; i < n; i++) c._segs[i].style.setProperty("--p",
+      i < k ? "100%" : i > k ? "0%" : (ph / D * 100).toFixed(1) + "%");
     let fase = 0, a = 0;
     if (ph > D - ANTES) { fase = 1; a = (ph - (D - ANTES)) / ANTES; c._armado = true; }
     else if (ph < DEPOIS && c._armado) { fase = 2; a = ph / DEPOIS; }
@@ -2943,18 +2975,26 @@ root.setAttribute("data-theme", "dark");
       if (cv.style.display === "block") { cv.style.display = "none"; c._xl.style.display = "none"; }
       return;
     }
-    const r = c.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
-    const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+    const altura = c.clientHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(c.clientWidth * dpr), H = Math.round(altura * dpr);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
-    pintar(cv.getContext("2d"), W, H, dpr, v, v.videoWidth, v.videoHeight);
+    // Fotografa cada plano uma vez; a pausa mantém o ASCII do plano anterior.
+    const entrada = fase === 2, progresso = entrada ? Math.max(0, (ph - .12) / .9) : a;
+    const mudou = c._fase !== fase || c._plano !== k || c._xg._grade?.cols !== Math.ceil(W / (6.6 * dpr));
+    let fonte = null;
+    if (!entrada && mudou) fonte = v;
+    if (entrada && ph >= .12 && c._capturado !== k) { fonte = v; c._capturado = k; }
+    if (!entrada) c._capturado = -1;
+    pintar(c._xg, W, H, dpr, fonte, v.videoWidth, v.videoHeight, progresso, entrada);
+    c._fase = fase; c._plano = k;
     cv.style.display = "block";
-    if (fase === 1) {                       // o plano que sai se desfaz em ASCII
-      cv.style.opacity = (a * a).toFixed(2); cv.style.clipPath = "none"; c._xl.style.display = "none";
-    } else {                                // a varredura revela o plano que entra
-      const e = 1 - Math.pow(1 - a, 2);
-      cv.style.opacity = "1"; cv.style.clipPath = "inset(" + (e * 100).toFixed(1) + "% 0 0 0)";
-      c._xl.style.display = "block"; c._xl.style.transform = "translateY(" + (e * r.height).toFixed(1) + "px)";
-      c._xl.style.opacity = (1 - a * .6).toFixed(2);
+    if (fase === 1) {
+      c._xl.style.display = "none";
+    } else {
+      const e = progresso * progresso * (3 - 2 * progresso);
+      c._xl.style.display = ph > .12 ? "block" : "none";
+      c._xl.style.transform = "translateY(" + (e * altura).toFixed(1) + "px)";
+      c._xl.style.opacity = (Math.sin(Math.PI * progresso) * .85).toFixed(2);
     }
   }
 
