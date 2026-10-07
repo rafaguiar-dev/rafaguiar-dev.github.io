@@ -361,6 +361,9 @@ h2.t em{font-style:normal;color:var(--ink-3)}
   .clip figcaption{padding:22px 7px 6px}
 }
 
+/* o filtro troca 27 cards por 8: sem isto o Chrome "compensa" a altura e joga a página centenas de px para cima */
+#reel{overflow-anchor:none}
+
 /* ═══ 02 · /work: os dois apps em destaque + o que mais eu construí ══ */
 .app{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,3.4vw,52px);
   align-items:center;margin-top:clamp(30px,4.4vw,60px)}
@@ -719,10 +722,10 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 <div class="mi" data-k="insert-8" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula e impulsos">Capsule and impulses</span><i>1:1 · 0:04 · 24 fps</i></div>
 <div class="mi" data-k="produto-7" hidden><b data-pt="Produto">Product</b><span data-pt="Neuro Prime e Focus Max">Neuro Prime and Focus Max</span><i>1:1 · 0:04 · 24 fps</i></div>
 <div class="mi" data-k="produto-8" hidden><b data-pt="Produto">Product</b><span data-pt="Nerve Reset e GlycoCare">Nerve Reset and GlycoCare</span><i>1:1 · 0:04 · 24 fps</i></div>
-<div class="mi" data-k="avatar-7" hidden><b data-pt="Avatar">Avatar</b><span data-pt="De camisa">In a shirt</span><i>4:5 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="avatar-7" hidden><b data-pt="Avatar">Avatar</b><span data-pt="Entrevista">Interview</span><i>4:5 · 0:04 · 24 fps</i></div>
 <div class="mi" data-k="avatar-8" hidden><b data-pt="Avatar">Avatar</b><span data-pt="De blazer">In a blazer</span><i>4:5 · 0:04 · 24 fps</i></div>
 <div class="mi" data-k="ugc-7" hidden><b data-pt="UGC">UGC</b><span data-pt="De casaco">In a jacket</span><i>4:5 · 0:04 · 24 fps</i></div>
-<div class="mi" data-k="ugc-8" hidden><b data-pt="UGC">UGC</b><span data-pt="Em casa">At home</span><i>4:5 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="ugc-8" hidden><b data-pt="UGC">UGC</b><span data-pt="Vídeo de celular">Phone video</span><i>4:5 · 0:04 · 24 fps</i></div>
 <div class="mi" data-k="broll-1" hidden><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span><i>9:16 · 0:04 · 24 fps</i></div>
             <div class="mi" data-k="broll-2" hidden><b>B-roll</b><span data-pt="Mistura">Pouring</span><i>9:16 · 0:04 · 24 fps</i></div>
             <div class="mi" data-k="broll-3" hidden><b>B-roll</b><span data-pt="Corte">Slicing</span><i>9:16 · 0:04 · 24 fps</i></div>
@@ -764,8 +767,8 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
                  alt="AI-generated video: presenter" data-alt-pt="Vídeo gerado por IA: apresentadora">
             <figcaption><b>Avatar</b><span data-pt="Apresentadora">Presenter</span><em>4:5 · 0:04</em></figcaption></figure><figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5;--n:.8" data-src="media/reel/avatar-7.mp4" tabindex="0" role="button">
       <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
-      <img src="media/reel/avatar-7.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: In a shirt" data-alt-pt="Vídeo gerado por IA: de camisa">
-      <figcaption><b data-pt="Avatar">Avatar</b><span data-pt="De camisa">In a shirt</span><em>4:5 · 0:04</em></figcaption></figure>
+      <img src="media/reel/avatar-7.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: interview" data-alt-pt="Vídeo gerado por IA: entrevista">
+      <figcaption><b data-pt="Avatar">Avatar</b><span data-pt="Entrevista">Interview</span><em>4:5 · 0:04</em></figcaption></figure>
 <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5;--n:.8" data-src="media/reel/avatar-8.mp4" tabindex="0" role="button">
       <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
       <img src="media/reel/avatar-8.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: In a blazer" data-alt-pt="Vídeo gerado por IA: de blazer">
@@ -808,8 +811,8 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
       <figcaption><b data-pt="UGC">UGC</b><span data-pt="De casaco">In a jacket</span><em>4:5 · 0:04</em></figcaption></figure>
 <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:.8" data-src="media/reel/ugc-8.mp4" tabindex="0" role="button">
       <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
-      <img src="media/reel/ugc-8.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: At home" data-alt-pt="Vídeo gerado por IA: em casa">
-      <figcaption><b data-pt="UGC">UGC</b><span data-pt="Em casa">At home</span><em>4:5 · 0:04</em></figcaption></figure>
+      <img src="media/reel/ugc-8.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: phone video" data-alt-pt="Vídeo gerado por IA: vídeo de celular">
+      <figcaption><b data-pt="UGC">UGC</b><span data-pt="Vídeo de celular">Phone video</span><em>4:5 · 0:04</em></figcaption></figure>
 
 </div></div>
 <div class="wall-block" data-group="insert"><div class="wall-label"><span data-pt="V3 · INSERTS 3D">V3 · 3D INSERTS</span><span>08</span></div><div class="wall-rows">

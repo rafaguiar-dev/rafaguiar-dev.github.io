@@ -92,6 +92,15 @@ header.nav{position:sticky;top:0;z-index:70;backdrop-filter:blur(14px) saturate(
   border:1px solid var(--line);padding:6px 10px;border-radius:var(--radius);cursor:pointer;transition:.2s}
 .sw:hover{color:var(--purple);border-color:var(--purple);background:var(--purple-dim)}
 
+/* Cadeado: os dois rótulos acompanham a tradução do HTML. */
+.sw-lock{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px}
+.sw-lock svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sw-lock [hidden]{display:none}
+.sw-lock[aria-pressed="true"]{color:var(--purple)}
+.lock-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sw-lock.lock-hint{animation:lock-hint 950ms ease-out 1}
+@keyframes lock-hint{50%{background:var(--purple-dim);box-shadow:0 0 14px var(--purple)}}
+
 /* ═══ botões ══════════════════════════════════════════════════════ */
 .btn{font-size:var(--s--1);text-decoration:none;padding:12px 20px;border-radius:var(--radius);
   border:1px solid var(--line);transition:.22s;display:inline-flex;gap:10px;align-items:center;font-weight:500}
@@ -287,14 +296,20 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .mi i{font-style:normal;font-size:11px;color:var(--ink-3);letter-spacing:.04em}
 
 /* a folha de contatos: linhas justificadas, todas na altura de uma faixa */
-.wall{--rh:clamp(172px,15vw,224px);display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
-.wall::after{content:"";flex:999 1 0}
+.wall{--rh:clamp(172px,15vw,224px);--gap:10px;display:grid;gap:24px;min-width:0}
+.wall-block{min-width:0}.wall-block[hidden]{display:none}
+.wall-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;
+  padding-bottom:6px;border-bottom:1px solid var(--line);font-size:9px;letter-spacing:.12em;color:var(--ink-3)}
+.wall-label span:last-child{color:var(--purple);font-variant-numeric:tabular-nums}
+.wall-rows{display:grid;gap:var(--gap)}
+.wall-row{display:flex;gap:var(--gap);min-width:0}
 .clip{position:relative;margin:0;overflow:hidden;border-radius:6px;background:var(--card);
   outline:1px solid var(--line-2);outline-offset:-1px;cursor:pointer}
-.wall .clip{height:var(--rh);min-width:0;flex:calc(var(--n,.56) * 100) 1 calc(var(--n,.56) * var(--rh));
+.wall .clip{height:var(--row-h,var(--rh));min-width:0;flex:var(--tile-n,var(--n,.56)) 1 0;
   transition:opacity .3s,box-shadow .3s,outline-color .3s}
 .clip[hidden]{display:none}
 .clip img,.clip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.wall .clip img,.wall .clip video{object-position:var(--pos,center)}
 .clip video{z-index:1;opacity:0;transition:opacity .4s ease;pointer-events:none}
 .clip video.ready{opacity:1}
 .clip figcaption{position:absolute;left:0;right:0;bottom:0;z-index:5;display:grid;gap:1px;padding:26px 9px 8px;
@@ -303,10 +318,13 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .clip figcaption b{color:var(--purple);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:9px}
 .clip figcaption span,.clip figcaption em{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .clip figcaption em{font-style:normal;font-size:9px;letter-spacing:.04em;color:var(--ink-2);font-variant-numeric:tabular-nums}
-/* o que está no monitor fica parado e apagado na folha, com o ponto roxo no rótulo */
-.wall .clip.sel{outline:2px solid var(--purple);outline-offset:-2px}
-.wall .clip.sel img,.wall .clip.sel video{filter:grayscale(1) brightness(.45)}
-.clip.sel figcaption b::before{content:"● "}
+/* O trecho selecionado mantém a cor e ganha um selo de estado. */
+.wall .clip.sel{outline:1px solid var(--purple);outline-offset:-1px}
+.monitor-badge{display:none;position:absolute;top:8px;left:8px;z-index:6;padding:3px 6px;
+  border:1px solid rgba(191,133,249,.5);border-radius:3px;background:rgba(10,10,10,.86);
+  color:var(--purple);font-size:9px;line-height:1.4;white-space:nowrap}
+.clip.sel .monitor-badge{display:block}
+.clip.sel .segs{top:32px}
 .clip:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 @media (hover:hover){
   .wall:has(.clip:hover) .clip:not(:hover){opacity:.5}
@@ -336,12 +354,15 @@ h2.t em{font-style:normal;color:var(--ink-3)}
     gap:20px}
   .trab-main{grid-template-columns:minmax(0,1fr);gap:18px}
   .mon{position:static;--mh:clamp(300px,52vh,440px)}
-  .wall{--rh:clamp(150px,40vw,210px);gap:8px}
+  .wall{--rh:clamp(150px,28vw,210px);--gap:8px;gap:20px}
 }
 @media(max-width:560px){
   .clip figcaption em{display:none}
   .clip figcaption{padding:22px 7px 6px}
 }
+
+/* o filtro troca 27 cards por 8: sem isto o Chrome "compensa" a altura e joga a página centenas de px para cima */
+#reel{overflow-anchor:none}
 
 /* ═══ 02 · /work: os dois apps em destaque + o que mais eu construí ══ */
 .app{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,3.4vw,52px);
@@ -555,6 +576,16 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
       <a href="#contact">/contact</a>
     </nav>
     <div class="switches">
+      <button class="sw sw-lock" id="section-lock" type="button" aria-pressed="false" aria-label="Section alignment: off" title="Section alignment: off">
+        <span data-lock="on" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+          <span class="lock-label" data-pt="Encaixe por seção: ligado" data-aria-pt="Encaixe por seção: ligado" aria-label="Section alignment: on">Section alignment: on</span>
+        </span>
+        <span data-lock="off">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 7.5-2M12 14v3"/></svg>
+          <span class="lock-label" data-pt="Encaixe por seção: desligado" data-aria-pt="Encaixe por seção: desligado" aria-label="Section alignment: off">Section alignment: off</span>
+        </span>
+      </button>
       <button class="sw" id="lang" aria-label="Trocar idioma">PT</button>
       </div>
   </div>
@@ -621,11 +652,11 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
            (media/reel/seq-*.mp4) e o ASCII roxo marca cada troca. mural.py corta. -->
       <div class="trab-bar" data-rv="up">
         <div class="chips" role="group" aria-label="Filter the videos" data-aria-pt="Filtrar os vídeos">
-          <button type="button" class="chip" data-f="all" aria-pressed="true"><span data-pt="Todos">All</span><sup>21</sup></button>
-          <button type="button" class="chip" data-f="avatar" aria-pressed="false"><span data-pt="Avatares">Avatars</span><sup>6</sup></button>
-          <button type="button" class="chip" data-f="ugc" aria-pressed="false"><span>UGC</span><sup>6</sup></button>
-          <button type="button" class="chip" data-f="insert" aria-pressed="false"><span data-pt="Inserts 3D">3D inserts</span><sup>6</sup></button>
-          <button type="button" class="chip" data-f="produto" aria-pressed="false"><span data-pt="Produto">Product</span><sup>6</sup></button>
+          <button type="button" class="chip" data-f="all" aria-pressed="true"><span data-pt="Todos">All</span><sup>27</sup></button>
+          <button type="button" class="chip" data-f="avatar" aria-pressed="false"><span data-pt="Avatares">Avatars</span><sup>8</sup></button>
+          <button type="button" class="chip" data-f="ugc" aria-pressed="false"><span>UGC</span><sup>8</sup></button>
+          <button type="button" class="chip" data-f="insert" aria-pressed="false"><span data-pt="Inserts 3D">3D inserts</span><sup>8</sup></button>
+          <button type="button" class="chip" data-f="produto" aria-pressed="false"><span data-pt="Produto">Product</span><sup>8</sup></button>
           <button type="button" class="chip" data-f="personagem" aria-pressed="false"><span data-pt="Personagem">Character</span><sup>6</sup></button>
           <button type="button" class="chip" data-f="broll" aria-pressed="false"><span>B-roll</span><sup>6</sup></button>
         </div>
@@ -642,7 +673,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 
       <div class="trab-main">
         <div class="mon" id="monitor">
-          <div class="mon-head"><span class="mon-tag"><s></s><span data-pt="Programa">Program</span></span><span class="mon-n" id="mon-n">01 / 21</span></div>
+          <div class="mon-head"><span class="mon-tag"><s></s><span data-pt="Programa">Program</span></span><span class="mon-n" id="mon-n">01 / 27</span></div>
           <div class="mon-stage">
             <figure class="clip mon-clip seq" id="mon-clip" style="--r:4/5;--n:.8" data-src="" tabindex="0" role="button"
                     data-aria-pt="Tocar ou pausar o trecho do monitor" aria-label="Play or pause the monitor clip">
@@ -687,7 +718,15 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
             <div class="mi" data-k="produto-4" hidden><b data-pt="Produto">Product</b><span data-pt="Fundo chapado">Flat backdrop</span><i>4:5 · 0:04 · 24 fps</i></div>
             <div class="mi" data-k="produto-5" hidden><b data-pt="Produto">Product</b><span data-pt="Conta-gotas">Dropper</span><i>9:16 · 0:04 · 24 fps</i></div>
             <div class="mi" data-k="produto-6" hidden><b data-pt="Produto">Product</b><span data-pt="Espaço">Space</span><i>4:5 · 0:04 · 24 fps</i></div>
-            <div class="mi" data-k="broll-1" hidden><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="insert-7" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Cérebro holográfico">Holographic brain</span><i>1:1 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="insert-8" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula e impulsos">Capsule and impulses</span><i>1:1 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="produto-7" hidden><b data-pt="Produto">Product</b><span data-pt="Neuro Prime e Focus Max">Neuro Prime and Focus Max</span><i>1:1 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="produto-8" hidden><b data-pt="Produto">Product</b><span data-pt="Nerve Reset e GlycoCare">Nerve Reset and GlycoCare</span><i>1:1 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="avatar-7" hidden><b data-pt="Avatar">Avatar</b><span data-pt="Entrevista">Interview</span><i>4:5 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="avatar-8" hidden><b data-pt="Avatar">Avatar</b><span data-pt="De blazer">In a blazer</span><i>4:5 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="ugc-7" hidden><b data-pt="UGC">UGC</b><span data-pt="De casaco">In a jacket</span><i>4:5 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="ugc-8" hidden><b data-pt="UGC">UGC</b><span data-pt="Vídeo de celular">Phone video</span><i>4:5 · 0:04 · 24 fps</i></div>
+<div class="mi" data-k="broll-1" hidden><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span><i>9:16 · 0:04 · 24 fps</i></div>
             <div class="mi" data-k="broll-2" hidden><b>B-roll</b><span data-pt="Mistura">Pouring</span><i>9:16 · 0:04 · 24 fps</i></div>
             <div class="mi" data-k="broll-3" hidden><b>B-roll</b><span data-pt="Corte">Slicing</span><i>9:16 · 0:04 · 24 fps</i></div>
             <div class="mi" data-k="broll-4" hidden><b>B-roll</b><span data-pt="Vapor">Steam</span><i>9:16 · 0:04 · 24 fps</i></div>
@@ -696,166 +735,251 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
           </div>
         </div>
         <div class="wall" id="mural">
-          <figure class="clip seq" data-cat="personagem" data-in="all" style="--r:4/5;--n:0.8" data-src="media/reel/seq-personagem.mp4" tabindex="0" role="button">
-            <img src="media/reel/seq-personagem.jpg" width="360" height="450"
+<div class="wall-block" data-group="avatar"><div class="wall-label"><span data-pt="V1 · AVATARES">V1 · AVATARS</span><span>08</span></div><div class="wall-rows">
+<figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-1.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/avatar-1.jpg" width="360" height="640"
+                 alt="AI-generated video: testimonial with product" data-alt-pt="Vídeo gerado por IA: depoimento com produto">
+            <figcaption><b>Avatar</b><span data-pt="Com o produto">With the product</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625;--pos:50% 0%" data-src="media/reel/avatar-2.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/avatar-2.jpg" width="360" height="640"
+                 alt="AI-generated video: doctor" data-alt-pt="Vídeo gerado por IA: médico">
+            <figcaption><b>Avatar</b><span data-pt="Médico">Doctor</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-3.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/avatar-3.jpg" width="360" height="640"
+                 alt="AI-generated video: testimonial" data-alt-pt="Vídeo gerado por IA: depoimento">
+            <figcaption><b>Avatar</b><span data-pt="Depoimento">Testimonial</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-4.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/avatar-4.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: kitchen talk" data-alt-pt="Vídeo gerado por IA: conversa na cozinha">
+            <figcaption><b>Avatar</b><span data-pt="Na cozinha">In the kitchen</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-5.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/avatar-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: at home" data-alt-pt="Vídeo gerado por IA: em casa">
+            <figcaption><b>Avatar</b><span data-pt="Em casa">At home</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/avatar-6.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/avatar-6.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: presenter" data-alt-pt="Vídeo gerado por IA: apresentadora">
+            <figcaption><b>Avatar</b><span data-pt="Apresentadora">Presenter</span><em>4:5 · 0:04</em></figcaption></figure><figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5;--n:.8" data-src="media/reel/avatar-7.mp4" tabindex="0" role="button">
+      <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+      <img src="media/reel/avatar-7.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: interview" data-alt-pt="Vídeo gerado por IA: entrevista">
+      <figcaption><b data-pt="Avatar">Avatar</b><span data-pt="Entrevista">Interview</span><em>4:5 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5;--n:.8" data-src="media/reel/avatar-8.mp4" tabindex="0" role="button">
+      <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+      <img src="media/reel/avatar-8.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: In a blazer" data-alt-pt="Vídeo gerado por IA: de blazer">
+      <figcaption><b data-pt="Avatar">Avatar</b><span data-pt="De blazer">In a blazer</span><em>4:5 · 0:04</em></figcaption></figure>
+
+</div></div>
+<div class="wall-block" data-group="ugc"><div class="wall-label"><span data-pt="V2 · UGC">V2 · UGC</span><span>08</span></div><div class="wall-rows">
+<figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-1.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/ugc-1.jpg" width="360" height="640"
+                 alt="AI-generated video: recipe" data-alt-pt="Vídeo gerado por IA: receita">
+            <figcaption><b>UGC</b><span data-pt="Receita">Recipe</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/ugc-2.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/ugc-2.jpg" width="360" height="450"
+                 alt="AI-generated video: workshop testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na oficina">
+            <figcaption><b>UGC</b><span data-pt="Na oficina">In the workshop</span><em>4:5 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625;--pos:50% 0%" data-src="media/reel/ugc-3.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/ugc-3.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: before and after" data-alt-pt="Vídeo gerado por IA: antes e depois">
+            <figcaption><b>UGC</b><span data-pt="Antes e depois">Before and after</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/ugc-4.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/ugc-4.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: living room testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na sala">
+            <figcaption><b>UGC</b><span data-pt="Na sala">Living room</span><em>4:5 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-5.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/ugc-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: product in hand" data-alt-pt="Vídeo gerado por IA: produto na mão">
+            <figcaption><b>UGC</b><span data-pt="Produto na mão">Product in hand</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-6.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/ugc-6.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: street selfie" data-alt-pt="Vídeo gerado por IA: selfie na rua">
+            <figcaption><b>UGC</b><span data-pt="Selfie na rua">Street selfie</span><em>9:16 · 0:04</em></figcaption></figure><figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:.8" data-src="media/reel/ugc-7.mp4" tabindex="0" role="button">
+      <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+      <img src="media/reel/ugc-7.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: In a jacket" data-alt-pt="Vídeo gerado por IA: de casaco">
+      <figcaption><b data-pt="UGC">UGC</b><span data-pt="De casaco">In a jacket</span><em>4:5 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:.8" data-src="media/reel/ugc-8.mp4" tabindex="0" role="button">
+      <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+      <img src="media/reel/ugc-8.jpg" loading="lazy" width="360" height="450" alt="AI-generated video: phone video" data-alt-pt="Vídeo gerado por IA: vídeo de celular">
+      <figcaption><b data-pt="UGC">UGC</b><span data-pt="Vídeo de celular">Phone video</span><em>4:5 · 0:04</em></figcaption></figure>
+
+</div></div>
+<div class="wall-block" data-group="insert"><div class="wall-label"><span data-pt="V3 · INSERTS 3D">V3 · 3D INSERTS</span><span>08</span></div><div class="wall-rows">
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-1.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-1.jpg" width="360" height="450"
+                 alt="AI-generated video: blood vessel" data-alt-pt="Vídeo gerado por IA: vaso sanguíneo">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Vaso sanguíneo">Blood vessel</span><em>4:5 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:1/1;--n:1.0" data-src="media/reel/insert-2.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-2.jpg" width="360" height="360"
+                 alt="AI-generated video: neurons" data-alt-pt="Vídeo gerado por IA: neurônios">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Neurônios">Neurons</span><em>1:1 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-3.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-3.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: drop in vinegar" data-alt-pt="Vídeo gerado por IA: gota no vinagre">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Gota no vinagre">Drop in vinegar</span><em>4:5 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/insert-4.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-4.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: pancreas x-ray" data-alt-pt="Vídeo gerado por IA: pâncreas em raio X">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Pâncreas em raio X">Pancreas x-ray</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/insert-5.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: thermal scan" data-alt-pt="Vídeo gerado por IA: termografia">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Termografia">Thermal scan</span><em>9:16 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-6.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-6.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: capsule" data-alt-pt="Vídeo gerado por IA: cápsula">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula">Capsule</span><em>4:5 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:1/1;--n:1" data-src="media/reel/insert-7.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-7.jpg" loading="lazy" width="360" height="360" alt="AI-generated video: Holographic brain" data-alt-pt="Vídeo gerado por IA: cérebro holográfico">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Cérebro holográfico">Holographic brain</span><em>1:1 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="insert" data-in="all cat" style="--r:1/1;--n:1" data-src="media/reel/insert-8.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/insert-8.jpg" loading="lazy" width="360" height="360" alt="AI-generated video: Capsule and impulses" data-alt-pt="Vídeo gerado por IA: cápsula e impulsos">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula e impulsos">Capsule and impulses</span><em>1:1 · 0:04</em></figcaption></figure>
+</div></div>
+<div class="wall-block" data-group="seq"><div class="wall-label"><span data-pt="V4 · SEQUÊNCIAS">V4 · SEQUENCES</span><span>03</span></div><div class="wall-rows">
+<figure class="clip seq" data-cat="personagem" data-in="all" style="--r:4/5;--n:0.8" data-src="media/reel/seq-personagem.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/seq-personagem.jpg" width="360" height="450"
                  alt="AI-generated video: same presenter, six scenes" data-alt-pt="Vídeo gerado por IA: mesma apresentadora, seis cenas">
             <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
             <figcaption><b data-pt="Personagem">Character</b><span data-pt="Seis cenas">Six scenes</span><em data-pt="4:5 · 6 cortes">4:5 · 6 cuts</em></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-1.mp4" tabindex="0" role="button">
-            <img src="media/reel/avatar-1.jpg" width="360" height="640"
-                 alt="AI-generated video: testimonial with product" data-alt-pt="Vídeo gerado por IA: depoimento com produto">
-            <figcaption><b>Avatar</b><span data-pt="Com o produto">With the product</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-1.mp4" tabindex="0" role="button">
-            <img src="media/reel/insert-1.jpg" width="360" height="450"
-                 alt="AI-generated video: blood vessel" data-alt-pt="Vídeo gerado por IA: vaso sanguíneo">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Vaso sanguíneo">Blood vessel</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-1.mp4" tabindex="0" role="button">
-            <img src="media/reel/ugc-1.jpg" width="360" height="640"
-                 alt="AI-generated video: recipe" data-alt-pt="Vídeo gerado por IA: receita">
-            <figcaption><b>UGC</b><span data-pt="Receita">Recipe</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-2.mp4" tabindex="0" role="button">
-            <img src="media/reel/avatar-2.jpg" width="360" height="640"
-                 alt="AI-generated video: doctor" data-alt-pt="Vídeo gerado por IA: médico">
-            <figcaption><b>Avatar</b><span data-pt="Médico">Doctor</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:1/1;--n:1.0" data-src="media/reel/insert-2.mp4" tabindex="0" role="button">
-            <img src="media/reel/insert-2.jpg" width="360" height="360"
-                 alt="AI-generated video: neurons" data-alt-pt="Vídeo gerado por IA: neurônios">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Neurônios">Neurons</span><em>1:1 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/ugc-2.mp4" tabindex="0" role="button">
-            <img src="media/reel/ugc-2.jpg" width="360" height="450"
-                 alt="AI-generated video: workshop testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na oficina">
-            <figcaption><b>UGC</b><span data-pt="Na oficina">In the workshop</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip seq" data-cat="produto" data-in="all" style="--r:4/5;--n:0.8" data-src="media/reel/seq-produto.mp4" tabindex="0" role="button">
-            <img src="media/reel/seq-produto.jpg" width="360" height="450"
+<figure class="clip seq" data-cat="produto" data-in="all" style="--r:4/5;--n:0.8" data-src="media/reel/seq-produto.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/seq-produto.jpg" width="360" height="450"
                  alt="AI-generated video: six bottles, six settings" data-alt-pt="Vídeo gerado por IA: seis frascos, seis cenários">
             <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
             <figcaption><b data-pt="Produto">Product</b><span data-pt="Seis cenários">Six settings</span><em data-pt="4:5 · 6 cortes">4:5 · 6 cuts</em></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-3.mp4" tabindex="0" role="button">
-            <img src="media/reel/avatar-3.jpg" width="360" height="640"
-                 alt="AI-generated video: testimonial" data-alt-pt="Vídeo gerado por IA: depoimento">
-            <figcaption><b>Avatar</b><span data-pt="Depoimento">Testimonial</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-3.mp4" tabindex="0" role="button">
-            <img src="media/reel/insert-3.jpg" loading="lazy" width="360" height="450"
-                 alt="AI-generated video: drop in vinegar" data-alt-pt="Vídeo gerado por IA: gota no vinagre">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Gota no vinagre">Drop in vinegar</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-3.mp4" tabindex="0" role="button">
-            <img src="media/reel/ugc-3.jpg" loading="lazy" width="360" height="640"
-                 alt="AI-generated video: before and after" data-alt-pt="Vídeo gerado por IA: antes e depois">
-            <figcaption><b>UGC</b><span data-pt="Antes e depois">Before and after</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip seq" data-cat="broll" data-in="all" style="--r:9/16;--n:0.5625" data-src="media/reel/seq-broll.mp4" tabindex="0" role="button">
-            <img src="media/reel/seq-broll.jpg" loading="lazy" width="360" height="640"
+<figure class="clip seq" data-cat="broll" data-in="all" style="--r:9/16;--n:0.5625" data-src="media/reel/seq-broll.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/seq-broll.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: a recipe in six cuts" data-alt-pt="Vídeo gerado por IA: receita em seis cortes">
             <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
             <figcaption><b>B-roll</b><span data-pt="Receita em seis cortes">Recipe in six cuts</span><em data-pt="9:16 · 6 cortes">9:16 · 6 cuts</em></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-4.mp4" tabindex="0" role="button">
-            <img src="media/reel/avatar-4.jpg" loading="lazy" width="360" height="640"
-                 alt="AI-generated video: kitchen talk" data-alt-pt="Vídeo gerado por IA: conversa na cozinha">
-            <figcaption><b>Avatar</b><span data-pt="Na cozinha">In the kitchen</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/insert-4.mp4" tabindex="0" role="button">
-            <img src="media/reel/insert-4.jpg" loading="lazy" width="360" height="640"
-                 alt="AI-generated video: pancreas x-ray" data-alt-pt="Vídeo gerado por IA: pâncreas em raio X">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Pâncreas em raio X">Pancreas x-ray</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/ugc-4.mp4" tabindex="0" role="button">
-            <img src="media/reel/ugc-4.jpg" loading="lazy" width="360" height="450"
-                 alt="AI-generated video: living room testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na sala">
-            <figcaption><b>UGC</b><span data-pt="Na sala">Living room</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-5.mp4" tabindex="0" role="button">
-            <img src="media/reel/avatar-5.jpg" loading="lazy" width="360" height="640"
-                 alt="AI-generated video: at home" data-alt-pt="Vídeo gerado por IA: em casa">
-            <figcaption><b>Avatar</b><span data-pt="Em casa">At home</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/insert-5.mp4" tabindex="0" role="button">
-            <img src="media/reel/insert-5.jpg" loading="lazy" width="360" height="640"
-                 alt="AI-generated video: thermal scan" data-alt-pt="Vídeo gerado por IA: termografia">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Termografia">Thermal scan</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-5.mp4" tabindex="0" role="button">
-            <img src="media/reel/ugc-5.jpg" loading="lazy" width="360" height="640"
-                 alt="AI-generated video: product in hand" data-alt-pt="Vídeo gerado por IA: produto na mão">
-            <figcaption><b>UGC</b><span data-pt="Produto na mão">Product in hand</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/avatar-6.mp4" tabindex="0" role="button">
-            <img src="media/reel/avatar-6.jpg" loading="lazy" width="360" height="450"
-                 alt="AI-generated video: presenter" data-alt-pt="Vídeo gerado por IA: apresentadora">
-            <figcaption><b>Avatar</b><span data-pt="Apresentadora">Presenter</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-6.mp4" tabindex="0" role="button">
-            <img src="media/reel/insert-6.jpg" loading="lazy" width="360" height="450"
-                 alt="AI-generated video: capsule" data-alt-pt="Vídeo gerado por IA: cápsula">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula">Capsule</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-6.mp4" tabindex="0" role="button">
-            <img src="media/reel/ugc-6.jpg" loading="lazy" width="360" height="640"
-                 alt="AI-generated video: street selfie" data-alt-pt="Vídeo gerado por IA: selfie na rua">
-            <figcaption><b>UGC</b><span data-pt="Selfie na rua">Street selfie</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-1.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/personagem-1.jpg" loading="lazy" width="360" height="640"
+</div></div>
+<div class="wall-block" data-group="personagem"><div class="wall-label"><span data-pt="V5 · PERSONAGEM">V5 · CHARACTER</span><span>06</span></div><div class="wall-rows">
+<figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-1.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/personagem-1.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 1" data-alt-pt="Vídeo gerado por IA: cena 1">
             <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 1">Scene 1</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-2.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/personagem-2.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-2.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/personagem-2.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 2" data-alt-pt="Vídeo gerado por IA: cena 2">
             <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 2">Scene 2</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-3.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/personagem-3.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-3.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/personagem-3.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 3" data-alt-pt="Vídeo gerado por IA: cena 3">
             <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 3">Scene 3</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-4.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/personagem-4.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-4.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/personagem-4.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 4" data-alt-pt="Vídeo gerado por IA: cena 4">
             <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 4">Scene 4</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-5.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/personagem-5.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-5.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/personagem-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 5" data-alt-pt="Vídeo gerado por IA: cena 5">
             <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 5">Scene 5</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-6.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/personagem-6.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-6.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/personagem-6.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 6" data-alt-pt="Vídeo gerado por IA: cena 6">
             <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 6">Scene 6</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-1.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/produto-1.jpg" loading="lazy" width="360" height="640"
+</div></div>
+<div class="wall-block" data-group="produto"><div class="wall-label"><span data-pt="V6 · PRODUTO">V6 · PRODUCT</span><span>08</span></div><div class="wall-rows">
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-1.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-1.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: water burst" data-alt-pt="Vídeo gerado por IA: explosão de água">
             <figcaption><b data-pt="Produto">Product</b><span data-pt="Explosão de água">Water burst</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-2.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/produto-2.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-2.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-2.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: sunset" data-alt-pt="Vídeo gerado por IA: pôr do sol">
             <figcaption><b data-pt="Produto">Product</b><span data-pt="Pôr do sol">Sunset</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-3.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/produto-3.jpg" loading="lazy" width="360" height="450"
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-3.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-3.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: stream" data-alt-pt="Vídeo gerado por IA: riacho">
             <figcaption><b data-pt="Produto">Product</b><span data-pt="Riacho">Stream</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-4.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/produto-4.jpg" loading="lazy" width="360" height="450"
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-4.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-4.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: flat backdrop" data-alt-pt="Vídeo gerado por IA: fundo chapado">
             <figcaption><b data-pt="Produto">Product</b><span data-pt="Fundo chapado">Flat backdrop</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-5.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/produto-5.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-5.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: dropper" data-alt-pt="Vídeo gerado por IA: conta-gotas">
             <figcaption><b data-pt="Produto">Product</b><span data-pt="Conta-gotas">Dropper</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-6.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/produto-6.jpg" loading="lazy" width="360" height="450"
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-6.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-6.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: space" data-alt-pt="Vídeo gerado por IA: espaço">
             <figcaption><b data-pt="Produto">Product</b><span data-pt="Espaço">Space</span><em>4:5 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-1.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/broll-1.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:1/1;--n:1" data-src="media/reel/produto-7.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-7.jpg" loading="lazy" width="360" height="360" alt="AI-generated video: Neuro Prime and Focus Max" data-alt-pt="Vídeo gerado por IA: neuro prime e focus max">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Neuro Prime e Focus Max">Neuro Prime and Focus Max</span><em>1:1 · 0:04</em></figcaption></figure>
+<figure class="clip" data-cat="produto" data-in="cat" style="--r:1/1;--n:1" data-src="media/reel/produto-8.mp4" tabindex="0" role="button">
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/produto-8.jpg" loading="lazy" width="360" height="360" alt="AI-generated video: Nerve Reset and GlycoCare" data-alt-pt="Vídeo gerado por IA: nerve reset e glycocare">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Nerve Reset e GlycoCare">Nerve Reset and GlycoCare</span><em>1:1 · 0:04</em></figcaption></figure>
+</div></div>
+<div class="wall-block" data-group="broll"><div class="wall-label"><span data-pt="V7 · B-ROLL">V7 · B-ROLL</span><span>06</span></div><div class="wall-rows">
+<figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-1.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/broll-1.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: boiling water" data-alt-pt="Vídeo gerado por IA: água fervendo">
             <figcaption><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-2.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/broll-2.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-2.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/broll-2.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: pouring" data-alt-pt="Vídeo gerado por IA: mistura">
             <figcaption><b>B-roll</b><span data-pt="Mistura">Pouring</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-3.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/broll-3.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-3.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/broll-3.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: slicing" data-alt-pt="Vídeo gerado por IA: corte">
             <figcaption><b>B-roll</b><span data-pt="Corte">Slicing</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-4.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/broll-4.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-4.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/broll-4.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: steam" data-alt-pt="Vídeo gerado por IA: vapor">
             <figcaption><b>B-roll</b><span data-pt="Vapor">Steam</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-5.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/broll-5.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-5.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/broll-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: cream" data-alt-pt="Vídeo gerado por IA: creme">
             <figcaption><b>B-roll</b><span data-pt="Creme">Cream</span><em>9:16 · 0:04</em></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-6.mp4" tabindex="0" role="button" hidden>
-            <img src="media/reel/broll-6.jpg" loading="lazy" width="360" height="640"
+<figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-6.mp4" tabindex="0" role="button" hidden>
+            <span class="monitor-badge" data-pt="● no monitor">● on monitor</span>
+<img src="media/reel/broll-6.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: phone" data-alt-pt="Vídeo gerado por IA: celular">
             <figcaption><b>B-roll</b><span data-pt="Celular">Phone</span><em>9:16 · 0:04</em></figcaption></figure>
-        </div>
+</div></div>
+</div>
       </div>
     </div>
 
@@ -2661,8 +2785,8 @@ root.setAttribute("data-theme", "dark");
      e desliza até o filtro escolhido. Quem fica voa até o lugar novo
      (FLIP) e quem entra nasce em ASCII;
    · em "Todos", Personagem, Produto e B-roll são um card só com seis
-     cortes de 3 s. O ASCII roxo ocupa as células em .7 s, segura .12 s
-     e devolve o vídeo em .9 s. A linha acompanha a frente e a barra conta;
+     cortes de 3 s. O ASCII roxo cobre o quadro em .45 s, segura .15 s
+     e uma passada limpa devolve o vídeo em .7 s. A linha acompanha a frente e a barra conta;
    · o <video> só nasce perto da tela e só toca nela. Com movimento
      reduzido nada anda nem toca sozinho: clique/Enter toca.
    Aberto como file:// o navegador não deixa ler os pixels; aí o ASCII
@@ -2687,7 +2811,33 @@ root.setAttribute("data-theme", "dark");
     const em = c.dataset.in.split(" ");
     return filtro === "all" ? em.includes("all") : c.dataset.cat === filtro && em.includes("cat");
   };
-  const aplicar = () => tiles.forEach(c => { c.hidden = !mostra(c); });
+  // Blocos de oito: quatro por fileira no desktop, pares no celular.
+  // O recorte de exibição é 4:5; o monitor conserva a proporção da origem.
+  function arrumar() {
+    const W = wall.clientWidth;
+    if (!W) return;
+    const gap = innerWidth <= 900 ? 8 : 10;
+    wall.querySelectorAll(".wall-block").forEach(bloco => {
+      const todos = tiles.filter(c => c.closest(".wall-block") === bloco);
+      const cards = todos.filter(c => !c.hidden), ocultos = todos.filter(c => c.hidden);
+      bloco.hidden = !cards.length;
+      if (!cards.length) return;
+      const host = bloco.querySelector(".wall-rows"), fragmento = document.createDocumentFragment();
+      const sequencia = bloco.dataset.group === "seq";
+      const n = sequencia ? 3 : innerWidth < 560 ? 2 : cards.length === 8 ? 4 : 3;
+      for (let i = 0; i < cards.length; i += n) {
+        const faixa = cards.slice(i, i + n), row = document.createElement("div");
+        row.className = "wall-row";
+        const soma = sequencia ? faixa.reduce((v,c) => v + +c.style.getPropertyValue("--n"), 0) : faixa.length * .8;
+        row.style.setProperty("--row-h", Math.min(innerWidth <= 900 ? 210 : 224, (W - gap * (faixa.length - 1)) / soma).toFixed(3) + "px");
+        faixa.forEach(c => { c.style.setProperty("--tile-n", sequencia ? c.style.getPropertyValue("--n") : ".8"); row.append(c); });
+        fragmento.append(row);
+      }
+      ocultos.forEach(c => fragmento.append(c));
+      host.replaceChildren(fragmento);
+    });
+  }
+  const aplicar = () => { tiles.forEach(c => { c.hidden = !mostra(c); }); arrumar(); };
   aplicar();
 
   // ── vídeo ──
@@ -2815,18 +2965,15 @@ root.setAttribute("data-theme", "dark");
   // desenha o ASCII de uma imagem ou de um quadro de vídeo (fonte com a mesma proporção do card)
   const amostra = document.createElement("canvas");
   const ax = amostra.getContext("2d", { willReadFrequently: true });
-  function pintar(g, W, H, dpr, fonte, iw, ih, progresso = 1, entrada = false) {
+  function pintar(g, W, H, dpr, fonte, iw, ih) {
     const CW = 6.6 * dpr, CH = 11 * dpr;
     const cols = Math.ceil(W / CW), rows = Math.ceil(H / CH), total = cols * rows;
-    // A grade guarda luminância e limiares fixos; nenhum sorteio ou vetor por quadro.
+    // A grade guarda a luminância; nenhum sorteio ou vetor por quadro.
     let grade = g._grade;
     if (!grade || grade.cols !== cols || grade.rows !== rows) {
-      grade = g._grade = { cols, rows, lum: new Float32Array(total),
-        ruido: new Float32Array(total), frente: new Float32Array(total) };
+      grade = g._grade = { cols, rows, lum: new Float32Array(total) };
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
         const i = y * cols + x, r = Math.random();
-        grade.ruido[i] = r;
-        grade.frente[i] = .82 * (y + .5) / rows + .18 * r;
         grade.lum[i] = .3 + .35 * Math.abs(Math.sin(x * .45 + y * .3)) * r;
       }
     }
@@ -2846,21 +2993,13 @@ root.setAttribute("data-theme", "dark");
     g.clearRect(0, 0, W, H);
     g.font = (10 * dpr) + "px 'JetBrains Mono', monospace";
     g.textBaseline = "top";
-    const e = progresso * progresso * (3 - 2 * progresso);
-    const frente = e * 1.16 - .08;
-    const brilho = .96 + .04 * Math.sin(progresso * Math.PI * 2);
+    g.globalAlpha = 1; g.fillStyle = "#0A0A0A"; g.fillRect(0, 0, W, H);
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      const i = y * cols + x, limiar = entrada ? grade.frente[i] : grade.ruido[i];
-      let alpha = Math.min(1, Math.max(0, (frente - limiar + .08) / .16));
-      alpha = alpha * alpha * (3 - 2 * alpha);
-      if (entrada) alpha = 1 - alpha;
-      if (alpha <= 0) continue;
-      g.globalAlpha = alpha;
-      g.fillStyle = "#0A0A0A"; g.fillRect(x * CW, y * CH, CW + .5, CH + .5);
+      const i = y * cols + x;
       const v = Math.pow(Math.min(1, Math.max(0, grade.lum[i])), 1.1);
       const k = Math.round(v * (ASC.length - 1));
       if (!k) continue;
-      g.globalAlpha = alpha * (.16 + .84 * v) * brilho;
+      g.globalAlpha = .16 + .84 * v;
       g.fillStyle = "#BF85F9"; g.fillText(ASC[k], x * CW, y * CH);
     }
     g.globalAlpha = 1;
@@ -2910,10 +3049,11 @@ root.setAttribute("data-theme", "dark");
   addEventListener("resize", () => {
     if (innerWidth === largura) return;          // a barra do celular some e volta: não é resize de verdade
     largura = innerWidth;
-    marcar();
+    arrumar(); marcar();
   });
   document.getElementById("lang").addEventListener("click", () => setTimeout(marcar, 0));
-  if (document.fonts) document.fonts.ready.then(marcar);
+  if (document.fonts) document.fonts.ready.then(() => { arrumar(); marcar(); });
+  new ResizeObserver(arrumar).observe(wall);
   marcar();
 
   // ── a entrada: cada card espera em ASCII um pouco antes de chegar e é revelado quando entra ──
@@ -2949,7 +3089,7 @@ root.setAttribute("data-theme", "dark");
   }), { threshold: .3 }).observe(mon);
 
   // ── os cortes dos cards de sequência ──
-  const D = 3, ANTES = .7, DEPOIS = 1.02; // entrada: pausa de .12 s + revelação de .9 s
+  const D = 3, ANTES = .45, PAUSA = .15, ENTRADA = .7, DEPOIS = PAUSA + ENTRADA;
   function camada(c) {
     if (c._xf) return c._xf;
     const cv = document.createElement("canvas"); cv.className = "xf"; cv.setAttribute("aria-hidden", "true");
@@ -2978,24 +3118,18 @@ root.setAttribute("data-theme", "dark");
     const altura = c.clientHeight, dpr = Math.min(devicePixelRatio || 1, 2);
     const W = Math.round(c.clientWidth * dpr), H = Math.round(altura * dpr);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
-    // Fotografa cada plano uma vez; a pausa mantém o ASCII do plano anterior.
-    const entrada = fase === 2, progresso = entrada ? Math.max(0, (ph - .12) / .9) : a;
-    const mudou = c._fase !== fase || c._plano !== k || c._xg._grade?.cols !== Math.ceil(W / (6.6 * dpr));
-    let fonte = null;
-    if (!entrada && mudou) fonte = v;
-    if (entrada && ph >= .12 && c._capturado !== k) { fonte = v; c._capturado = k; }
-    if (!entrada) c._capturado = -1;
-    pintar(c._xg, W, H, dpr, fonte, v.videoWidth, v.videoHeight, progresso, entrada);
-    c._fase = fase; c._plano = k;
+    // Saída inteira em fade; conserva o último quadro ASCII durante o corte.
+    const entrada = fase === 2;
+    const progresso = entrada ? Math.min(1, Math.max(0, (ph - PAUSA) / ENTRADA)) : a;
+    const e = progresso * progresso * (3 - 2 * progresso);
+    if (!entrada) pintar(c._xg, W, H, dpr, v, v.videoWidth, v.videoHeight);
     cv.style.display = "block";
-    if (fase === 1) {
-      c._xl.style.display = "none";
-    } else {
-      const e = progresso * progresso * (3 - 2 * progresso);
-      c._xl.style.display = ph > .12 ? "block" : "none";
-      c._xl.style.transform = "translateY(" + (e * altura).toFixed(1) + "px)";
-      c._xl.style.opacity = (Math.sin(Math.PI * progresso) * .85).toFixed(2);
-    }
+    cv.style.opacity = entrada ? "1" : e.toFixed(4);
+    cv.style.clipPath = entrada ? "inset(" + (e * 100).toFixed(4) + "% 0 0 0)" : "none";
+    c._xl.style.display = entrada && ph > PAUSA ? "block" : "none";
+    c._xl.style.transform = "translateY(" + (e * altura).toFixed(2) + "px)";
+    c._xl.style.opacity = "1";
+
   }
 
   // ── o relógio do monitor e os cortes, a cada quadro, com a seção na tela ──
@@ -3373,4 +3507,140 @@ const spy = new IntersectionObserver(es => es.forEach(e => {
   navLinks.forEach(a => a.classList.toggle("here", a.getAttribute("href") === "#" + e.target.id));
 }), { rootMargin: "-45% 0px -50% 0px" });
 secs.forEach(el => spy.observe(el));
+
+/* 11. encaixe por seção
+   Só gestos entram aqui. Scroll por código, links e filtros não iniciam encaixe.
+   A geometria é medida a cada gesto, inclusive depois de mudar um filtro. */
+(() => {
+  const botao = document.getElementById("section-lock");
+  const reduzido = matchMedia("(prefers-reduced-motion: reduce)");
+  const toque = matchMedia("(hover: none), (pointer: coarse)");
+  const CHAVE = "rafaguiar.section-alignment";
+  const TEMPO = 720, RAJADA = 180, LIMIAR = 24, FOLGA = 4;
+  let ligado = !reduzido.matches && !toque.matches, salvo = null;
+  try { salvo = localStorage.getItem(CHAVE); } catch (_) { /* Sem storage, vale o padrão. */ }
+  if (salvo === "on" || salvo === "off") ligado = salvo === "on";
+  let quadro = 0, animando = false, ultimo = -Infinity, soma = 0, sentido = 0, tomou = false;
+  function cancelar() { cancelAnimationFrame(quadro); quadro = 0; animando = false; }
+  function rotulo() {
+    const estado = botao.querySelector('[data-lock="' + (ligado ? "on" : "off") + '"]');
+    botao.querySelectorAll("[data-lock]").forEach(el => { el.hidden = el !== estado; });
+    const nome = estado.querySelector(".lock-label").getAttribute("aria-label");
+    botao.setAttribute("aria-pressed", String(ligado));
+    botao.setAttribute("aria-label", nome);
+    botao.title = nome;
+  }
+  rotulo();
+  // O idioma traduz os atributos dos rótulos; o botão usa o rótulo do estado atual.
+  new MutationObserver(rotulo).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  botao.addEventListener("click", () => {
+    cancelar(); ligado = !ligado; tomou = false; ultimo = -Infinity; soma = 0;
+    botao.classList.remove("lock-hint"); rotulo();
+    try { localStorage.setItem(CHAVE, ligado ? "on" : "off"); } catch (_) {}
+  });
+  if (ligado && salvo === null && !reduzido.matches) botao.classList.add("lock-hint");
+  reduzido.addEventListener("change", () => { cancelar(); if (reduzido.matches) { ligado = false; rotulo(); } });
+  function paradas() {
+    const max = Math.max(0, document.documentElement.scrollHeight - innerHeight);
+    return [document.querySelector(".hero"), ...document.querySelectorAll("section.sec")].map((el, i) => {
+      const r = el.getBoundingClientRect();
+      const margem = parseFloat(getComputedStyle(el).scrollMarginTop) || 60;
+      return { topo: i ? Math.min(max, Math.max(0, scrollY + r.top - margem)) : 0,
+        fim: scrollY + r.bottom, alta: i > 0 && r.height > innerHeight - margem + FOLGA };
+    });
+  }
+  function indice(ps) {
+    let i = 0;
+    while (i + 1 < ps.length && scrollY >= ps[i + 1].topo - FOLGA) i++;
+    return i;
+  }
+  function destino(dir, ps = paradas(), i = indice(ps)) {
+    const atual = ps[i];
+    if (dir > 0) {
+      if (atual.alta && scrollY + innerHeight < atual.fim - FOLGA) return null;
+      return ps[i + 1]?.topo ?? null;
+    }
+    if (scrollY > atual.topo + FOLGA) return atual.alta ? null : atual.topo;
+    return ps[i - 1]?.topo ?? null;
+  }
+  function mover(alvo) {
+    cancelar();
+    if (alvo === null || Math.abs(alvo - scrollY) <= FOLGA) return false;
+    if (reduzido.matches) { scrollTo({top: alvo, behavior: "instant"}); return true; }
+    const inicio = scrollY, t0 = performance.now();
+    let anterior = inicio;
+    animando = true;
+    function passo(t) {
+      // Uma navegação por código durante a animação também conserva seu destino.
+      if (Math.abs(scrollY - anterior) > FOLGA) { cancelar(); return; }
+      const p = Math.min(1, (t - t0) / TEMPO);
+      const e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      scrollTo({top: inicio + (alvo - inicio) * e, behavior: "instant"});
+      anterior = scrollY;
+      if (p < 1) quadro = requestAnimationFrame(passo);
+      else { animando = false; quadro = 0; }
+    }
+    quadro = requestAnimationFrame(passo);
+    return true;
+  }
+  function proprio(el) {
+    for (let n = el instanceof Element ? el : null; n && n !== document.body; n = n.parentElement) {
+      const c = getComputedStyle(n);
+      if ((/(auto|scroll)/.test(c.overflowY) && n.scrollHeight > n.clientHeight + 1) ||
+          (/(auto|scroll)/.test(c.overflowX) && n.scrollWidth > n.clientWidth + 1)) return true;
+    }
+    return false;
+  }
+  addEventListener("wheel", ev => {
+    if (!ligado || ev.defaultPrevented || ev.ctrlKey || proprio(ev.target) || Math.abs(ev.deltaX) > Math.abs(ev.deltaY) || !ev.deltaY) { cancelar(); return; }
+    const agora = performance.now(), dir = Math.sign(ev.deltaY);
+    const nova = agora - ultimo > RAJADA || dir !== sentido;
+    if (nova) { cancelar(); soma = 0; tomou = false; }
+    ultimo = agora; sentido = dir;
+    // A cauda do touchpad pertence à mesma rajada, mesmo depois da animação.
+    if (tomou) { ev.preventDefault(); return; }
+    soma += Math.abs(ev.deltaY) * (ev.deltaMode === 1 ? 16 : ev.deltaMode === 2 ? innerHeight : 1);
+    const alvo = destino(dir);
+    if (alvo !== null && soma >= LIMIAR) {
+      ev.preventDefault(); tomou = mover(alvo);
+    }
+  }, { passive: false });
+  addEventListener("keydown", ev => {
+    if (ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.altKey ||
+        ev.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return;
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Escape"].includes(ev.key)) { cancelar(); return; }
+    if (!ligado || proprio(ev.target) || !["PageDown", "PageUp", " ", "Home", "End"].includes(ev.key)) return;
+    // Espaço sobre um controle conserva a ativação nativa do controle.
+    if (ev.key === " " && ev.target.closest?.('button,a,[role="button"]')) return;
+    if (ev.repeat && animando) { ev.preventDefault(); return; }
+    cancelar(); ultimo = -Infinity; tomou = false;
+    const ps = paradas();
+    const alvo = ev.key === "Home" ? 0 : ev.key === "End" ? ps[ps.length - 1].topo :
+      destino(ev.key === "PageUp" || (ev.key === " " && ev.shiftKey) ? -1 : 1, ps);
+    if (alvo !== null) { ev.preventDefault(); mover(alvo); }
+  });
+  let gesto = null;
+  addEventListener("touchstart", ev => {
+    cancelar(); gesto = null;
+    if (!ligado || ev.touches.length !== 1 || proprio(ev.target)) return;
+    const ps = paradas();
+    gesto = { x: ev.touches[0].clientX, y: ev.touches[0].clientY, i: indice(ps), fim: ev.touches[0].clientY };
+  }, { passive: true });
+  addEventListener("touchmove", ev => {
+    if (!gesto) return;
+    if (ev.touches.length !== 1 || Math.abs(ev.touches[0].clientX - gesto.x) > Math.abs(ev.touches[0].clientY - gesto.y)) { gesto = null; return; }
+    gesto.fim = ev.touches[0].clientY;
+  }, { passive: true });
+  addEventListener("touchend", () => {
+    if (!gesto || !ligado) return;
+    const g = gesto; gesto = null;
+    if (Math.abs(g.y - g.fim) < LIMIAR) return;
+    // Só o fim de um gesto real pode iniciar o encaixe no celular.
+    mover(destino(Math.sign(g.y - g.fim), paradas(), g.i));
+  }, { passive: true });
+  addEventListener("touchcancel", () => { gesto = null; cancelar(); }, { passive: true });
+  addEventListener("pointerdown", cancelar, { passive: true });
+  addEventListener("resize", cancelar, { passive: true });
+  document.addEventListener("click", ev => { if (ev.target.closest?.("a")) cancelar(); });
+})();
 </script>
