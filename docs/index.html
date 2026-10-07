@@ -212,53 +212,106 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
-/* ═══ 01 · /reel: a parede de trabalhos (v24) ══════════════════════
-   A lógica do alisson-ai-cuts: o texto gruda à esquerda e a parede de
-   vídeo anda. Cada coluna desliza numa velocidade (JS, seção 8b), cada
-   trecho tem a proporção da cena, e o rótulo só aparece no hover.
+/* ═══ 01 · /reel: a ilha de edição (v25) ══════════════════════════
+   Monitor de programa à esquerda (fixo), folha de contatos à direita,
+   filtros como trilhas com uma régua embaixo. Nada de parede que anda:
+   o que está parado se lê, o que está sob a faixa do meio da tela toca.
    O ASCII roxo é a transição do site: nasce o card e marca cada corte
    dos cards de sequência.                                            */
-.trab{display:grid;grid-template-columns:minmax(240px,270px) minmax(0,1fr);gap:clamp(28px,3.2vw,46px);
-  align-items:start}
-.trab-side{position:sticky;top:clamp(92px,19vh,170px)}
-.trab-side h2.t{font-size:clamp(2rem,1.1rem + 1.9vw,2.9rem)}
-.trab-side .sub{font-size:var(--s-0);max-width:30ch}
-.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:clamp(20px,2.4vw,28px)}
-.chip{all:unset;box-sizing:border-box;cursor:pointer;padding:7px 12px;border:1px solid var(--line);border-radius:999px;
-  background:var(--bg);font-size:var(--s--2);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
-  transition:border-color .2s,color .2s,background .2s}
-.chip:hover{border-color:var(--purple);color:var(--purple)}
-.chip[aria-pressed="true"]{border-color:var(--purple);background:var(--purple);color:#0A0A0A;font-weight:700}
-.chip:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
-.trab-desc{margin-top:18px;padding-left:12px;border-left:1px solid color-mix(in srgb,var(--purple) 55%,transparent);
-  font-family:"Archivo",sans-serif;font-weight:300;font-size:var(--s--1);line-height:1.55;color:var(--ink-2);max-width:30ch}
+.trab-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,40ch);gap:clamp(16px,3vw,48px);align-items:end}
+.trab-top h2.t{max-width:none}
+.trab-top .sub{margin:0 0 .5em;font-size:var(--s-0)}
+
+/* os filtros: trilhas sobre uma régua; a faixa roxa é a área de trabalho */
+.trab-bar{margin-top:clamp(26px,3.4vw,44px)}
+.chips{position:relative;display:flex;gap:clamp(14px,2vw,26px);overflow-x:auto;scrollbar-width:none;
+  padding-bottom:17px;
+  background:
+    repeating-linear-gradient(90deg,var(--ink-3) 0 1px,transparent 1px 60px) left bottom/100% 9px no-repeat local,
+    repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 12px) left bottom/100% 5px no-repeat local,
+    linear-gradient(var(--line),var(--line)) left bottom/100% 1px no-repeat local}
+.chips::-webkit-scrollbar{display:none}
+.chips::after{content:"";position:absolute;left:var(--px,0);bottom:0;width:var(--pw,0);height:3px;background:var(--purple);
+  box-shadow:0 0 14px var(--purple);transition:left .5s cubic-bezier(.65,0,.35,1),width .5s cubic-bezier(.65,0,.35,1);pointer-events:none}
+.chip{all:unset;box-sizing:border-box;flex:none;cursor:pointer;display:inline-flex;align-items:baseline;gap:7px;padding:6px 0 4px;
+  font-size:var(--s--2);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);white-space:nowrap;transition:color .2s}
+.chip sup{font-size:9px;letter-spacing:.04em;font-variant-numeric:tabular-nums;color:var(--ink-3);transition:color .2s}
+.chip:hover,.chip:hover sup{color:var(--purple)}
+.chip[aria-pressed="true"]{color:var(--ink);font-weight:700}
+.chip[aria-pressed="true"] sup{color:var(--purple)}
+.chip:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+.trab-desc{margin-top:16px;padding-left:12px;border-left:1px solid color-mix(in srgb,var(--purple) 55%,transparent);
+  font-family:"Archivo",sans-serif;font-weight:300;font-size:var(--s--1);line-height:1.55;color:var(--ink-2);max-width:64ch;min-height:1.55em}
 .trab-desc p[hidden]{display:none}
 
-/* a parede vai até perto da borda da tela, à direita (a esquerda alinha com o resto do site) */
-.wall{margin-right:calc(-1 * max(0px,(100vw - var(--max)) / 2 - 8px))}
-/* sem JS: colunas do CSS mesmo */
-.wall:not(.on){columns:4 190px;column-gap:12px}
-.wall:not(.on) .clip{break-inside:avoid;margin-bottom:12px}
-.wall.on{display:flex;gap:12px;align-items:flex-start}
-.wcol{flex:1 1 0;min-width:0;display:grid;gap:12px;will-change:transform}
+.trab-main{display:grid;grid-template-columns:clamp(268px,28vw,380px) minmax(0,1fr);gap:clamp(22px,3vw,44px);
+  margin-top:clamp(22px,3vw,34px);align-items:start}
 
-.clip{position:relative;margin:0;aspect-ratio:var(--r,9/16);overflow:hidden;border-radius:8px;
-  background:var(--card);outline:1px solid var(--line-2);outline-offset:-1px}
+/* o monitor de programa */
+.mon{--mh:clamp(300px,calc(100vh - 350px),540px);position:sticky;top:84px;scroll-margin-top:84px;
+  padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.mon-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;
+  font-size:var(--s--2);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.mon-tag{display:inline-flex;align-items:center;gap:8px;color:var(--ink-2)}
+.mon-tag s{width:6px;height:6px;border-radius:50%;background:var(--purple);box-shadow:0 0 8px var(--purple)}
+.mon-n{font-variant-numeric:tabular-nums}
+.mon-stage{position:relative;min-height:calc(var(--mh) * .76);padding:15px;display:grid;place-items:center;border-radius:6px;background:#0C0C0C;
+  box-shadow:inset 0 0 0 1px var(--line-2)}
+.mon-clip{width:min(100%,calc((var(--mh) - 30px) * var(--n,.8)));aspect-ratio:var(--r);cursor:pointer}
+.mon-clip:not(.seq) .segs{display:none}
+.mon-clip figcaption{display:none}
+/* as marcas de canto do enquadramento */
+.crop{position:absolute;width:9px;height:9px;border:0 solid var(--ink-3);pointer-events:none}
+.crop.a{left:8px;top:8px;border-width:1px 0 0 1px}.crop.b{right:8px;top:8px;border-width:1px 1px 0 0}
+.crop.c{left:8px;bottom:8px;border-width:0 0 1px 1px}.crop.d{right:8px;bottom:8px;border-width:0 1px 1px 0}
+/* régua do monitor: tique a cada 8 px, um maior a cada 40; o roxo é o que já passou */
+.mon-rule{position:relative;height:20px;margin-top:10px;cursor:pointer;touch-action:none;
+  background:
+    repeating-linear-gradient(90deg,var(--ink-3) 0 1px,transparent 1px 40px) left bottom/100% 9px no-repeat,
+    repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px 8px) left bottom/100% 5px no-repeat,
+    linear-gradient(var(--line),var(--line)) left bottom/100% 1px no-repeat}
+.mon-fill{position:absolute;left:0;bottom:0;height:2px;width:var(--p,0%);background:var(--purple)}
+.mon-fill::after{content:"";position:absolute;right:-5px;bottom:0;width:10px;height:12px;background:var(--purple);
+  clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%)}
+.mon-cuts u{display:none;position:absolute;bottom:0;width:1px;height:14px;background:var(--ink)}
+.is-seq .mon-cuts u{display:block}
+.mon-cuts u:nth-child(1){left:16.667%}.mon-cuts u:nth-child(2){left:33.333%}.mon-cuts u:nth-child(3){left:50%}
+.mon-cuts u:nth-child(4){left:66.667%}.mon-cuts u:nth-child(5){left:83.333%}
+.mon-tc{display:flex;justify-content:space-between;gap:10px;margin-top:8px;font-size:11px;font-variant-numeric:tabular-nums;color:var(--ink-3)}
+.mon-tc b{font-weight:500;color:var(--ink);letter-spacing:.04em}
+.mon-info{margin-top:14px;padding-top:12px;border-top:1px solid var(--line-2);min-height:62px}
+.mi{display:grid;gap:3px}
+.mi[hidden]{display:none}
+.mi b{font-size:var(--s--2);letter-spacing:.14em;text-transform:uppercase;color:var(--purple);font-weight:700}
+.mi span{font-size:var(--s-1);font-weight:800;letter-spacing:-.03em;line-height:1.15}
+.mi i{font-style:normal;font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+
+/* a folha de contatos: linhas justificadas, todas na altura de uma faixa */
+.wall{--rh:clamp(172px,15vw,224px);display:flex;flex-wrap:wrap;gap:10px;align-content:flex-start}
+.wall::after{content:"";flex:999 1 0}
+.clip{position:relative;margin:0;overflow:hidden;border-radius:6px;background:var(--card);
+  outline:1px solid var(--line-2);outline-offset:-1px;cursor:pointer}
+.wall .clip{height:var(--rh);min-width:0;flex:calc(var(--n,.56) * 100) 1 calc(var(--n,.56) * var(--rh));
+  transition:opacity .3s,box-shadow .3s,outline-color .3s}
 .clip[hidden]{display:none}
 .clip img,.clip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .clip video{z-index:1;opacity:0;transition:opacity .4s ease;pointer-events:none}
 .clip video.ready{opacity:1}
-.clip figcaption{position:absolute;left:9px;bottom:9px;z-index:5;max-width:calc(100% - 18px);display:flex;align-items:center;gap:7px;
-  padding:5px 9px;border-radius:999px;background:rgba(8,7,12,.74);backdrop-filter:blur(6px);
-  font-size:10px;line-height:1.2;letter-spacing:.04em;color:#FAFAFA;white-space:nowrap;overflow:hidden}
+.clip figcaption{position:absolute;left:0;right:0;bottom:0;z-index:5;display:grid;gap:1px;padding:26px 9px 8px;
+  background:linear-gradient(to top,rgba(8,7,12,.88),rgba(8,7,12,.5) 55%,transparent);pointer-events:none;
+  font-size:10px;line-height:1.3;color:#FAFAFA}
 .clip figcaption b{color:var(--purple);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:9px}
-.clip figcaption span{overflow:hidden;text-overflow:ellipsis}
+.clip figcaption span,.clip figcaption em{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.clip figcaption em{font-style:normal;font-size:9px;letter-spacing:.04em;color:var(--ink-2);font-variant-numeric:tabular-nums}
+/* o que está no monitor fica parado e apagado na folha, com o ponto roxo no rótulo */
+.wall .clip.sel{outline:2px solid var(--purple);outline-offset:-2px}
+.wall .clip.sel img,.wall .clip.sel video{filter:grayscale(1) brightness(.45)}
+.clip.sel figcaption b::before{content:"● "}
+.clip:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
 @media (hover:hover){
-  .clip{transition:transform .35s cubic-bezier(.2,.7,.25,1),box-shadow .35s}
-  .clip:hover{transform:scale(1.03);z-index:2;
-    box-shadow:-3px 0 0 var(--cyan),3px 0 0 var(--purple),0 18px 50px rgba(0,0,0,.6)}
-  .clip figcaption{opacity:0;translate:0 6px;transition:opacity .3s,translate .3s}
-  .clip:hover figcaption,.clip:focus-visible figcaption{opacity:1;translate:0}
+  .wall:has(.clip:hover) .clip:not(:hover){opacity:.5}
+  .wall .clip:hover{outline-color:var(--purple);box-shadow:-3px 0 0 var(--cyan),3px 0 0 var(--purple),0 14px 40px rgba(0,0,0,.55)}
+  .wall .clip:hover figcaption em{color:var(--ink)}
 }
 /* a barra de seis cortes dos cards de sequência, como stories */
 .segs{position:absolute;left:8px;right:8px;top:8px;z-index:5;display:flex;gap:3px;pointer-events:none}
@@ -277,14 +330,17 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 @media (prefers-reduced-motion:reduce){.clip .asc,.clip .scanl,.clip .xf,.clip .xl{display:none!important}}
 
 @media(max-width:900px){
-  .trab{grid-template-columns:minmax(0,1fr);gap:24px}
-  .trab-side{min-width:0}
-  .trab-side{position:static}
-  .trab-side .sub,.trab-desc{max-width:52ch}
-  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(var(--gut) * -1);padding-inline:var(--gut)}
-  .chips::-webkit-scrollbar{display:none}.chip{flex:none}
-  .wall{margin-right:0}
-  .wall.on,.wcol{gap:9px}
+  .trab-top{grid-template-columns:minmax(0,1fr)}
+  .trab-top .sub{max-width:44ch}
+  .chips{margin-inline:calc(var(--gut) * -1);padding-inline:var(--gut);
+    gap:20px}
+  .trab-main{grid-template-columns:minmax(0,1fr);gap:18px}
+  .mon{position:static;--mh:clamp(300px,52vh,440px)}
+  .wall{--rh:clamp(150px,40vw,210px);gap:8px}
+}
+@media(max-width:560px){
+  .clip figcaption em{display:none}
+  .clip figcaption{padding:22px 7px 6px}
 }
 
 /* ═══ 02 · /work: os dois apps em destaque + o que mais eu construí ══ */
@@ -442,6 +498,11 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 /* o pulso mora atras de tudo e nao intercepta clique nenhum */
 #ping{position:absolute;inset:0;z-index:0;pointer-events:none}
 .contact .wrap{position:relative;z-index:1}
+.contact h2.t{max-width:29ch;font-size:clamp(1.9rem,1.35rem + 3.1vw,3.9rem);line-height:1.08;text-wrap:balance}
+/* a pergunta vira a linha de chamada: própria linha, menor que a afirmação, em roxo da marca */
+.contact h2.t em{display:block;margin-top:.45em;font-size:.6em;line-height:1.2;letter-spacing:-.035em;
+  color:var(--purple);text-shadow:1.5px 1.5px 0 var(--cyan)}
+.contact .big-mail{margin-top:clamp(28px,3.6vw,48px)}
 .big-mail{display:inline-block;font-weight:800;font-size:clamp(1.25rem,5.2vw,3.4rem);letter-spacing:-.055em;
   text-decoration:none;line-height:1.05;margin-top:18px;overflow-wrap:anywhere;
   border-bottom:2px solid transparent;transition:.25s}
@@ -545,20 +606,31 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
          Personagem, Produto e B-roll viram um card so com seis cortes de 2 s
          (media/reel/seq-*.mp4) e o ASCII roxo marca cada troca. mural.py corta. -->
     <div class="trab">
-      <div class="trab-side">
+      <div class="trab-top">
         <h2 class="t" data-rv="up" data-pt="Trabalhos.">Selected work.</h2>
         <p class="sub" data-rv="up" data-pt="Avatares, UGC, produto e inserts 3D para VSLs e anúncios.">Avatars, UGC, product and 3D inserts for VSLs and ads.</p>
-        <div class="chips" role="group" aria-label="Filter the videos" data-aria-pt="Filtrar os vídeos" data-rv="up">
-          <button type="button" class="chip" data-f="all" aria-pressed="true" data-pt="Todos">All</button>
-          <button type="button" class="chip" data-f="avatar" aria-pressed="false" data-pt="Avatares">Avatars</button>
-          <button type="button" class="chip" data-f="ugc" aria-pressed="false">UGC</button>
-          <button type="button" class="chip" data-f="insert" aria-pressed="false" data-pt="Inserts 3D">3D inserts</button>
-          <button type="button" class="chip" data-f="produto" aria-pressed="false" data-pt="Produto">Product</button>
-          <button type="button" class="chip" data-f="personagem" aria-pressed="false" data-pt="Personagem">Character</button>
-          <button type="button" class="chip" data-f="broll" aria-pressed="false">B-roll</button>
+      </div>
+
+      <!-- A seção é uma ilha de edição: à esquerda o monitor de programa (o trecho
+           escolhido, em tela maior, com timecode e régua); à direita a folha de
+           contatos com os 21 trechos, todos na altura de uma linha de timeline e
+           na proporção real de cada cena. Os filtros são as trilhas: a faixa roxa
+           da régua é a área de trabalho e anda até o filtro escolhido. O que passa
+           pela faixa do meio da tela toca; o resto fica em poster. Em "Todos",
+           Personagem, Produto e B-roll viram um card só com seis cortes
+           (media/reel/seq-*.mp4) e o ASCII roxo marca cada troca. mural.py corta. -->
+      <div class="trab-bar" data-rv="up">
+        <div class="chips" role="group" aria-label="Filter the videos" data-aria-pt="Filtrar os vídeos">
+          <button type="button" class="chip" data-f="all" aria-pressed="true"><span data-pt="Todos">All</span><sup>21</sup></button>
+          <button type="button" class="chip" data-f="avatar" aria-pressed="false"><span data-pt="Avatares">Avatars</span><sup>6</sup></button>
+          <button type="button" class="chip" data-f="ugc" aria-pressed="false"><span>UGC</span><sup>6</sup></button>
+          <button type="button" class="chip" data-f="insert" aria-pressed="false"><span data-pt="Inserts 3D">3D inserts</span><sup>6</sup></button>
+          <button type="button" class="chip" data-f="produto" aria-pressed="false"><span data-pt="Produto">Product</span><sup>6</sup></button>
+          <button type="button" class="chip" data-f="personagem" aria-pressed="false"><span data-pt="Personagem">Character</span><sup>6</sup></button>
+          <button type="button" class="chip" data-f="broll" aria-pressed="false"><span>B-roll</span><sup>6</sup></button>
         </div>
-        <div class="trab-desc" aria-live="polite" data-rv="up">
-          <p data-f="all" data-pt="Personagem, produto e B-roll aparecem aqui em cortes de 2 s. O filtro abre cada um.">Character, product and B-roll show up here as 2-second cuts. The filter opens each one.</p>
+        <div class="trab-desc" aria-live="polite">
+          <p data-f="all" data-pt="Personagem, produto e B-roll aparecem aqui como um card de seis cortes cada. O filtro abre as cenas, uma a uma.">Character, product and B-roll show up here as one card of six cuts each. The filter opens the scenes one by one.</p>
           <p data-f="avatar" hidden data-pt="Avatares falando com lipsync, a partir de uma foto e um áudio.">Talking avatars with lipsync, made from a photo and an audio file.</p>
           <p data-f="ugc" hidden data-pt="Gente comum falando para o celular, no formato de anúncio.">Ordinary people talking to the phone, in ad format.</p>
           <p data-f="insert" hidden data-pt="O que a copy descreve, virado imagem.">What the copy describes, turned into an image.</p>
@@ -567,166 +639,223 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
           <p data-f="broll" hidden data-pt="Mão, líquido e vapor de perto, onde a IA costuma errar.">Hands, liquid and steam up close, where AI usually breaks.</p>
         </div>
       </div>
-      <div class="wall" id="mural">
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-1.mp4">
-            <img src="media/reel/avatar-1.jpg" width="360" height="640"
-                 alt="AI-generated video: testimonial with product" data-alt-pt="Vídeo gerado por IA: depoimento com produto">
-            <figcaption><b>Avatar</b><span data-pt="Com o produto">With the product</span></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5" data-src="media/reel/insert-1.mp4">
-            <img src="media/reel/insert-1.jpg" width="360" height="450"
-                 alt="AI-generated video: blood vessel" data-alt-pt="Vídeo gerado por IA: vaso sanguíneo">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Vaso sanguíneo">Blood vessel</span></figcaption></figure>
-          <figure class="clip seq" data-cat="personagem" data-in="all" style="--r:4/5" data-src="media/reel/seq-personagem.mp4">
+
+      <div class="trab-main">
+        <div class="mon" id="monitor">
+          <div class="mon-head"><span class="mon-tag"><s></s><span data-pt="Programa">Program</span></span><span class="mon-n" id="mon-n">01 / 21</span></div>
+          <div class="mon-stage">
+            <figure class="clip mon-clip seq" id="mon-clip" style="--r:4/5;--n:.8" data-src="" tabindex="0" role="button"
+                    data-aria-pt="Tocar ou pausar o trecho do monitor" aria-label="Play or pause the monitor clip">
+              <img src="media/reel/seq-personagem.jpg" width="360" height="450" alt="">
+              <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            </figure>
+            <i class="crop a"></i><i class="crop b"></i><i class="crop c"></i><i class="crop d"></i>
+          </div>
+          <div class="mon-rule" id="mon-rule" aria-hidden="true"><span class="mon-fill"></span><span class="mon-cuts"><u></u><u></u><u></u><u></u><u></u></span></div>
+          <div class="mon-tc" aria-hidden="true"><b id="mon-t">00:00:00:00</b><span id="mon-d">/ 00:00:04:00</span></div>
+          <div class="mon-info" aria-live="polite">
+            <div class="mi" data-k="seq-personagem" hidden><b data-pt="Personagem">Character</b><span data-pt="Seis cenas">Six scenes</span><i data-pt="4:5 · 6 cortes · 24 fps">4:5 · 6 cuts · 24 fps</i></div>
+            <div class="mi" data-k="avatar-1" hidden><b>Avatar</b><span data-pt="Com o produto">With the product</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="insert-1" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Vaso sanguíneo">Blood vessel</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="ugc-1" hidden><b>UGC</b><span data-pt="Receita">Recipe</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="avatar-2" hidden><b>Avatar</b><span data-pt="Médico">Doctor</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="insert-2" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Neurônios">Neurons</span><i>1:1 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="ugc-2" hidden><b>UGC</b><span data-pt="Na oficina">In the workshop</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="seq-produto" hidden><b data-pt="Produto">Product</b><span data-pt="Seis cenários">Six settings</span><i data-pt="4:5 · 6 cortes · 24 fps">4:5 · 6 cuts · 24 fps</i></div>
+            <div class="mi" data-k="avatar-3" hidden><b>Avatar</b><span data-pt="Depoimento">Testimonial</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="insert-3" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Gota no vinagre">Drop in vinegar</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="ugc-3" hidden><b>UGC</b><span data-pt="Antes e depois">Before and after</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="seq-broll" hidden><b>B-roll</b><span data-pt="Receita em seis cortes">Recipe in six cuts</span><i data-pt="9:16 · 6 cortes · 24 fps">9:16 · 6 cuts · 24 fps</i></div>
+            <div class="mi" data-k="avatar-4" hidden><b>Avatar</b><span data-pt="Na cozinha">In the kitchen</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="insert-4" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Pâncreas em raio X">Pancreas x-ray</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="ugc-4" hidden><b>UGC</b><span data-pt="Na sala">Living room</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="avatar-5" hidden><b>Avatar</b><span data-pt="Em casa">At home</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="insert-5" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Termografia">Thermal scan</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="ugc-5" hidden><b>UGC</b><span data-pt="Produto na mão">Product in hand</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="avatar-6" hidden><b>Avatar</b><span data-pt="Apresentadora">Presenter</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="insert-6" hidden><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula">Capsule</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="ugc-6" hidden><b>UGC</b><span data-pt="Selfie na rua">Street selfie</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="personagem-1" hidden><b data-pt="Personagem">Character</b><span data-pt="Cena 1">Scene 1</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="personagem-2" hidden><b data-pt="Personagem">Character</b><span data-pt="Cena 2">Scene 2</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="personagem-3" hidden><b data-pt="Personagem">Character</b><span data-pt="Cena 3">Scene 3</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="personagem-4" hidden><b data-pt="Personagem">Character</b><span data-pt="Cena 4">Scene 4</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="personagem-5" hidden><b data-pt="Personagem">Character</b><span data-pt="Cena 5">Scene 5</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="personagem-6" hidden><b data-pt="Personagem">Character</b><span data-pt="Cena 6">Scene 6</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="produto-1" hidden><b data-pt="Produto">Product</b><span data-pt="Explosão de água">Water burst</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="produto-2" hidden><b data-pt="Produto">Product</b><span data-pt="Pôr do sol">Sunset</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="produto-3" hidden><b data-pt="Produto">Product</b><span data-pt="Riacho">Stream</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="produto-4" hidden><b data-pt="Produto">Product</b><span data-pt="Fundo chapado">Flat backdrop</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="produto-5" hidden><b data-pt="Produto">Product</b><span data-pt="Conta-gotas">Dropper</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="produto-6" hidden><b data-pt="Produto">Product</b><span data-pt="Espaço">Space</span><i>4:5 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="broll-1" hidden><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="broll-2" hidden><b>B-roll</b><span data-pt="Mistura">Pouring</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="broll-3" hidden><b>B-roll</b><span data-pt="Corte">Slicing</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="broll-4" hidden><b>B-roll</b><span data-pt="Vapor">Steam</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="broll-5" hidden><b>B-roll</b><span data-pt="Creme">Cream</span><i>9:16 · 0:04 · 24 fps</i></div>
+            <div class="mi" data-k="broll-6" hidden><b>B-roll</b><span data-pt="Celular">Phone</span><i>9:16 · 0:04 · 24 fps</i></div>
+          </div>
+        </div>
+        <div class="wall" id="mural">
+          <figure class="clip seq" data-cat="personagem" data-in="all" style="--r:4/5;--n:0.8" data-src="media/reel/seq-personagem.mp4" tabindex="0" role="button">
             <img src="media/reel/seq-personagem.jpg" width="360" height="450"
                  alt="AI-generated video: same presenter, six scenes" data-alt-pt="Vídeo gerado por IA: mesma apresentadora, seis cenas">
             <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Seis cenas">Six scenes</span></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-1.mp4">
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Seis cenas">Six scenes</span><em data-pt="4:5 · 6 cortes">4:5 · 6 cuts</em></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-1.mp4" tabindex="0" role="button">
+            <img src="media/reel/avatar-1.jpg" width="360" height="640"
+                 alt="AI-generated video: testimonial with product" data-alt-pt="Vídeo gerado por IA: depoimento com produto">
+            <figcaption><b>Avatar</b><span data-pt="Com o produto">With the product</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-1.mp4" tabindex="0" role="button">
+            <img src="media/reel/insert-1.jpg" width="360" height="450"
+                 alt="AI-generated video: blood vessel" data-alt-pt="Vídeo gerado por IA: vaso sanguíneo">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Vaso sanguíneo">Blood vessel</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-1.mp4" tabindex="0" role="button">
             <img src="media/reel/ugc-1.jpg" width="360" height="640"
                  alt="AI-generated video: recipe" data-alt-pt="Vídeo gerado por IA: receita">
-            <figcaption><b>UGC</b><span data-pt="Receita">Recipe</span></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-2.mp4">
+            <figcaption><b>UGC</b><span data-pt="Receita">Recipe</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-2.mp4" tabindex="0" role="button">
             <img src="media/reel/avatar-2.jpg" width="360" height="640"
                  alt="AI-generated video: doctor" data-alt-pt="Vídeo gerado por IA: médico">
-            <figcaption><b>Avatar</b><span data-pt="Médico">Doctor</span></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:1/1" data-src="media/reel/insert-2.mp4">
+            <figcaption><b>Avatar</b><span data-pt="Médico">Doctor</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:1/1;--n:1.0" data-src="media/reel/insert-2.mp4" tabindex="0" role="button">
             <img src="media/reel/insert-2.jpg" width="360" height="360"
                  alt="AI-generated video: neurons" data-alt-pt="Vídeo gerado por IA: neurônios">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Neurônios">Neurons</span></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5" data-src="media/reel/ugc-2.mp4">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Neurônios">Neurons</span><em>1:1 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/ugc-2.mp4" tabindex="0" role="button">
             <img src="media/reel/ugc-2.jpg" width="360" height="450"
                  alt="AI-generated video: workshop testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na oficina">
-            <figcaption><b>UGC</b><span data-pt="Na oficina">In the workshop</span></figcaption></figure>
-          <figure class="clip seq" data-cat="produto" data-in="all" style="--r:4/5" data-src="media/reel/seq-produto.mp4">
+            <figcaption><b>UGC</b><span data-pt="Na oficina">In the workshop</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip seq" data-cat="produto" data-in="all" style="--r:4/5;--n:0.8" data-src="media/reel/seq-produto.mp4" tabindex="0" role="button">
             <img src="media/reel/seq-produto.jpg" width="360" height="450"
                  alt="AI-generated video: six bottles, six settings" data-alt-pt="Vídeo gerado por IA: seis frascos, seis cenários">
             <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-            <figcaption><b data-pt="Produto">Product</b><span data-pt="Seis cenários">Six settings</span></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-3.mp4">
-            <img src="media/reel/avatar-3.jpg" loading="lazy" width="360" height="640"
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Seis cenários">Six settings</span><em data-pt="4:5 · 6 cortes">4:5 · 6 cuts</em></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-3.mp4" tabindex="0" role="button">
+            <img src="media/reel/avatar-3.jpg" width="360" height="640"
                  alt="AI-generated video: testimonial" data-alt-pt="Vídeo gerado por IA: depoimento">
-            <figcaption><b>Avatar</b><span data-pt="Depoimento">Testimonial</span></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5" data-src="media/reel/insert-3.mp4">
+            <figcaption><b>Avatar</b><span data-pt="Depoimento">Testimonial</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-3.mp4" tabindex="0" role="button">
             <img src="media/reel/insert-3.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: drop in vinegar" data-alt-pt="Vídeo gerado por IA: gota no vinagre">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Gota no vinagre">Drop in vinegar</span></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-3.mp4">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Gota no vinagre">Drop in vinegar</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-3.mp4" tabindex="0" role="button">
             <img src="media/reel/ugc-3.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: before and after" data-alt-pt="Vídeo gerado por IA: antes e depois">
-            <figcaption><b>UGC</b><span data-pt="Antes e depois">Before and after</span></figcaption></figure>
-          <figure class="clip seq" data-cat="broll" data-in="all" style="--r:9/16" data-src="media/reel/seq-broll.mp4">
+            <figcaption><b>UGC</b><span data-pt="Antes e depois">Before and after</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip seq" data-cat="broll" data-in="all" style="--r:9/16;--n:0.5625" data-src="media/reel/seq-broll.mp4" tabindex="0" role="button">
             <img src="media/reel/seq-broll.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: a recipe in six cuts" data-alt-pt="Vídeo gerado por IA: receita em seis cortes">
             <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
-            <figcaption><b>B-roll</b><span data-pt="Receita em seis cortes">Recipe in six cuts</span></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-4.mp4">
+            <figcaption><b>B-roll</b><span data-pt="Receita em seis cortes">Recipe in six cuts</span><em data-pt="9:16 · 6 cortes">9:16 · 6 cuts</em></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-4.mp4" tabindex="0" role="button">
             <img src="media/reel/avatar-4.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: kitchen talk" data-alt-pt="Vídeo gerado por IA: conversa na cozinha">
-            <figcaption><b>Avatar</b><span data-pt="Na cozinha">In the kitchen</span></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16" data-src="media/reel/insert-4.mp4">
+            <figcaption><b>Avatar</b><span data-pt="Na cozinha">In the kitchen</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/insert-4.mp4" tabindex="0" role="button">
             <img src="media/reel/insert-4.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: pancreas x-ray" data-alt-pt="Vídeo gerado por IA: pâncreas em raio X">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Pâncreas em raio X">Pancreas x-ray</span></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5" data-src="media/reel/ugc-4.mp4">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Pâncreas em raio X">Pancreas x-ray</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/ugc-4.mp4" tabindex="0" role="button">
             <img src="media/reel/ugc-4.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: living room testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na sala">
-            <figcaption><b>UGC</b><span data-pt="Na sala">Living room</span></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-5.mp4">
+            <figcaption><b>UGC</b><span data-pt="Na sala">Living room</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/avatar-5.mp4" tabindex="0" role="button">
             <img src="media/reel/avatar-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: at home" data-alt-pt="Vídeo gerado por IA: em casa">
-            <figcaption><b>Avatar</b><span data-pt="Em casa">At home</span></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16" data-src="media/reel/insert-5.mp4">
+            <figcaption><b>Avatar</b><span data-pt="Em casa">At home</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/insert-5.mp4" tabindex="0" role="button">
             <img src="media/reel/insert-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: thermal scan" data-alt-pt="Vídeo gerado por IA: termografia">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Termografia">Thermal scan</span></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-5.mp4">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Termografia">Thermal scan</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-5.mp4" tabindex="0" role="button">
             <img src="media/reel/ugc-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: product in hand" data-alt-pt="Vídeo gerado por IA: produto na mão">
-            <figcaption><b>UGC</b><span data-pt="Produto na mão">Product in hand</span></figcaption></figure>
-          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5" data-src="media/reel/avatar-6.mp4">
+            <figcaption><b>UGC</b><span data-pt="Produto na mão">Product in hand</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/avatar-6.mp4" tabindex="0" role="button">
             <img src="media/reel/avatar-6.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: presenter" data-alt-pt="Vídeo gerado por IA: apresentadora">
-            <figcaption><b>Avatar</b><span data-pt="Apresentadora">Presenter</span></figcaption></figure>
-          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5" data-src="media/reel/insert-6.mp4">
+            <figcaption><b>Avatar</b><span data-pt="Apresentadora">Presenter</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5;--n:0.8" data-src="media/reel/insert-6.mp4" tabindex="0" role="button">
             <img src="media/reel/insert-6.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: capsule" data-alt-pt="Vídeo gerado por IA: cápsula">
-            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula">Capsule</span></figcaption></figure>
-          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-6.mp4">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula">Capsule</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16;--n:0.5625" data-src="media/reel/ugc-6.mp4" tabindex="0" role="button">
             <img src="media/reel/ugc-6.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: street selfie" data-alt-pt="Vídeo gerado por IA: selfie na rua">
-            <figcaption><b>UGC</b><span data-pt="Selfie na rua">Street selfie</span></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-1.mp4" hidden>
+            <figcaption><b>UGC</b><span data-pt="Selfie na rua">Street selfie</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-1.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/personagem-1.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 1" data-alt-pt="Vídeo gerado por IA: cena 1">
-            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 1">Scene 1</span></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-2.mp4" hidden>
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 1">Scene 1</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-2.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/personagem-2.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 2" data-alt-pt="Vídeo gerado por IA: cena 2">
-            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 2">Scene 2</span></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-3.mp4" hidden>
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 2">Scene 2</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-3.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/personagem-3.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 3" data-alt-pt="Vídeo gerado por IA: cena 3">
-            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 3">Scene 3</span></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-4.mp4" hidden>
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 3">Scene 3</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-4.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/personagem-4.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 4" data-alt-pt="Vídeo gerado por IA: cena 4">
-            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 4">Scene 4</span></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-5.mp4" hidden>
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 4">Scene 4</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-5.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/personagem-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 5" data-alt-pt="Vídeo gerado por IA: cena 5">
-            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 5">Scene 5</span></figcaption></figure>
-          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-6.mp4" hidden>
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 5">Scene 5</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/personagem-6.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/personagem-6.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: scene 6" data-alt-pt="Vídeo gerado por IA: cena 6">
-            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 6">Scene 6</span></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16" data-src="media/reel/produto-1.mp4" hidden>
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 6">Scene 6</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-1.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/produto-1.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: water burst" data-alt-pt="Vídeo gerado por IA: explosão de água">
-            <figcaption><b data-pt="Produto">Product</b><span data-pt="Explosão de água">Water burst</span></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16" data-src="media/reel/produto-2.mp4" hidden>
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Explosão de água">Water burst</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-2.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/produto-2.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: sunset" data-alt-pt="Vídeo gerado por IA: pôr do sol">
-            <figcaption><b data-pt="Produto">Product</b><span data-pt="Pôr do sol">Sunset</span></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5" data-src="media/reel/produto-3.mp4" hidden>
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Pôr do sol">Sunset</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-3.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/produto-3.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: stream" data-alt-pt="Vídeo gerado por IA: riacho">
-            <figcaption><b data-pt="Produto">Product</b><span data-pt="Riacho">Stream</span></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5" data-src="media/reel/produto-4.mp4" hidden>
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Riacho">Stream</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-4.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/produto-4.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: flat backdrop" data-alt-pt="Vídeo gerado por IA: fundo chapado">
-            <figcaption><b data-pt="Produto">Product</b><span data-pt="Fundo chapado">Flat backdrop</span></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16" data-src="media/reel/produto-5.mp4" hidden>
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Fundo chapado">Flat backdrop</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/produto-5.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/produto-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: dropper" data-alt-pt="Vídeo gerado por IA: conta-gotas">
-            <figcaption><b data-pt="Produto">Product</b><span data-pt="Conta-gotas">Dropper</span></figcaption></figure>
-          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5" data-src="media/reel/produto-6.mp4" hidden>
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Conta-gotas">Dropper</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5;--n:0.8" data-src="media/reel/produto-6.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/produto-6.jpg" loading="lazy" width="360" height="450"
                  alt="AI-generated video: space" data-alt-pt="Vídeo gerado por IA: espaço">
-            <figcaption><b data-pt="Produto">Product</b><span data-pt="Espaço">Space</span></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-1.mp4" hidden>
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Espaço">Space</span><em>4:5 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-1.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/broll-1.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: boiling water" data-alt-pt="Vídeo gerado por IA: água fervendo">
-            <figcaption><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-2.mp4" hidden>
+            <figcaption><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-2.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/broll-2.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: pouring" data-alt-pt="Vídeo gerado por IA: mistura">
-            <figcaption><b>B-roll</b><span data-pt="Mistura">Pouring</span></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-3.mp4" hidden>
+            <figcaption><b>B-roll</b><span data-pt="Mistura">Pouring</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-3.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/broll-3.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: slicing" data-alt-pt="Vídeo gerado por IA: corte">
-            <figcaption><b>B-roll</b><span data-pt="Corte">Slicing</span></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-4.mp4" hidden>
+            <figcaption><b>B-roll</b><span data-pt="Corte">Slicing</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-4.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/broll-4.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: steam" data-alt-pt="Vídeo gerado por IA: vapor">
-            <figcaption><b>B-roll</b><span data-pt="Vapor">Steam</span></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-5.mp4" hidden>
+            <figcaption><b>B-roll</b><span data-pt="Vapor">Steam</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-5.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/broll-5.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: cream" data-alt-pt="Vídeo gerado por IA: creme">
-            <figcaption><b>B-roll</b><span data-pt="Creme">Cream</span></figcaption></figure>
-          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-6.mp4" hidden>
+            <figcaption><b>B-roll</b><span data-pt="Creme">Cream</span><em>9:16 · 0:04</em></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16;--n:0.5625" data-src="media/reel/broll-6.mp4" tabindex="0" role="button" hidden>
             <img src="media/reel/broll-6.jpg" loading="lazy" width="360" height="640"
                  alt="AI-generated video: phone" data-alt-pt="Vídeo gerado por IA: celular">
-            <figcaption><b>B-roll</b><span data-pt="Celular">Phone</span></figcaption></figure>
+            <figcaption><b>B-roll</b><span data-pt="Celular">Phone</span><em>9:16 · 0:04</em></figcaption></figure>
+        </div>
       </div>
     </div>
 
@@ -954,7 +1083,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
   <canvas id="ping" aria-hidden="true"></canvas>
   <div class="wrap">
     <div class="head" data-rv="wipe"><span class="slug">/contact</span><span class="note">05</span></div>
-    <h2 class="t" data-rv="up" style="max-width:23ch" data-pt="Volume de criativo sem perder qualidade. <em>É esse o problema que eu resolvo.</em>">Creative volume without losing quality. <em>That is the problem I solve.</em></h2>
+    <h2 class="t" data-rv="up" data-pt="Vídeo com IA e as automações por trás dele. <em>Vamos conversar sobre o seu projeto?</em>">AI video and the automations behind it. <em>Let's talk about your project.</em></h2>
     <a class="big-mail" data-rv="up" href="mailto:rafaguiar.dev@gmail.com">rafaguiar.dev@gmail.com</a>
     <p class="avail" data-rv="up" data-pt="Remoto, no fuso do Brasil. Português nativo, inglês intermediário a avançado.">Remote, Brazil time zone. Native Portuguese, intermediate to advanced English.</p>
     <div class="socials" data-rv="up">
@@ -2518,19 +2647,24 @@ if (!RM) tick(); else { onProg(); addEventListener("scroll", onProg, { passive: 
 /* ═══ 7. o site é escuro, ponto ═══════════════════════════════════ */
 root.setAttribute("data-theme", "dark");
 
-/* ═══ 8b. /reel: a parede de trabalhos ═════════════════════════════
-   A lógica do alisson-ai-cuts, sem biblioteca:
-   · os cards vão para a coluna mais baixa (masonry), na ordem do HTML,
-     que já vem intercalada (avatar, insert, sequência, UGC...);
-   · com a parede na tela, cada coluna desliza numa velocidade: o texto
-     da esquerda fica parado e a parede anda;
-   · o filtro reorganiza: quem fica voa até o lugar novo (FLIP) e quem
-     entra nasce em ASCII;
+/* ═══ 8b. /reel: a ilha de edição ══════════════════════════════════
+   A seção é uma mesa de edição, não uma parede:
+   · o monitor de programa (à esquerda, fixo) mostra o trecho escolhido
+     em tela maior, com timecode, régua e, nos cards de seis cortes, as
+     marcas de corte. Clicar num card da folha de contatos manda o trecho
+     para o monitor, e o plano nasce em ASCII roxo, como no resto do site;
+   · a folha de contatos (à direita) tem todos os trechos na mesma altura
+     e na proporção real de cada cena, em linhas justificadas. O que passa
+     pela faixa do meio da tela toca; o resto fica em poster. Passar o
+     mouse também toca;
+   · os filtros são as trilhas: a faixa roxa da régua é a área de trabalho
+     e desliza até o filtro escolhido. Quem fica voa até o lugar novo
+     (FLIP) e quem entra nasce em ASCII;
    · em "Todos", Personagem, Produto e B-roll são um card só com seis
-     cortes de 2 s. O ASCII roxo entra .28 s antes de cada corte e uma
-     linha de varredura revela o plano seguinte. A barra de cima conta;
+     cortes de 3 s. O ASCII roxo ocupa as células em .7 s, segura .12 s
+     e devolve o vídeo em .9 s. A linha acompanha a frente e a barra conta;
    · o <video> só nasce perto da tela e só toca nela. Com movimento
-     reduzido nada anda nem toca sozinho: clique/Enter no card toca.
+     reduzido nada anda nem toca sozinho: clique/Enter toca.
    Aberto como file:// o navegador não deixa ler os pixels; aí o ASCII
    vira um ruído no mesmo tom, e o resto funciona igual.              */
 (() => {
@@ -2538,46 +2672,23 @@ root.setAttribute("data-theme", "dark");
   if (!wall) return;
   const tiles = [...wall.querySelectorAll(".clip")];
   const chips = [...document.querySelectorAll(".chip")];
+  const chipBox = chips[0].parentNode;
   const descs = [...document.querySelectorAll(".trab-desc p")];
   const seqs = tiles.filter(c => c.classList.contains("seq"));
+  const mon = document.getElementById("monitor"), mc = document.getElementById("mon-clip");
+  const infos = [...mon.querySelectorAll(".mi")];
+  const rule = document.getElementById("mon-rule");
+  const tcT = document.getElementById("mon-t"), tcD = document.getElementById("mon-d"), nEl = document.getElementById("mon-n");
   const ASC = " .·:-=+*xX#%@";
-  const R = new Map(tiles.map(c => {
-    const i = c.querySelector("img");
-    return [c, +i.getAttribute("height") / +i.getAttribute("width")];
-  }));
-  let filtro = "all", cols = [], ys = [];
+  const nome = c => c.dataset.src.split("/").pop().replace(".mp4", "");
+  let filtro = "all", atual = null, monVis = false, vivo = false;
 
   const mostra = c => {
     const em = c.dataset.in.split(" ");
     return filtro === "all" ? em.includes("all") : c.dataset.cat === filtro && em.includes("cat");
   };
-  // 4 colunas já a partir de 1280 px de tela (como no Alisson); 5 só em tela bem larga
-  const quantas = () => { const w = wall.clientWidth; return w >= 1100 ? 5 : w >= 780 ? 4 : w >= 520 ? 3 : 2; };
-
-  function distribuir() {
-    const n = quantas();
-    if (n !== cols.length) {
-      tiles.forEach(c => wall.appendChild(c));          // tira os cards antes de jogar as colunas fora
-      cols.forEach(c => c.remove());
-      cols = Array.from({ length: n }, () => {
-        const d = document.createElement("div");
-        d.className = "wcol";
-        wall.appendChild(d);
-        return d;
-      });
-      ys = [];
-      wall.classList.add("on");
-    }
-    const alt = new Array(n).fill(0);
-    tiles.forEach(c => {
-      c.hidden = !mostra(c);
-      if (c.hidden) return;
-      const k = alt.indexOf(Math.min(...alt));
-      cols[k].appendChild(c);
-      alt[k] += R.get(c) + .06;
-    });
-  }
-  distribuir();
+  const aplicar = () => tiles.forEach(c => { c.hidden = !mostra(c); });
+  aplicar();
 
   // ── vídeo ──
   function video(c) {
@@ -2592,7 +2703,7 @@ root.setAttribute("data-theme", "dark");
     c.insertBefore(v, c.querySelector("img").nextSibling);
     return v;
   }
-  function play(c) { const p = video(c).play(); if (p) p.catch(() => {}); }
+  function play(c) { const v = video(c); if (!v.paused) return; const p = v.play(); if (p) p.catch(() => {}); }
   function stop(c) { const v = c.querySelector("video"); if (v && !v.paused) v.pause(); }
   const naTela = c => {
     if (c.hidden) return false;
@@ -2600,18 +2711,84 @@ root.setAttribute("data-theme", "dark");
     return r.bottom > 0 && r.top < innerHeight && r.height > 0;
   };
 
-  if (RM) {
-    tiles.forEach(c => {
-      c.tabIndex = 0;
-      const t = () => { const v = c.querySelector("video"); if (v && !v.paused) v.pause(); else play(c); };
-      c.addEventListener("click", t);
-      c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); t(); } });
-    });
-  } else {
-    const vio = new IntersectionObserver(es => es.forEach(e => {
-      if (e.isIntersecting) play(e.target); else stop(e.target);
-    }), { threshold: .35 });      // card que mal apareceu na borda não precisa estar decodificando
-    tiles.forEach(c => vio.observe(c));
+  // quem toca na folha: o que está sob a faixa do meio da tela, o que está sob o mouse e,
+  // nos cards de cortes, qualquer um que esteja na tela. O que foi para o monitor fica parado.
+  const quer = c => !c.hidden && c !== atual && !!(c._hov || c._band || (c.classList.contains("seq") && c._vw));
+  const sync = c => { if (quer(c)) play(c); else stop(c); };
+
+  // ── o monitor ──
+  const pad = n => String(n).padStart(2, "0");
+  const tc = t => "00:" + pad(Math.floor(t / 60)) + ":" + pad(Math.floor(t % 60)) + ":" + pad(Math.floor((t % 1) * 24));
+  const poe = (el, txt) => { if (el.textContent !== txt) el.textContent = txt; };
+  function relogio() {
+    const v = mc.querySelector("video");
+    if (!v || !v.duration || v.readyState < 1) return;
+    poe(tcT, tc(v.currentTime)); poe(tcD, "/ " + tc(v.duration));
+    rule.style.setProperty("--p", (v.currentTime / v.duration * 100).toFixed(2) + "%");
+  }
+  function tocaMon(forcar) {
+    if (forcar || (!RM && monVis && !mc._man)) play(mc);
+  }
+  function escolher(c, forcar, abrir) {
+    if (c === atual) { if (abrir) tocaMon(true); return; }
+    const velho = atual; atual = c;
+    if (velho) { velho.classList.remove("sel"); sync(velho); }
+    c.classList.add("sel"); stop(c);
+    const ov = mc.querySelector("video"); if (ov) ov.remove();
+    if (mc._xf) { mc._xf.style.display = "none"; mc._xl.style.display = "none"; }
+    mc._armado = false; mc._man = false;
+    const seq = c.classList.contains("seq"), im = c.querySelector("img"), mi = mc.querySelector("img");
+    mc.classList.toggle("seq", seq); mon.classList.toggle("is-seq", seq);
+    mc.dataset.src = c.dataset.src;
+    mc.style.setProperty("--r", c.style.getPropertyValue("--r"));
+    mc.style.setProperty("--n", c.style.getPropertyValue("--n"));
+    mi.width = im.getAttribute("width"); mi.height = im.getAttribute("height");
+    mi.src = im.getAttribute("src");
+    infos.forEach(i => { i.hidden = i.dataset.k !== nome(c); });
+    const vis = tiles.filter(x => !x.hidden);
+    poe(nEl, pad(vis.indexOf(c) + 1) + " / " + pad(vis.length));
+    poe(tcT, "00:00:00:00"); poe(tcD, "/ --:--:--:--");
+    rule.style.setProperty("--p", "0%");
+    const go = () => {
+      if (atual !== c) return;
+      if (!RM) revelar(mc, 0);
+      tocaMon(forcar);
+    };
+    (mi.decode ? mi.decode().catch(() => {}) : Promise.resolve()).then(go);
+  }
+  function abrir(c) {
+    escolher(c, true, true);
+    const r = mon.getBoundingClientRect();
+    if (r.top < 60 || r.bottom > innerHeight - 8) mon.scrollIntoView({ block: "start", behavior: RM ? "auto" : "smooth" });
+  }
+  tiles.forEach(c => {
+    c.addEventListener("click", () => abrir(c));
+    c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); abrir(c); } });
+  });
+  const alterna = () => {
+    const v = mc.querySelector("video");
+    if (v && !v.paused) { mc._man = true; v.pause(); } else { mc._man = false; play(mc); }
+  };
+  mc.addEventListener("click", alterna);
+  mc.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); alterna(); } });
+  rule.addEventListener("pointerdown", e => {          // a régua também serve de barra de busca
+    const v = mc.querySelector("video");
+    if (!v || !v.duration) return;
+    const r = rule.getBoundingClientRect();
+    v.currentTime = Math.min(.999, Math.max(0, (e.clientX - r.left) / r.width)) * v.duration;
+    if (v.paused) { mc._man = false; play(mc); }
+    relogio();
+  });
+
+  // ── a régua dos filtros: a faixa roxa é a área de trabalho ──
+  function marcar() {
+    const b = chips.find(x => x.getAttribute("aria-pressed") === "true");
+    if (!b) return;
+    const pr = parseFloat(getComputedStyle(b).paddingRight) || 0;
+    chipBox.style.setProperty("--px", b.offsetLeft + "px");
+    chipBox.style.setProperty("--pw", Math.max(0, b.offsetWidth - pr) + "px");
+    const alvo = b.offsetLeft - (chipBox.clientWidth - b.offsetWidth) / 2;
+    if (chipBox.scrollWidth > chipBox.clientWidth) chipBox.scrollTo({ left: Math.max(0, alvo), behavior: RM ? "auto" : "smooth" });
   }
 
   // ── ASCII do poster: a entrada de cada card ──
@@ -2638,32 +2815,55 @@ root.setAttribute("data-theme", "dark");
   // desenha o ASCII de uma imagem ou de um quadro de vídeo (fonte com a mesma proporção do card)
   const amostra = document.createElement("canvas");
   const ax = amostra.getContext("2d", { willReadFrequently: true });
-  function pintar(g, W, H, dpr, fonte, iw, ih) {
+  function pintar(g, W, H, dpr, fonte, iw, ih, progresso = 1, entrada = false) {
     const CW = 6.6 * dpr, CH = 11 * dpr;
-    const cols = Math.ceil(W / CW), rows = Math.ceil(H / CH);
-    let lum = null;
+    const cols = Math.ceil(W / CW), rows = Math.ceil(H / CH), total = cols * rows;
+    // A grade guarda luminância e limiares fixos; nenhum sorteio ou vetor por quadro.
+    let grade = g._grade;
+    if (!grade || grade.cols !== cols || grade.rows !== rows) {
+      grade = g._grade = { cols, rows, lum: new Float32Array(total),
+        ruido: new Float32Array(total), frente: new Float32Array(total) };
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+        const i = y * cols + x, r = Math.random();
+        grade.ruido[i] = r;
+        grade.frente[i] = .82 * (y + .5) / rows + .18 * r;
+        grade.lum[i] = .3 + .35 * Math.abs(Math.sin(x * .45 + y * .3)) * r;
+      }
+    }
     if (fonte) {
       try {
-        amostra.width = cols; amostra.height = rows;
-        let sw = iw, sh = ih, ox = 0, oy = 0;          // o mesmo recorte do object-fit:cover
-        if (iw / ih > W / H) { sw = ih * W / H; ox = (iw - sw) / 2; } else { sh = iw * H / W; oy = (ih - sh) / 2; }
+        if (amostra.width !== cols) amostra.width = cols;
+        if (amostra.height !== rows) amostra.height = rows;
+        let sw = iw, sh = ih, ox = 0, oy = 0;
+        if (iw / ih > W / H) { sw = ih * W / H; ox = (iw - sw) / 2; }
+        else { sh = iw * H / W; oy = (ih - sh) / 2; }
         ax.drawImage(fonte, ox, oy, sw, sh, 0, 0, cols, rows);
-        const d = ax.getImageData(0, 0, cols, rows).data;
-        lum = new Float32Array(cols * rows);
-        for (let i = 0; i < lum.length; i++) lum[i] = (d[i * 4] * .299 + d[i * 4 + 1] * .587 + d[i * 4 + 2] * .114) / 255;
-      } catch (_) { lum = null; }
+        const pixels = ax.getImageData(0, 0, cols, rows).data;
+        for (let i = 0; i < total; i++) grade.lum[i] =
+          (pixels[i * 4] * .299 + pixels[i * 4 + 1] * .587 + pixels[i * 4 + 2] * .114) / 255;
+      } catch (_) { /* file:// pode impedir a leitura; a grade continua estável. */ }
     }
-    g.fillStyle = "#0A0A0A"; g.fillRect(0, 0, W, H);
+    g.clearRect(0, 0, W, H);
     g.font = (10 * dpr) + "px 'JetBrains Mono', monospace";
     g.textBaseline = "top";
+    const e = progresso * progresso * (3 - 2 * progresso);
+    const frente = e * 1.16 - .08;
+    const brilho = .96 + .04 * Math.sin(progresso * Math.PI * 2);
     for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
-      let v = lum ? lum[y * cols + x] : .3 + .35 * Math.abs(Math.sin(x * .45 + y * .3)) * Math.random();
-      v = Math.pow(Math.min(1, Math.max(0, v)), 1.1);
+      const i = y * cols + x, limiar = entrada ? grade.frente[i] : grade.ruido[i];
+      let alpha = Math.min(1, Math.max(0, (frente - limiar + .08) / .16));
+      alpha = alpha * alpha * (3 - 2 * alpha);
+      if (entrada) alpha = 1 - alpha;
+      if (alpha <= 0) continue;
+      g.globalAlpha = alpha;
+      g.fillStyle = "#0A0A0A"; g.fillRect(x * CW, y * CH, CW + .5, CH + .5);
+      const v = Math.pow(Math.min(1, Math.max(0, grade.lum[i])), 1.1);
       const k = Math.round(v * (ASC.length - 1));
       if (!k) continue;
-      g.fillStyle = "rgba(191,133,249," + (.16 + .84 * v).toFixed(2) + ")";
-      g.fillText(ASC[k], x * CW, y * CH);
+      g.globalAlpha = alpha * (.16 + .84 * v) * brilho;
+      g.fillStyle = "#BF85F9"; g.fillText(ASC[k], x * CW, y * CH);
     }
+    g.globalAlpha = 1;
   }
 
   function revelar(c, d) {
@@ -2674,16 +2874,16 @@ root.setAttribute("data-theme", "dark");
     c.classList.add("scan");
     c.querySelector(".asc").addEventListener("animationend", () => c.classList.remove("asc-on", "scan"), { once: true });
   }
-  const coluna = c => Math.max(0, cols.indexOf(c.parentNode));
 
   // ── filtro ──
   function filtrar(f) {
     if (f === filtro) return;
     chips.forEach(b => b.setAttribute("aria-pressed", b.dataset.f === f));
     descs.forEach(p => { p.hidden = p.dataset.f !== f; });
+    marcar();
     const antes = new Map(tiles.filter(c => !c.hidden).map(c => [c, c.getBoundingClientRect()]));
     filtro = f;
-    distribuir();
+    aplicar();
     const novos = [];
     tiles.forEach(c => {
       if (c.hidden) return;
@@ -2696,20 +2896,13 @@ root.setAttribute("data-theme", "dark");
         c.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }],
           { duration: 650, easing: "cubic-bezier(.65,0,.35,1)" });
     });
-    // com menos card a parede encolhe: se ela já tinha passado do topo, volta para o começo dela
-    const top = wall.getBoundingClientRect().top;
-    let espera = 0;
-    if (top < 60) {
-      scrollTo({ top: scrollY + top - 110, behavior: RM ? "auto" : "smooth" });
-      espera = RM ? 0 : 380;
-    }
+    // o primeiro trecho do filtro vai para o monitor
+    escolher(tiles.find(c => !c.hidden), false);
     if (RM) return;
-    setTimeout(() => {
-      novos.forEach((c, i) => {
-        if (naTela(c)) { revelar(c, coluna(c) * .06 + Math.floor(i / cols.length) * .05); play(c); }
-        else { delete c.dataset.rev; rev.observe(c); }
-      });
-    }, espera);
+    novos.forEach((c, i) => {
+      if (naTela(c)) revelar(c, Math.min(i, 12) * .05);
+      else { delete c.dataset.rev; rev.observe(c); }
+    });
   }
   chips.forEach(b => b.addEventListener("click", () => filtrar(b.dataset.f)));
 
@@ -2717,12 +2910,13 @@ root.setAttribute("data-theme", "dark");
   addEventListener("resize", () => {
     if (innerWidth === largura) return;          // a barra do celular some e volta: não é resize de verdade
     largura = innerWidth;
-    if (quantas() !== cols.length) distribuir();
+    marcar();
   });
+  document.getElementById("lang").addEventListener("click", () => setTimeout(marcar, 0));
+  if (document.fonts) document.fonts.ready.then(marcar);
+  marcar();
 
-  if (RM) return;
-
-  // cada card espera em ASCII um pouco antes de chegar e é revelado quando entra de verdade
+  // ── a entrada: cada card espera em ASCII um pouco antes de chegar e é revelado quando entra ──
   const pre = new IntersectionObserver(es => es.forEach(e => {
     if (!e.isIntersecting) return;
     const c = e.target; pre.unobserve(c);
@@ -2734,18 +2928,35 @@ root.setAttribute("data-theme", "dark");
   const rev = new IntersectionObserver(es => {
     const entram = es.filter(e => e.isIntersecting).map(e => e.target);
     entram.forEach(c => rev.unobserve(c));
-    entram.sort((a, b) => coluna(a) - coluna(b)).forEach((c, i) => revelar(c, i * .07));
+    entram.sort((a, b) => (a.compareDocumentPosition(b) & 4 ? -1 : 1)).forEach((c, i) => revelar(c, Math.min(i, 12) * .06));
   }, { rootMargin: "0px 0px -10% 0px", threshold: .12 });
-  tiles.forEach(c => { if (!c.hidden) { pre.observe(c); rev.observe(c); } });
+
+  if (!RM) {
+    tiles.concat(mc).forEach(c => { if (!c.hidden) { pre.observe(c); rev.observe(c); } });
+    const banda = new IntersectionObserver(es => es.forEach(e => { e.target._band = e.isIntersecting; sync(e.target); }),
+      { rootMargin: "-28% 0px -28% 0px", threshold: .6 });
+    const vista = new IntersectionObserver(es => es.forEach(e => { e.target._vw = e.isIntersecting; sync(e.target); }),
+      { threshold: .35 });
+    tiles.forEach(c => { banda.observe(c); if (c.classList.contains("seq")) vista.observe(c); });
+    if (matchMedia("(hover:hover)").matches) tiles.forEach(c => {
+      c.addEventListener("pointerenter", () => { c._hov = true; sync(c); });
+      c.addEventListener("pointerleave", () => { c._hov = false; sync(c); });
+    });
+  }
+  new IntersectionObserver(es => es.forEach(e => {
+    monVis = e.isIntersecting;
+    if (monVis) tocaMon(false); else stop(mc);
+  }), { threshold: .3 }).observe(mon);
 
   // ── os cortes dos cards de sequência ──
-  const D = 2, ANTES = .28, DEPOIS = .45;
+  const D = 3, ANTES = .7, DEPOIS = 1.02; // entrada: pausa de .12 s + revelação de .9 s
   function camada(c) {
     if (c._xf) return c._xf;
     const cv = document.createElement("canvas"); cv.className = "xf"; cv.setAttribute("aria-hidden", "true");
     const l = document.createElement("span"); l.className = "xl";
     const segs = c.querySelector(".segs");
     c.insertBefore(cv, segs); c.insertBefore(l, segs);
+    c._xg = cv.getContext("2d");
     c._xl = l; c._segs = [...c.querySelectorAll(".segs i")];
     return (c._xf = cv);
   }
@@ -2754,7 +2965,8 @@ root.setAttribute("data-theme", "dark");
     if (!v || c.hidden || v.paused || v.readyState < 2) return;
     const cv = camada(c), n = c._segs.length;
     const t = v.currentTime, ph = t - Math.floor(t / D) * D, k = Math.floor(t / D) % n;
-    c._segs.forEach((s, i) => s.style.setProperty("--p", i < k ? "100%" : i > k ? "0%" : (ph / D * 100).toFixed(1) + "%"));
+    for (let i = 0; i < n; i++) c._segs[i].style.setProperty("--p",
+      i < k ? "100%" : i > k ? "0%" : (ph / D * 100).toFixed(1) + "%");
     let fase = 0, a = 0;
     if (ph > D - ANTES) { fase = 1; a = (ph - (D - ANTES)) / ANTES; c._armado = true; }
     else if (ph < DEPOIS && c._armado) { fase = 2; a = ph / DEPOIS; }
@@ -2763,41 +2975,42 @@ root.setAttribute("data-theme", "dark");
       if (cv.style.display === "block") { cv.style.display = "none"; c._xl.style.display = "none"; }
       return;
     }
-    const r = c.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
-    const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+    const altura = c.clientHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(c.clientWidth * dpr), H = Math.round(altura * dpr);
     if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
-    pintar(cv.getContext("2d"), W, H, dpr, v, v.videoWidth, v.videoHeight);
+    // Fotografa cada plano uma vez; a pausa mantém o ASCII do plano anterior.
+    const entrada = fase === 2, progresso = entrada ? Math.max(0, (ph - .12) / .9) : a;
+    const mudou = c._fase !== fase || c._plano !== k || c._xg._grade?.cols !== Math.ceil(W / (6.6 * dpr));
+    let fonte = null;
+    if (!entrada && mudou) fonte = v;
+    if (entrada && ph >= .12 && c._capturado !== k) { fonte = v; c._capturado = k; }
+    if (!entrada) c._capturado = -1;
+    pintar(c._xg, W, H, dpr, fonte, v.videoWidth, v.videoHeight, progresso, entrada);
+    c._fase = fase; c._plano = k;
     cv.style.display = "block";
-    if (fase === 1) {                       // o plano que sai se desfaz em ASCII
-      cv.style.opacity = (a * a).toFixed(2); cv.style.clipPath = "none"; c._xl.style.display = "none";
-    } else {                                // a varredura revela o plano que entra
-      const e = 1 - Math.pow(1 - a, 2);
-      cv.style.opacity = "1"; cv.style.clipPath = "inset(" + (e * 100).toFixed(1) + "% 0 0 0)";
-      c._xl.style.display = "block"; c._xl.style.transform = "translateY(" + (e * r.height).toFixed(1) + "px)";
-      c._xl.style.opacity = (1 - a * .6).toFixed(2);
+    if (fase === 1) {
+      c._xl.style.display = "none";
+    } else {
+      const e = progresso * progresso * (3 - 2 * progresso);
+      c._xl.style.display = ph > .12 ? "block" : "none";
+      c._xl.style.transform = "translateY(" + (e * altura).toFixed(1) + "px)";
+      c._xl.style.opacity = (Math.sin(Math.PI * progresso) * .85).toFixed(2);
     }
   }
 
-  // ── o movimento da parede: cada coluna numa velocidade ──
-  const A = [0, 50, 15, 70, 30], B = [70, 10, 100, 30, 60];
-  let vivo = false, last = 0;
-  function quadro(now) {
-    const dt = last ? Math.min(now - last, 100) : 16; last = now;
-    const r = wall.getBoundingClientRect(), vh = innerHeight;
-    const p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
-    const amp = innerWidth < 900 ? .5 : 1, s = 1 - Math.pow(1 - .14, dt / 16);
-    cols.forEach((c, i) => {
-      const alvo = (A[i % 5] - (A[i % 5] + B[i % 5]) * p) * amp;
-      ys[i] = ys[i] == null ? alvo : ys[i] + (alvo - ys[i]) * s;
-      c.style.transform = "translate3d(0," + ys[i].toFixed(1) + "px,0)";
-    });
+  // ── o relógio do monitor e os cortes, a cada quadro, com a seção na tela ──
+  function quadro() {
     seqs.forEach(corte);
-    if (vivo) requestAnimationFrame(quadro); else last = 0;
+    if (mc.classList.contains("seq")) corte(mc);
+    relogio();
+    if (vivo) requestAnimationFrame(quadro);
   }
   new IntersectionObserver(es => es.forEach(e => {
     const era = vivo; vivo = e.isIntersecting;
     if (vivo && !era) requestAnimationFrame(quadro);
-  }), { rootMargin: "200px 0px 200px 0px" }).observe(wall);
+  }), { rootMargin: "200px 0px 200px 0px" }).observe(wall.parentNode);
+
+  escolher(tiles.find(c => !c.hidden), false);
 })();
 
 /* ═══ 9. /work: os dois apps ══════════════════════════════════════
