@@ -31,13 +31,13 @@ CARDS = [
  ("avatar-5", "1-lipsync/ls-15.mp4", "9:16", .5),
  # v24: o ls-18 saiu (o careca do escritorio lembra um ator conhecido); entrou a da cozinha
  ("avatar-6", "1-lipsync/ls-17.mp4", "4:5", .1),   # 4:5 por cima: a caixa com cara de marca fica fora
- ("avatar-7", "1-lipsync/ls-08.mp4", "4:5", .5),
+ ("avatar-7", "2-volume/vol-01.mp4", "4:5", .35),   # v26: ls-08 parecia um medico conhecido do YouTube
  ("avatar-8", "1-lipsync/ls-02.mp4", "4:5", .5),
  ("ugc-1", "2-volume/vol-17.mp4", "9:16", .5), ("ugc-2", "2-volume/vol-13.mp4", "4:5", .5),
  ("ugc-3", "2-volume/vol-14.mp4", "9:16", .5), ("ugc-4", "2-volume/vol-15.mp4", "4:5", .3),
  ("ugc-5", "2-volume/vol-16.mp4", "9:16", .5), ("ugc-6", "2-volume/vol-20.mp4", "9:16", .5),
  ("ugc-7", "2-volume/vol-12.mp4", "4:5", .5, .22),
- ("ugc-8", "1-lipsync/ls-06.mp4", "4:5", .5),
+ ("ugc-8", "6-consistencia/B-homem-oculos-02.mp4", "4:5", .3),   # v26: ls-06 repetia o careca do avatar-8
  ("insert-1", "5-insert-vfx/vfx-15.mp4", "4:5", .5),
  ("insert-2", IMP + r"14-09\BROLLS-BLOCO-6-9\11 - BLOCO 7\B7-04_neuronio-3d-BC.mp4", "1:1", .45),
  ("insert-3", IMP + r"14-09\BROLLS-BLOCO-6-9\10 - BLOCO 6\B6-05_gota-vinagre-separacao-po-dourado-IA.mp4", "4:5", .4),
