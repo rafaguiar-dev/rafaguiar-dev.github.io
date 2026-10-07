@@ -23,7 +23,7 @@ ASCII_ROBOT_SRC = os.path.join(HERE, "hero-ascii-robot.png")
 #         para mostrar o site sem expor o material real.
 # False = volta as imagens de verdade (assets/ e canal-dark).
 # Os PNG cinza sao gerados aqui mesmo, em assets/placeholder/, na primeira vez.
-PLACEHOLDER_REEL = True
+PLACEHOLDER_REEL = False   # v22: o mural nao usa mais os tiles W1..W6
 PLACEHOLDER_DIR = os.path.join(LOCAL_ASSETS, "placeholder")
 # tile -> (largura, altura) na proporcao em que ele aparece na grade
 PLACEHOLDER_SIZES = {
@@ -39,16 +39,12 @@ ASSETS = {
     "HERO": (HERO_SRC, 1100, 88),
     "ASCII_ROBOT": (ASCII_ROBOT_SRC, 1100, 90),
     # Cópias locais: o build não pode depender de Downloads/Desktop.
-    "W1":   (os.path.join(LOCAL_ASSETS, "reel-avatar-01.png"), 560, 72),
-    "W2":   (os.path.join(LOCAL_ASSETS, "reel-avatar-02.png"), 560, 72),
-    "W3":   (os.path.join(LOCAL_ASSETS, "reel-avatar-03.png"), 560, 72),
-    "W4":   (os.path.join(LOCAL_ASSETS, "reel-grade-01.png"),  700, 76),
-    "W5":   (os.path.join(CD, "test", "scene4k.jpg"),              980, 74),
-    "W6":   (os.path.join(CD, "parallax", "plano-0.webp"),         980, 74),
+    # W1..W6 (a parede antiga de 6 tiles) sairam na v22: o /reel virou o
+    # mural de videos, e video e poster viajam como arquivo em media/reel/.
 }
 
 if PLACEHOLDER_REEL:
-    for k in PLACEHOLDER_SIZES:
+    for k in [k for k in PLACEHOLDER_SIZES if k in ASSETS]:
         _, w, q = ASSETS[k]
         ASSETS[k] = (os.path.join(PLACEHOLDER_DIR, f"{k}.png"), w, q)
 
@@ -161,6 +157,9 @@ def publicar(html):
     print(f"  -> {idx}   (isto e o que o GitHub Pages publica)")
 
 
+MIDIA = (".mp4", ".webm", ".mov", ".gif", ".jpg", ".jpeg", ".png", ".webp")
+
+
 def copiar_media(docs):
     """Espelha PORTIFOLIO/media/ em docs/media/ — os videos do /reel.
 
@@ -175,21 +174,31 @@ def copiar_media(docs):
     dst = os.path.join(docs, "media")
     os.makedirs(dst, exist_ok=True)
     n = total = 0
-    for nome in sorted(os.listdir(src)):
-        a = os.path.join(src, nome)
-        if not os.path.isfile(a):
-            continue
-        # o LEIA-ME e para voce, nao para o mundo: so midia atravessa
-        if os.path.splitext(nome)[1].lower() not in (".mp4", ".webm", ".mov", ".gif"):
-            continue
-        b = os.path.join(dst, nome)
-        # so copia o que mudou: video grande nao precisa ser reescrito a cada build
-        if not os.path.exists(b) or os.path.getmtime(a) > os.path.getmtime(b):
-            shutil.copy2(a, b)
-        n += 1
-        total += os.path.getsize(a)
+    for pasta, _, arquivos in os.walk(src):
+        for nome in sorted(arquivos):
+            a = os.path.join(pasta, nome)
+            # o LEIA-ME e os _arquivos de controle sao para voce, nao para o
+            # mundo: so midia atravessa (video do mural, poster, tela de app)
+            if nome.startswith("_") or os.path.splitext(nome)[1].lower() not in MIDIA:
+                continue
+            b = os.path.join(dst, os.path.relpath(a, src))
+            os.makedirs(os.path.dirname(b), exist_ok=True)
+            # so copia o que mudou: video grande nao precisa ser reescrito a cada build
+            if not os.path.exists(b) or os.path.getmtime(a) > os.path.getmtime(b):
+                shutil.copy2(a, b)
+            n += 1
+            total += os.path.getsize(a)
+    # espelho de verdade: o que saiu de media/ sai de docs/media/ (senao o
+    # card trocado continua sendo publicado e ocupando espaco no repo)
+    sobra = 0
+    for pasta, _, arquivos in os.walk(dst):
+        for nome in arquivos:
+            b = os.path.join(pasta, nome)
+            if os.path.splitext(nome)[1].lower() in MIDIA and not os.path.exists(os.path.join(src, os.path.relpath(b, dst))):
+                os.remove(b)
+                sobra += 1
     if n:
-        print(f"  media: {n} arquivo(s), {total/1024/1024:.1f} MB -> docs/media/")
+        print(f"  media: {n} arquivo(s), {total/1024/1024:.1f} MB -> docs/media/" + (f" ({sobra} antigo(s) removido(s))" if sobra else ""))
 
 
 ROBOTS = """# Buscadores normais: entrem.

@@ -29,3 +29,12 @@ CONTINUAR.md
 __pycache__/
 *.pyc
 .venv/
+
+# materia-prima dos videos (8+ GB, fica so no disco). O que vai para o ar
+# sao os trechos cortados em media/reel/, gerados pelo mural.py
+videos-reel/
+videos-selecao/
+# controle interno do mural (de qual arquivo saiu cada trecho)
+media/**/_*
+# originais das telas dos apps; as versoes web ficam em media/work/
+assets/work/
