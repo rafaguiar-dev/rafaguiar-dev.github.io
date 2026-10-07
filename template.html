@@ -92,6 +92,15 @@ header.nav{position:sticky;top:0;z-index:70;backdrop-filter:blur(14px) saturate(
   border:1px solid var(--line);padding:6px 10px;border-radius:var(--radius);cursor:pointer;transition:.2s}
 .sw:hover{color:var(--purple);border-color:var(--purple);background:var(--purple-dim)}
 
+/* Cadeado: os dois rótulos acompanham a tradução do HTML. */
+.sw-lock{display:inline-flex;align-items:center;justify-content:center;padding:6px 9px}
+.sw-lock svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sw-lock [hidden]{display:none}
+.sw-lock[aria-pressed="true"]{color:var(--purple)}
+.lock-label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sw-lock.lock-hint{animation:lock-hint 950ms ease-out 1}
+@keyframes lock-hint{50%{background:var(--purple-dim);box-shadow:0 0 14px var(--purple)}}
+
 /* ═══ botões ══════════════════════════════════════════════════════ */
 .btn{font-size:var(--s--1);text-decoration:none;padding:12px 20px;border-radius:var(--radius);
   border:1px solid var(--line);transition:.22s;display:inline-flex;gap:10px;align-items:center;font-weight:500}
@@ -564,6 +573,16 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
       <a href="#contact">/contact</a>
     </nav>
     <div class="switches">
+      <button class="sw sw-lock" id="section-lock" type="button" aria-pressed="false" aria-label="Section alignment: off" title="Section alignment: off">
+        <span data-lock="on" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3M12 14v3"/></svg>
+          <span class="lock-label" data-pt="Encaixe por seção: ligado" data-aria-pt="Encaixe por seção: ligado" aria-label="Section alignment: on">Section alignment: on</span>
+        </span>
+        <span data-lock="off">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 7.5-2M12 14v3"/></svg>
+          <span class="lock-label" data-pt="Encaixe por seção: desligado" data-aria-pt="Encaixe por seção: desligado" aria-label="Section alignment: off">Section alignment: off</span>
+        </span>
+      </button>
       <button class="sw" id="lang" aria-label="Trocar idioma">PT</button>
       </div>
   </div>
@@ -3485,4 +3504,140 @@ const spy = new IntersectionObserver(es => es.forEach(e => {
   navLinks.forEach(a => a.classList.toggle("here", a.getAttribute("href") === "#" + e.target.id));
 }), { rootMargin: "-45% 0px -50% 0px" });
 secs.forEach(el => spy.observe(el));
+
+/* 11. encaixe por seção
+   Só gestos entram aqui. Scroll por código, links e filtros não iniciam encaixe.
+   A geometria é medida a cada gesto, inclusive depois de mudar um filtro. */
+(() => {
+  const botao = document.getElementById("section-lock");
+  const reduzido = matchMedia("(prefers-reduced-motion: reduce)");
+  const toque = matchMedia("(hover: none), (pointer: coarse)");
+  const CHAVE = "rafaguiar.section-alignment";
+  const TEMPO = 720, RAJADA = 180, LIMIAR = 24, FOLGA = 4;
+  let ligado = !reduzido.matches && !toque.matches, salvo = null;
+  try { salvo = localStorage.getItem(CHAVE); } catch (_) { /* Sem storage, vale o padrão. */ }
+  if (salvo === "on" || salvo === "off") ligado = salvo === "on";
+  let quadro = 0, animando = false, ultimo = -Infinity, soma = 0, sentido = 0, tomou = false;
+  function cancelar() { cancelAnimationFrame(quadro); quadro = 0; animando = false; }
+  function rotulo() {
+    const estado = botao.querySelector('[data-lock="' + (ligado ? "on" : "off") + '"]');
+    botao.querySelectorAll("[data-lock]").forEach(el => { el.hidden = el !== estado; });
+    const nome = estado.querySelector(".lock-label").getAttribute("aria-label");
+    botao.setAttribute("aria-pressed", String(ligado));
+    botao.setAttribute("aria-label", nome);
+    botao.title = nome;
+  }
+  rotulo();
+  // O idioma traduz os atributos dos rótulos; o botão usa o rótulo do estado atual.
+  new MutationObserver(rotulo).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+  botao.addEventListener("click", () => {
+    cancelar(); ligado = !ligado; tomou = false; ultimo = -Infinity; soma = 0;
+    botao.classList.remove("lock-hint"); rotulo();
+    try { localStorage.setItem(CHAVE, ligado ? "on" : "off"); } catch (_) {}
+  });
+  if (ligado && salvo === null && !reduzido.matches) botao.classList.add("lock-hint");
+  reduzido.addEventListener("change", () => { cancelar(); if (reduzido.matches) { ligado = false; rotulo(); } });
+  function paradas() {
+    const max = Math.max(0, document.documentElement.scrollHeight - innerHeight);
+    return [document.querySelector(".hero"), ...document.querySelectorAll("section.sec")].map((el, i) => {
+      const r = el.getBoundingClientRect();
+      const margem = parseFloat(getComputedStyle(el).scrollMarginTop) || 60;
+      return { topo: i ? Math.min(max, Math.max(0, scrollY + r.top - margem)) : 0,
+        fim: scrollY + r.bottom, alta: i > 0 && r.height > innerHeight - margem + FOLGA };
+    });
+  }
+  function indice(ps) {
+    let i = 0;
+    while (i + 1 < ps.length && scrollY >= ps[i + 1].topo - FOLGA) i++;
+    return i;
+  }
+  function destino(dir, ps = paradas(), i = indice(ps)) {
+    const atual = ps[i];
+    if (dir > 0) {
+      if (atual.alta && scrollY + innerHeight < atual.fim - FOLGA) return null;
+      return ps[i + 1]?.topo ?? null;
+    }
+    if (scrollY > atual.topo + FOLGA) return atual.alta ? null : atual.topo;
+    return ps[i - 1]?.topo ?? null;
+  }
+  function mover(alvo) {
+    cancelar();
+    if (alvo === null || Math.abs(alvo - scrollY) <= FOLGA) return false;
+    if (reduzido.matches) { scrollTo({top: alvo, behavior: "instant"}); return true; }
+    const inicio = scrollY, t0 = performance.now();
+    let anterior = inicio;
+    animando = true;
+    function passo(t) {
+      // Uma navegação por código durante a animação também conserva seu destino.
+      if (Math.abs(scrollY - anterior) > FOLGA) { cancelar(); return; }
+      const p = Math.min(1, (t - t0) / TEMPO);
+      const e = p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
+      scrollTo({top: inicio + (alvo - inicio) * e, behavior: "instant"});
+      anterior = scrollY;
+      if (p < 1) quadro = requestAnimationFrame(passo);
+      else { animando = false; quadro = 0; }
+    }
+    quadro = requestAnimationFrame(passo);
+    return true;
+  }
+  function proprio(el) {
+    for (let n = el instanceof Element ? el : null; n && n !== document.body; n = n.parentElement) {
+      const c = getComputedStyle(n);
+      if ((/(auto|scroll)/.test(c.overflowY) && n.scrollHeight > n.clientHeight + 1) ||
+          (/(auto|scroll)/.test(c.overflowX) && n.scrollWidth > n.clientWidth + 1)) return true;
+    }
+    return false;
+  }
+  addEventListener("wheel", ev => {
+    if (!ligado || ev.defaultPrevented || ev.ctrlKey || proprio(ev.target) || Math.abs(ev.deltaX) > Math.abs(ev.deltaY) || !ev.deltaY) { cancelar(); return; }
+    const agora = performance.now(), dir = Math.sign(ev.deltaY);
+    const nova = agora - ultimo > RAJADA || dir !== sentido;
+    if (nova) { cancelar(); soma = 0; tomou = false; }
+    ultimo = agora; sentido = dir;
+    // A cauda do touchpad pertence à mesma rajada, mesmo depois da animação.
+    if (tomou) { ev.preventDefault(); return; }
+    soma += Math.abs(ev.deltaY) * (ev.deltaMode === 1 ? 16 : ev.deltaMode === 2 ? innerHeight : 1);
+    const alvo = destino(dir);
+    if (alvo !== null && soma >= LIMIAR) {
+      ev.preventDefault(); tomou = mover(alvo);
+    }
+  }, { passive: false });
+  addEventListener("keydown", ev => {
+    if (ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.altKey ||
+        ev.target.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),[role="textbox"]')) return;
+    if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Escape"].includes(ev.key)) { cancelar(); return; }
+    if (!ligado || proprio(ev.target) || !["PageDown", "PageUp", " ", "Home", "End"].includes(ev.key)) return;
+    // Espaço sobre um controle conserva a ativação nativa do controle.
+    if (ev.key === " " && ev.target.closest?.('button,a,[role="button"]')) return;
+    if (ev.repeat && animando) { ev.preventDefault(); return; }
+    cancelar(); ultimo = -Infinity; tomou = false;
+    const ps = paradas();
+    const alvo = ev.key === "Home" ? 0 : ev.key === "End" ? ps[ps.length - 1].topo :
+      destino(ev.key === "PageUp" || (ev.key === " " && ev.shiftKey) ? -1 : 1, ps);
+    if (alvo !== null) { ev.preventDefault(); mover(alvo); }
+  });
+  let gesto = null;
+  addEventListener("touchstart", ev => {
+    cancelar(); gesto = null;
+    if (!ligado || ev.touches.length !== 1 || proprio(ev.target)) return;
+    const ps = paradas();
+    gesto = { x: ev.touches[0].clientX, y: ev.touches[0].clientY, i: indice(ps), fim: ev.touches[0].clientY };
+  }, { passive: true });
+  addEventListener("touchmove", ev => {
+    if (!gesto) return;
+    if (ev.touches.length !== 1 || Math.abs(ev.touches[0].clientX - gesto.x) > Math.abs(ev.touches[0].clientY - gesto.y)) { gesto = null; return; }
+    gesto.fim = ev.touches[0].clientY;
+  }, { passive: true });
+  addEventListener("touchend", () => {
+    if (!gesto || !ligado) return;
+    const g = gesto; gesto = null;
+    if (Math.abs(g.y - g.fim) < LIMIAR) return;
+    // Só o fim de um gesto real pode iniciar o encaixe no celular.
+    mover(destino(Math.sign(g.y - g.fim), paradas(), g.i));
+  }, { passive: true });
+  addEventListener("touchcancel", () => { gesto = null; cancelar(); }, { passive: true });
+  addEventListener("pointerdown", cancelar, { passive: true });
+  addEventListener("resize", cancelar, { passive: true });
+  document.addEventListener("click", ev => { if (ev.target.closest?.("a")) cancelar(); });
+})();
 </script>
