@@ -1,4 +1,4 @@
-"""Corta os trechos do /reel (v24): cards soltos de 4 s e tres sequencias de cortes de 2 s.
+"""Corta os trechos do /reel (v24): cards soltos de 4 s e tres sequencias de cortes de 3 s.
 
 Rodar:  python mural.py   (depois: python build.py)
 
@@ -6,17 +6,20 @@ Rodar:  python mural.py   (depois: python build.py)
   melhor mostra a cena (9:16, 4:5 ou 1:1). A proporcao diferente e o que faz a
   parede do /reel parecer montada, e nao uma grade de figurinhas iguais.
 · SEQS: no filtro "Todos", Personagem, Produto e B-roll viram um card so: seis
-  cortes de 2 s emendados (12 s). O site poe o ASCII roxo em cima de cada troca,
-  entao os cortes TEM que cair em 2, 4, 6, 8 e 10 s (24 fps, 48 quadros cada).
+  cortes de 3 s emendados (18 s). O site poe o ASCII roxo em cima de cada troca,
+  entao os cortes TEM que cair em 3, 6, 9, 12 e 15 s (24 fps, 72 quadros cada).
 
 Trocar um card = trocar a linha aqui e a legenda no template.html.
 A origem e videos-reel/ (fora do git) ou a pasta IMPETUS (caminho comecando com IMP);
 a saida e media/reel/. Caminho absoluto vence o SRC (os.path.join)."""
-import subprocess, json, os, glob, tempfile
+import subprocess, json, os, glob, tempfile, argparse
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 SRC = r"D:\PROJETOS\PORTIFOLIO\videos-reel"
 IMP = "C:\\Users\\Rafek\\Desktop\\IMPETUS\\"
-OUT = r"D:\PROJETOS\PORTIFOLIO\media\reel"
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "media", "reel")
+FPS = 24
+QUADROS_CORTE = 72
 W = 360
 RATIO = {"9:16": 16 / 9, "4:5": 5 / 4, "1:1": 1.0}     # altura / largura
 
@@ -66,7 +69,7 @@ def vf(ratio, y):
     h = round(W * k / 2) * 2
     crop = (f"crop='trunc(min(iw,ih/{k})/2)*2':'trunc(min(ih,iw*{k})/2)*2':"
             f"'(iw-ow)/2':'(ih-oh)*{y}'")
-    return crop + f",scale={W}:{h}:flags=lanczos,setsar=1,fps=24,format=yuv420p", h
+    return crop + f",scale={W}:{h}:flags=lanczos,setsar=1,fps={FPS},format=yuv420p", h
 
 
 def inicio(src):
@@ -98,17 +101,17 @@ def seq(s):
     for i, (cid, rel, _, _) in enumerate(fontes):
         src = os.path.join(SRC, rel)
         p = os.path.join(tmp, f"{i}.mp4")
-        # o meio do trecho de 4 s do card: o corte de 2 s pega a parte que mais se mexe
-        subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{inicio(src) + 1:.2f}", "-i", src,
-                        "-frames:v", "48", "-vf", f, *ENC[:-2], p], check=True)
+        # três segundos centrados no trecho de quatro segundos do card
+        subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{inicio(src) + .5:.2f}", "-i", src,
+                        "-frames:v", str(QUADROS_CORTE), "-vf", f, *ENC[:-2], p], check=True)
         partes.append(p)
     lista = os.path.join(tmp, "lista.txt")
     with open(lista, "w", encoding="utf-8") as fh:
         fh.writelines(f"file '{p.replace(os.sep, '/')}'\n" for p in partes)
     mp4 = os.path.join(OUT, sid + ".mp4"); jpg = os.path.join(OUT, sid + ".jpg")
-    # reencoda no concat para os cortes cairem exatos em 2 s (GOP de 48 = um keyframe por corte)
+    # GOP fixo: um keyframe em cada corte de três segundos
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0", "-i", lista,
-                    "-r", "24", "-g", "48", *ENC, mp4], check=True)
+                    "-r", str(FPS), "-g", str(QUADROS_CORTE), "-keyint_min", str(QUADROS_CORTE), "-sc_threshold", "0", *ENC, mp4], check=True)
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-i", mp4, "-frames:v", "1", "-q:v", "6", jpg], check=True)
     for p in partes + [lista]:
         os.remove(p)
@@ -118,17 +121,25 @@ def seq(s):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Gera os cards e as sequências do /reel.")
+    parser.add_argument("--so-seq", action="store_true", help="Refaz somente as três sequências.")
+    args = parser.parse_args()
     os.makedirs(OUT, exist_ok=True)
     # a pasta e so saida deste script: o que nao esta mais nas listas sai (nada de copia sobrando)
     nomes = {c[0] for c in CARDS} | {s[0] for s in SEQS}
     for p in glob.glob(os.path.join(OUT, "*.mp4")) + glob.glob(os.path.join(OUT, "*.jpg")):
-        if os.path.splitext(os.path.basename(p))[0] not in nomes:
+        if not args.so_seq and os.path.splitext(os.path.basename(p))[0] not in nomes:
             os.remove(p)
     with ThreadPoolExecutor(6) as ex:
-        rows = list(ex.map(card, CARDS)) + list(ex.map(seq, SEQS))
+        rows = ([] if args.so_seq else list(ex.map(card, CARDS))) + list(ex.map(seq, SEQS))
     tot = 0
     for r in rows:
         print("%-16s %-5s %4s px  %5d KB  %s" % (r["id"], r["ratio"], r["h"], r["kb"], r.get("dur", "")))
         tot += r["kb"]
     print("total", tot, "KB")
+    if args.so_seq:
+        origem = os.path.join(OUT, "_origem.json")
+        if os.path.exists(origem):
+            anteriores = json.loads(Path(origem).read_text(encoding="utf-8"))
+            rows = [r for r in anteriores if r["id"] not in {s[0] for s in SEQS}] + rows
     json.dump(rows, open(os.path.join(OUT, "_origem.json"), "w", encoding="utf-8"), indent=1, ensure_ascii=False)
