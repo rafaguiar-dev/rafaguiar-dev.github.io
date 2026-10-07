@@ -1,6 +1,6 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Rafael Aguiar — AI Automation Engineer. Transformo copy em vídeo pronto e construo os pipelines que fazem isso em escala.">
+<meta name="description" content="Rafael Aguiar, AI Automation Engineer. Transformo copy em vídeo pronto e construo os pipelines que fazem isso em escala.">
 <meta name="theme-color" content="#0A0A0A">
 <meta name="author" content="Rafael Aguiar">
 <meta name="copyright" content="© 2026 Rafael Aguiar. All rights reserved.">
@@ -212,312 +212,203 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
-/* ═══ 01 · parede de assets ═══════════════════════════════════════ */
-.wall{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(7px,.9vw,12px)}
-.tile{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line-2);
-  display:block;text-decoration:none;height:100%;border-radius:4px}
-.tile img{width:100%;height:100%;object-fit:cover;transition:transform .9s cubic-bezier(.2,.7,.2,1),filter .5s;
-  filter:saturate(.55) contrast(1.06)}
-.tile:hover img{transform:scale(1.06);filter:saturate(1.06) contrast(1.08)}
-.tile::after{content:"";position:absolute;inset:0;z-index:1;transition:opacity .4s;
-  background:linear-gradient(to top,rgba(5,5,5,.9) 0%,rgba(5,5,5,.12) 48%,transparent 64%)}
-.tile::before{content:"";position:absolute;inset:0;z-index:2;opacity:0;transition:opacity .4s;
-  background:linear-gradient(120deg,transparent 30%,var(--purple-dim) 55%,transparent 75%);mix-blend-mode:screen}
-.tile:hover::before{opacity:1}
-.tile .cap{position:absolute;left:11px;right:11px;bottom:10px;z-index:3;font-size:var(--s--2);
-  letter-spacing:.06em;color:#FAFAFA;display:flex;justify-content:space-between;gap:8px;
-  transform:translateY(7px);opacity:0;transition:.35s}
-.tile:hover .cap,.tile:focus-visible .cap{transform:none;opacity:1}
-.tile .cap i{font-style:normal;color:var(--purple)}
-.t-a,.t-c,.t-f{grid-column:span 3;aspect-ratio:9/16}
-.t-b{grid-column:span 6}.t-d{grid-column:span 4}.t-e{grid-column:span 5}
-@media(max-width:820px){.wall{grid-template-columns:repeat(2,1fr)}
-  .t-a,.t-b,.t-c,.t-d,.t-e,.t-f{grid-column:span 1;aspect-ratio:4/5}}
+/* ═══ 01 · /reel: a parede de trabalhos (v24) ══════════════════════
+   A lógica do alisson-ai-cuts: o texto gruda à esquerda e a parede de
+   vídeo anda. Cada coluna desliza numa velocidade (JS, seção 8b), cada
+   trecho tem a proporção da cena, e o rótulo só aparece no hover.
+   O ASCII roxo é a transição do site: nasce o card e marca cada corte
+   dos cards de sequência.                                            */
+.trab{display:grid;grid-template-columns:minmax(240px,270px) minmax(0,1fr);gap:clamp(28px,3.2vw,46px);
+  align-items:start}
+.trab-side{position:sticky;top:clamp(92px,19vh,170px)}
+.trab-side h2.t{font-size:clamp(2rem,1.1rem + 1.9vw,2.9rem)}
+.trab-side .sub{font-size:var(--s-0);max-width:30ch}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:clamp(20px,2.4vw,28px)}
+.chip{all:unset;box-sizing:border-box;cursor:pointer;padding:7px 12px;border:1px solid var(--line);border-radius:999px;
+  background:var(--bg);font-size:var(--s--2);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
+  transition:border-color .2s,color .2s,background .2s}
+.chip:hover{border-color:var(--purple);color:var(--purple)}
+.chip[aria-pressed="true"]{border-color:var(--purple);background:var(--purple);color:#0A0A0A;font-weight:700}
+.chip:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+.trab-desc{margin-top:18px;padding-left:12px;border-left:1px solid color-mix(in srgb,var(--purple) 55%,transparent);
+  font-family:"Archivo",sans-serif;font-weight:300;font-size:var(--s--1);line-height:1.55;color:var(--ink-2);max-width:30ch}
+.trab-desc p[hidden]{display:none}
 
-/* ═══ 01b · o tile aceita video ═══════════════════════════════════
-   O poster e o estado de repouso: ele ja esta la quando o video ainda
-   nao existe, ainda nao carregou, ou o navegador recusou o autoplay.
-   O video entra POR CIMA (opacity) em vez de substituir o <img>, entao
-   nunca ha um quadro vazio entre os dois.                            */
-figure.tile{margin:0}
-.tile video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;
-  opacity:0;transition:opacity .45s ease;filter:saturate(.62) contrast(1.06);pointer-events:none}
-.tile video.ready{opacity:1}
-.tile:hover video{filter:saturate(1.06) contrast(1.08)}
-.tile::after{z-index:2}.tile::before{z-index:3}.tile .cap{z-index:4}
-/* a legenda e prova, nao enfeite de hover: fica legivel parada e sobe no hover */
-.tile .cap{transform:none;opacity:.62}
-.tile:hover .cap,.tile:focus-within .cap{opacity:1}
-/* a marca de "tem video aqui" so aparece quando ha video de verdade */
-.tile[data-has-video] .cap b::before{content:"B6 ";color:var(--purple);font-size:.85em}
-.tile .cap .dur{margin-left:auto;font-style:normal;text-decoration:none;color:var(--ink-2);
-  font-variant-numeric:tabular-nums}
-/* o botao de play so existe onde ele e o unico caminho: toque e reduced motion */
-.tplay{all:unset;position:absolute;inset:0;z-index:5;cursor:pointer}
-.tplay::after{content:"";position:absolute;left:50%;top:50%;width:44px;height:44px;
-  margin:-22px 0 0 -22px;border-radius:50%;border:1px solid var(--purple);
-  background:rgba(10,10,10,.55) no-repeat center/12px 14px;
-  background-image:linear-gradient(transparent,transparent);
-  box-shadow:inset 0 0 0 12px transparent;transition:opacity .3s,transform .3s}
-.tplay::before{content:"";position:absolute;left:50%;top:50%;z-index:1;
-  margin:-6px 0 0 -3px;border-style:solid;border-width:6px 0 6px 10px;
-  border-color:transparent transparent transparent var(--purple);transition:opacity .3s}
-.tile.playing .tplay::after,.tile.playing .tplay::before{opacity:0}
-@media (hover:hover) and (pointer:fine){
-  /* no desktop o hover ja toca: o botao vira so area de clique, sem desenho */
-  .tplay::after,.tplay::before{display:none}
+/* a parede vai até perto da borda da tela, à direita (a esquerda alinha com o resto do site) */
+.wall{margin-right:calc(-1 * max(0px,(100vw - var(--max)) / 2 - 8px))}
+/* sem JS: colunas do CSS mesmo */
+.wall:not(.on){columns:4 190px;column-gap:12px}
+.wall:not(.on) .clip{break-inside:avoid;margin-bottom:12px}
+.wall.on{display:flex;gap:12px;align-items:flex-start}
+.wcol{flex:1 1 0;min-width:0;display:grid;gap:12px;will-change:transform}
+
+.clip{position:relative;margin:0;aspect-ratio:var(--r,9/16);overflow:hidden;border-radius:8px;
+  background:var(--card);outline:1px solid var(--line-2);outline-offset:-1px}
+.clip[hidden]{display:none}
+.clip img,.clip video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.clip video{z-index:1;opacity:0;transition:opacity .4s ease;pointer-events:none}
+.clip video.ready{opacity:1}
+.clip figcaption{position:absolute;left:9px;bottom:9px;z-index:5;max-width:calc(100% - 18px);display:flex;align-items:center;gap:7px;
+  padding:5px 9px;border-radius:999px;background:rgba(8,7,12,.74);backdrop-filter:blur(6px);
+  font-size:10px;line-height:1.2;letter-spacing:.04em;color:#FAFAFA;white-space:nowrap;overflow:hidden}
+.clip figcaption b{color:var(--purple);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:9px}
+.clip figcaption span{overflow:hidden;text-overflow:ellipsis}
+@media (hover:hover){
+  .clip{transition:transform .35s cubic-bezier(.2,.7,.25,1),box-shadow .35s}
+  .clip:hover{transform:scale(1.03);z-index:2;
+    box-shadow:-3px 0 0 var(--cyan),3px 0 0 var(--purple),0 18px 50px rgba(0,0,0,.6)}
+  .clip figcaption{opacity:0;translate:0 6px;transition:opacity .3s,translate .3s}
+  .clip:hover figcaption,.clip:focus-visible figcaption{opacity:1;translate:0}
+}
+/* a barra de seis cortes dos cards de sequência, como stories */
+.segs{position:absolute;left:8px;right:8px;top:8px;z-index:5;display:flex;gap:3px;pointer-events:none}
+.segs i{flex:1;height:2px;border-radius:2px;background:rgba(250,250,250,.26);overflow:hidden}
+.segs i::after{content:"";display:block;height:100%;width:var(--p,0%);background:#FAFAFA}
+
+/* camadas do ASCII: .asc + .scanl na entrada do card; .xf + .xl em cada corte */
+.clip .asc,.clip .xf{position:absolute;inset:0;z-index:3;width:100%;height:100%;display:none;pointer-events:none}
+.clip.asc-on .asc{display:block}
+.clip .scanl,.clip .xl{position:absolute;inset:0;z-index:4;pointer-events:none;display:none;
+  border-top:2px solid var(--purple);box-shadow:0 -8px 22px -6px var(--purple)}
+.clip.scan .asc{animation:ascOut .95s cubic-bezier(.45,0,.2,1) var(--d,0s) both}
+.clip.scan .scanl{display:block;animation:scanDown .95s cubic-bezier(.45,0,.2,1) var(--d,0s) both}
+@keyframes ascOut{from{clip-path:inset(0 0 0 0)}to{clip-path:inset(100% 0 0 0)}}
+@keyframes scanDown{0%{transform:translateY(0);opacity:1}88%{opacity:1}100%{transform:translateY(100%);opacity:0}}
+@media (prefers-reduced-motion:reduce){.clip .asc,.clip .scanl,.clip .xf,.clip .xl{display:none!important}}
+
+@media(max-width:900px){
+  .trab{grid-template-columns:minmax(0,1fr);gap:24px}
+  .trab-side{min-width:0}
+  .trab-side{position:static}
+  .trab-side .sub,.trab-desc{max-width:52ch}
+  .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:calc(var(--gut) * -1);padding-inline:var(--gut)}
+  .chips::-webkit-scrollbar{display:none}.chip{flex:none}
+  .wall{margin-right:0}
+  .wall.on,.wcol{gap:9px}
 }
 
-/* ═══ 02 · três verbos ════════════════════════════════════════════ */
-.verbs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-2);
-  border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden}
-@media(max-width:800px){.verbs{grid-template-columns:1fr}}
-.verb{background:var(--bg);padding:clamp(20px,2.8vw,32px);transition:background .3s;position:relative;overflow:hidden;
-  /* coluna + 'ic' com margin-top:auto: as fichas de ferramenta quebram em
-     numeros diferentes de linhas, e sem isto o icone de cada cartao para
-     numa altura diferente. */
-  display:flex;flex-direction:column}
-.verb::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--purple);
-  transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.2,.8,.2,1)}
-.verb:hover{background:var(--card)}
-.verb:hover::after{transform:scaleX(1)}
-.verb .n{font-size:var(--s--1);color:var(--purple)}
-.verb h3{font-size:var(--s-2);margin:14px 0 8px}
-.verb p{color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif}
-/* as ferramentas de verdade, dentro do cartao: o marquee mostra o inventario,
-   isto mostra QUAL ferramenta serve para QUAL verbo. */
-.verb .tools{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
-.verb .tools span{font-size:var(--s--2);letter-spacing:.06em;color:var(--ink-2);
-  border:1px solid var(--line);border-radius:999px;padding:3px 9px;transition:border-color .3s,color .3s}
-.verb:hover .tools span{border-color:var(--purple-dim);color:var(--ink)}
-.verb .ic{margin-top:auto;padding-top:22px;color:var(--ink-3);transition:color .3s}
-.verb:hover .ic{color:var(--purple)}
-.verb .ic svg{stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* ═══ 02 · /work: os dois apps em destaque + o que mais eu construí ══ */
+.app{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,3.4vw,52px);
+  align-items:center;margin-top:clamp(30px,4.4vw,60px)}
+.app.rev{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
+.app.rev .app-stage{order:2}
+@media(max-width:900px){.app,.app.rev{grid-template-columns:1fr}.app.rev .app-stage{order:0}}
+@media(max-width:560px){.app-tabs button{font-size:var(--s--2)}}
+.app-stage{position:relative;min-width:0}
+/* o brilho embaixo do palco e o único enfeite da seção */
+.app-stage::before{content:"";position:absolute;inset:12% 8% -6%;z-index:-1;filter:blur(46px);
+  background:radial-gradient(closest-side,color-mix(in srgb,var(--purple) 34%,transparent),transparent)}
+.app-win{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#0d0b14;
+  border:1px solid var(--line);box-shadow:0 28px 70px -34px rgba(0,0,0,.9)}
+.app-win video,.app-win img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.app-win.shot{aspect-ratio:1280/846}
+.app-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
+.app-tabs button{all:unset;box-sizing:border-box;cursor:pointer;font-size:var(--s--1);color:var(--ink-3);
+  transition:color .2s}
+.app-tabs button:hover,.app-tabs button.on{color:var(--ink)}
+.app-tabs button:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+.app-tabs i{display:block;height:2px;margin-top:8px;background:var(--line);overflow:hidden}
+.app-tabs i::after{content:"";display:block;height:100%;width:var(--p,0%);background:var(--purple);
+  transition:width .25s linear}
+/* o holofote do Avatarize: uma etapa de cada vez, 2 s cada, em ciclo */
+.call{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);z-index:2;
+  border:1.5px solid var(--purple);border-radius:8px;pointer-events:none;opacity:0;
+  box-shadow:0 0 0 9999px rgba(6,4,12,.52),0 0 26px -4px var(--purple);
+  animation:callOn 12s ease var(--d,0s) infinite both;animation-play-state:paused}
+.app.live .call{animation-play-state:running}
+.call b{position:absolute;left:-1px;bottom:calc(100% + 7px);white-space:nowrap;font-weight:600;
+  font-size:var(--s--2);line-height:1;background:var(--purple);color:#0A0A0A;padding:5px 8px;border-radius:4px}
+@keyframes callOn{0%{opacity:0;transform:scale(1.03)}2%{opacity:1;transform:none}15.5%{opacity:1}17.5%{opacity:0}100%{opacity:0}}
+@media (prefers-reduced-motion:reduce){.call{display:none}}
 
-/* ═══ 03 · trabalhos: painel + lista (padrão do ascii-motion) ═════ */
-.works{display:grid;grid-template-columns:1fr minmax(250px,330px);gap:1px;background:var(--line-2);
-  border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden}
-@media(max-width:900px){.works{grid-template-columns:1fr}}
-.w-left{background:var(--bg);display:flex;flex-direction:column;min-width:0}
-.w-stage{position:relative;aspect-ratio:16/10;display:grid;padding:clamp(14px,2vw,26px);
-  background:linear-gradient(140deg,color-mix(in srgb,var(--purple) 30%,transparent) 0%,
-    color-mix(in srgb,var(--purple) 7%,transparent) 48%,color-mix(in srgb,var(--cyan) 12%,transparent) 100%)}
-.w-media{grid-area:1/1;background:var(--card-2);border:1px solid var(--line);border-radius:6px;
-  padding:clamp(12px,1.8vw,20px);display:flex;flex-direction:column;justify-content:center;min-width:0;
-  opacity:0;visibility:hidden;transform:scale(.985);transition:opacity .4s,transform .4s,visibility .4s}
-.w-media.on{opacity:1;visibility:visible;transform:none}
-.w-bar{position:absolute;left:0;bottom:0;height:3px;width:20%;overflow:hidden;
-  background:color-mix(in srgb,var(--purple) 22%,transparent);
-  transition:transform .45s cubic-bezier(.2,.8,.2,1)}
-.w-bar i{display:block;height:100%;background:var(--purple);transform:scaleX(0);transform-origin:left;
-  box-shadow:0 0 14px color-mix(in srgb,var(--purple) 70%,transparent)}
-/* demo parada e demo parada de verdade: nada anima fora do painel ativo */
-.w-media *{animation-play-state:paused}
-.w-media.on *{animation-play-state:running}
-.w-detail{padding:clamp(20px,2.6vw,32px);border-top:1px solid var(--line-2);min-width:0}
-.w-body{display:none}
-.w-body.on{display:block}
-.w-body h3{font-size:var(--s-2);margin-bottom:10px}
-.w-body p{color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif;max-width:58ch}
-.w-links{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
-.w-links .btn{padding:10px 16px}
-.w-links .gh{width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:1.6;
-  stroke-linecap:round;stroke-linejoin:round}
-.icons{display:flex;flex-wrap:wrap;gap:7px;margin-top:20px}
-.ico{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;
-  padding:5px 11px 5px 8px;font-size:var(--s--2);color:var(--ink-2);transition:.25s;background:var(--bg)}
-.ico svg{width:15px;height:15px;stroke:var(--purple);fill:none;stroke-width:1.6;
-  stroke-linecap:round;stroke-linejoin:round;flex:none}
-.w-body.on .ico:hover{border-color:color-mix(in srgb,var(--purple) 45%,transparent);color:var(--ink)}
-/* ═══ case: resultado primeiro, depois problema e construcao ══════
-   A ordem da persuasao e artefato -> resultado -> problema -> como.
-   Por isso .lead vem colada no nome, antes de qualquer explicacao.   */
-.lead{margin:8px 0 0;font-size:var(--s--1);color:var(--ink);
-  font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.lead::before{content:"▸ ";color:var(--purple)}
-/* a etiqueta que assume que o demo e representacao, nao captura de tela */
-.prev{position:absolute;right:10px;bottom:9px;z-index:4;font-size:var(--s--2);
-  letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);opacity:.55;
-  pointer-events:none;background:rgba(5,5,5,.55);padding:3px 7px;border-radius:3px}
-.evl{width:100%;font-size:var(--s--2);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--ink-3);margin-bottom:-4px}
+.app-info{min-width:0}
+.app-id{display:flex;align-items:center;gap:14px}
+.app-id img{border-radius:12px;flex:none}
+.app-id h3{font-size:var(--s-2);letter-spacing:-.035em;line-height:1}
+.app-id span{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:var(--s--1);color:var(--ink-3)}
+.app-id s{width:3px;height:3px;border-radius:50%;background:var(--ink-3)}
+.app-pitch{margin:20px 0 0;max-width:30ch;font-family:"Archivo",sans-serif;font-weight:400;
+  font-size:var(--s-1);line-height:1.4;letter-spacing:-.01em}
+.app-pts{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+.app-pts li{position:relative;padding-left:18px;color:var(--ink-2);font-family:"Archivo",sans-serif;
+  font-weight:300;font-size:var(--s-0);line-height:1.5}
+.app-pts li::before{content:"▹";position:absolute;left:0;color:var(--purple)}
+.app-cta{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+.app-cta .btn{padding:11px 18px}
 
-/* ═══ case: problema / sistema / resultado ════════════════════════ */
-.case{display:grid;gap:11px;margin-top:14px;max-width:62ch}
-.ci{display:grid;grid-template-columns:clamp(66px,7vw,84px) 1fr;gap:12px;align-items:baseline}
-.ci b{font-size:var(--s--2);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
-.ci span{color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif}
-.ci.res b{color:var(--purple)}
-.ci.res span{color:var(--ink);font-family:"JetBrains Mono",monospace;font-size:var(--s--1);
-  font-variant-numeric:tabular-nums}
-@media(max-width:560px){.ci{grid-template-columns:1fr;gap:2px}}
+/* "também construí": uma linha larga por projeto, nome grande e o fluxo
+   dele em pílulas que acendem em sequência quando a linha está na tela */
+.also{margin-top:clamp(56px,7vw,100px)}
+/* line-height 1.6: o reveal corta no clip-path tudo que passa da borda, e o acento do É ficava fora */
+.also-h{display:flex;align-items:center;gap:14px;line-height:1.6;font-size:var(--s--2);font-weight:500;color:var(--ink-3);
+  letter-spacing:.16em;text-transform:uppercase}
+.also-h::after{content:"";flex:1;height:1px;background:var(--line-2)}
+.ax-list{margin-top:6px}
+.ax{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr) minmax(0,1.05fr);
+  gap:clamp(14px,2.6vw,40px);align-items:center;padding:clamp(24px,3vw,38px) clamp(4px,1vw,14px);
+  border-bottom:1px solid var(--line-2);isolation:isolate}
+.ax::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:linear-gradient(90deg,var(--purple-dim),transparent 70%)}
+.ax:hover::before{opacity:1}
+.ax-n{align-self:start;padding-top:.55em;font-size:var(--s--1);color:var(--ink-3);letter-spacing:.1em;transition:color .3s}
+.ax:hover .ax-n{color:var(--purple)}
+.ax h4{margin:0;font-size:var(--s-2);font-weight:800;letter-spacing:-.045em;line-height:1.05;overflow-wrap:anywhere}
+.ax p{margin:12px 0 0;max-width:46ch;color:var(--ink-2);font-family:"Archivo",sans-serif;font-weight:300;
+  font-size:var(--s-0);line-height:1.55}
+.ax-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:16px;font-size:var(--s--2);
+  color:var(--ink-3);letter-spacing:.06em}
+.ax-meta em{font-style:normal;border:1px solid var(--line);border-radius:999px;padding:3px 9px}
+.ax-flow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;row-gap:12px}
+.ax-flow li{position:relative;font-size:var(--s--1);color:var(--ink-3);white-space:nowrap;
+  border:1px solid var(--line);border-radius:999px;padding:8px 13px;background:var(--bg);
+  transition:color .35s,border-color .35s,background .35s,box-shadow .35s}
+.ax-flow li+li{margin-left:30px}
+.ax-flow li+li::before{content:"";position:absolute;right:calc(100% + 5px);top:50%;width:20px;height:1px;
+  background:var(--line);transition:background .35s}
+.ax-flow li+li::after{content:"";position:absolute;right:calc(100% + 5px);top:calc(50% - 3px);width:6px;height:6px;
+  border-top:1px solid var(--line);border-right:1px solid var(--line);transform:rotate(45deg);transition:border-color .35s}
+.ax-flow li:last-child{color:var(--ink);border-color:color-mix(in srgb,var(--purple) 45%,transparent)}
+.ax-flow li.lit{color:var(--ink);border-color:color-mix(in srgb,var(--purple) 70%,transparent);background:var(--purple-dim)}
+.ax-flow li.lit::before{background:var(--purple)}
+.ax-flow li.lit::after{border-color:var(--purple)}
+.ax-flow li.now{box-shadow:0 0 22px -4px var(--purple);border-color:var(--purple)}
+@media(max-width:900px){
+  .ax{grid-template-columns:34px minmax(0,1fr);align-items:start}
+  .ax-flow{grid-column:2}
+}
+@media(max-width:520px){.ax-flow li+li{margin-left:24px}.ax-flow li+li::before{width:14px}}
 
-/* o separador e os dois itens menores: 04 e 05 continuam ali, mas nao
-   disputam atencao com os tres cases principais */
-.w-split{padding:13px 20px 8px;font-size:var(--s--2);letter-spacing:.16em;text-transform:uppercase;
-  color:var(--ink-3);opacity:.6;border-bottom:1px solid var(--line-2)}
-.w-item.minor{opacity:.62;transition:opacity .25s}
-.w-item.minor:hover,.w-item.minor.on{opacity:1}
-.w-item.minor .wi-name{font-weight:400}
-@media(max-width:900px){.w-split{display:none}}
+/* ═══ 03 · /stack: três etapas com telas vivas (v24) ═══════════════
+   Cada etapa tem uma tela em ASCII roxo desenhada num canvas (JS 9b).
+   Um pulso corre pela borda de cima e acende a etapa por onde passa. */
+.pipe{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
+  margin-top:clamp(24px,3.4vw,40px);background:var(--line-2);border:1px solid var(--line-2);border-radius:12px;overflow:hidden}
+.pipe-run{position:absolute;top:0;left:0;z-index:3;width:24%;height:2px;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--purple) 45%,var(--cyan) 55%,transparent);
+  box-shadow:0 0 18px var(--purple);transform:translateX(var(--x,-100%))}
+.stg{background:var(--bg);display:flex;flex-direction:column;min-width:0}
+.scr{position:relative;aspect-ratio:4/3;background:#0B0911;border-bottom:1px solid var(--line-2);overflow:hidden}
+.scr::after{content:"";position:absolute;inset:0;pointer-events:none;transition:box-shadow .5s;
+  background:radial-gradient(120% 90% at 50% 40%,transparent 60%,rgba(0,0,0,.45))}
+.stg.hot .scr::after{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--purple) 40%,transparent),
+  inset 0 0 60px -20px color-mix(in srgb,var(--purple) 50%,transparent)}
+.scr canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.stg-b{padding:clamp(20px,2.4vw,30px)}
+.stg-n{display:block;font-size:var(--s--2);color:var(--purple);letter-spacing:.16em}
+.stg h3{margin-top:12px;font-size:var(--s-2);letter-spacing:-.045em;transition:text-shadow .4s}
+.stg.hot h3{text-shadow:2px 2px 0 var(--cyan)}
+.stg p{margin:10px 0 0;max-width:32ch;color:var(--ink-2);font-family:"Archivo",sans-serif;font-weight:300;
+  font-size:var(--s-0);line-height:1.5}
+.stg-tools{list-style:none;margin:20px 0 0;padding:16px 0 0;border-top:1px solid var(--line-2);
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 14px;font-size:var(--s--1);color:var(--ink-2)}
+.stg-tools li::before{content:"▹";margin-right:8px;color:var(--purple)}
+@media(max-width:900px){
+  .pipe{grid-template-columns:1fr}
+  .pipe-run{display:none}
+  .scr{aspect-ratio:16/10}
+}
 
-.w-list{background:var(--bg);display:flex;flex-direction:column}
-.w-item{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;
-  padding:16px 20px;border-bottom:1px solid var(--line-2);position:relative;
-  transition:background .25s;font-family:inherit}
-.w-item:last-child{border-bottom:none}
-.w-item::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--purple);
-  transform:scaleY(0);transform-origin:top;transition:transform .32s cubic-bezier(.2,.8,.2,1)}
-.w-item:hover,.w-item.on{background:var(--card)}
-.w-item.on::before{transform:scaleY(1)}
-.w-item .wi-n{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.16em}
-.w-item .wi-name{font-weight:700;letter-spacing:-.02em;color:var(--ink-2);transition:color .25s}
-.w-item.on .wi-name{color:var(--purple)}
-.w-item .wi-tag{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.04em}
-@media(max-width:900px){.w-list{flex-direction:row;overflow-x:auto}
-  .w-item{border-bottom:none;border-right:1px solid var(--line-2);min-width:200px}
-  .w-item::before{top:auto;bottom:0;left:0;right:0;width:auto;height:2px;transform:scaleX(0);transform-origin:left}
-  .w-item.on::before{transform:scaleX(1)}}
-
-.demo{background:var(--card-2);border:1px solid var(--line-2);border-radius:6px;padding:15px;position:relative;overflow:hidden}
-.demo .lab{font-size:10px;letter-spacing:.14em;color:var(--ink-3);display:flex;justify-content:space-between;margin-bottom:11px}
-.demo .lane{height:15px;background:var(--line-2);margin-bottom:6px;position:relative;border-radius:2px}
-.demo .lane.vid{background:color-mix(in srgb,var(--cyan) 24%,transparent)}
-.clipx{position:absolute;top:0;height:100%;background:var(--purple);border-radius:2px;
-  animation:snap 6.4s cubic-bezier(.2,.8,.25,1) infinite}
-@keyframes snap{0%{opacity:0;transform:translateY(-15px) scaleX(.5)}9%{opacity:.95;transform:none}
-  86%{opacity:.95;transform:none}100%{opacity:0;transform:none}}
-.play{position:absolute;top:32px;bottom:32px;width:1px;background:var(--ink);opacity:.5;animation:sweep 6.4s linear infinite}
-@keyframes sweep{0%{left:15px}100%{left:calc(100% - 15px)}}
-.demo .score{font-size:10px;letter-spacing:.1em;color:var(--ok);margin-top:11px}
-.thumbstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
-.thumbstrip img{aspect-ratio:1;object-fit:cover;filter:saturate(.4) contrast(1.06);opacity:.6;transition:.45s;border-radius:3px}
-.w-media.on .thumbstrip img{opacity:1;filter:saturate(1)}
-.flow{display:grid;gap:5px;font-size:10px;letter-spacing:.06em;color:var(--ink-3)}
-.fnode{border:1px solid var(--line);border-radius:5px;padding:9px 11px;background:var(--card-2);
-  display:flex;justify-content:space-between;gap:10px}
-.fnode em{font-style:normal;color:var(--purple)}
-
-/* ── 02 · fila de download ─────────────────────────────────────── */
-.dl{display:grid;gap:clamp(7px,1.1vw,12px)}
-.dlrow{display:grid;grid-template-columns:44px minmax(0,124px) 1fr 14px;align-items:center;gap:10px;
-  font-size:10px;letter-spacing:.05em;color:var(--ink-3);opacity:0;animation:rowin 5.4s ease-out infinite var(--d)}
-.dlrow .wv{display:flex;align-items:flex-end;gap:2px;height:16px}
-.dlrow .wv b{flex:1;background:color-mix(in srgb,var(--cyan) 55%,transparent);border-radius:1px}
-.dlrow .fn{color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dlrow .pb{position:relative;height:4px;border-radius:2px;background:var(--line-2);overflow:hidden}
-.dlrow .pb::after{content:"";position:absolute;inset:0;background:var(--purple);border-radius:2px;
-  transform:scaleX(0);transform-origin:left;animation:dlfill 5.4s cubic-bezier(.35,.75,.4,1) infinite var(--d)}
-.dlrow .ok{text-decoration:none;color:var(--ok);opacity:0;animation:dlok 5.4s infinite var(--d)}
-@keyframes rowin{0%{opacity:0;transform:translateY(4px)}9%,92%{opacity:1;transform:none}100%{opacity:0}}
-@keyframes dlfill{0%,6%{transform:scaleX(0)}46%,92%{transform:scaleX(1)}100%{transform:scaleX(1)}}
-@keyframes dlok{0%,44%{opacity:0}52%,92%{opacity:1}100%{opacity:0}}
-
-/* ── 03 · o token descendo o pipeline ──────────────────────────── */
-.flow{position:relative;padding-left:19px}
-.rail{position:absolute;left:6px;top:5px;bottom:5px;width:1px;background:var(--line)}
-.rail i{position:absolute;left:-2.5px;top:0;width:6px;height:6px;border-radius:50%;background:var(--purple);
-  box-shadow:0 0 10px var(--purple);animation:railrun 5s cubic-bezier(.6,0,.4,1) infinite}
-.fnode{animation:lit 5s infinite var(--d)}
-@keyframes railrun{0%{top:0}100%{top:calc(100% - 6px)}}
-@keyframes lit{0%,3%{border-color:var(--line);background:var(--card-2)}
-  10%,17%{border-color:color-mix(in srgb,var(--purple) 70%,transparent);
-    background:color-mix(in srgb,var(--purple) 14%,var(--card-2))}
-  30%,100%{border-color:var(--line);background:var(--card-2)}}
-
-/* ── 04 · o silêncio sendo espremido ───────────────────────────── */
-.wave{display:flex;align-items:flex-end;gap:2px;height:clamp(56px,8vw,92px);margin:6px 0 2px}
-.wave i{flex:1 1 2px;background:var(--purple);border-radius:1px;opacity:.88}
-.wave i.q{flex:0 0 26px;height:11%;background:transparent;border-radius:2px;opacity:1;
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cyan) 52%,transparent);
-  animation:squeeze 5.4s cubic-bezier(.5,0,.3,1) infinite var(--d)}
-@keyframes squeeze{0%,24%{flex-basis:26px;opacity:1}46%,88%{flex-basis:0;opacity:0}100%{flex-basis:26px;opacity:1}}
-
-/* ── 05 · a sessão sendo gravada ───────────────────────────────── */
-.recdot{color:var(--kill,#E5484D);display:inline-flex;align-items:center;gap:5px}
-.recdot::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.4s infinite}
-@keyframes blink{0%,45%{opacity:1}55%,100%{opacity:.15}}
-.recgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0}
-.win{position:relative;border:1px solid var(--line);border-radius:5px;background:var(--card-2);
-  min-height:clamp(84px,11vw,124px);overflow:hidden}
-.win::before{content:"";position:absolute;left:0;right:0;top:0;height:13px;background:var(--line-2);
-  border-bottom:1px solid var(--line)}
-.win::after{content:"";position:absolute;left:7px;top:5px;width:4px;height:4px;border-radius:50%;
-  background:var(--ink-3);box-shadow:7px 0 0 var(--ink-3),14px 0 0 var(--ink-3)}
-.win .wbtn{position:absolute;width:38px;height:11px;border-radius:3px;
-  background:color-mix(in srgb,var(--ink) 13%,transparent);animation:hit 5.4s infinite var(--d)}
-.win .cur{position:absolute;width:9px;height:9px;border-radius:50%;border:1px solid var(--ink);
-  background:color-mix(in srgb,var(--purple) 70%,transparent);animation:curmove 5.4s infinite}
-@keyframes hit{0%,4%{background:color-mix(in srgb,var(--ink) 13%,transparent);transform:none}
-  8%,13%{background:var(--purple);transform:scale(1.06)}
-  20%,100%{background:color-mix(in srgb,var(--ink) 13%,transparent);transform:none}}
-@keyframes curmove{0%,6%{left:12%;top:26%}22%,30%{left:56%;top:44%}
-  48%,58%{left:24%;top:70%}78%,100%{left:12%;top:26%}}
-.jsonl{display:grid;align-content:start;gap:4px;font-size:9px;line-height:1.5;color:var(--ink-3);min-width:0}
-.jsonl code{opacity:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  border-left:2px solid color-mix(in srgb,var(--purple) 60%,transparent);padding-left:7px;
-  animation:linein 5.4s ease-out infinite var(--d)}
-@keyframes linein{0%{opacity:0;transform:translateX(-5px)}7%,90%{opacity:1;transform:none}100%{opacity:0}}
-.fnode.hi{border-color:color-mix(in srgb,var(--cyan) 45%,transparent);color:var(--ink-2)}
-
-/* ═══ 04 · ficou / morreu ═════════════════════════════════════════ */
-/* ═══ /decisions: trade-off, nao "ficou / morreu" ══════════════════
-   Cada linha e' UMA decisao com tres partes: o que eu escolhi, a
-   alternativa que eu nao escolhi, e o motivo em uma frase. O formato de
-   duas colunas ("Kept / Killed") saiu: "morreu" e' palavra forte demais e
-   a coluna da direita lia como lista de fracasso em vez de criterio.     */
-.trades{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-2);
-  border:1px solid var(--line-2);border-radius:var(--radius);overflow:hidden}
-@media(max-width:820px){.trades{grid-template-columns:1fr}}
-.trade{background:var(--bg);padding:clamp(20px,2.6vw,28px);position:relative;
-  transition:background .3s}
-.trade:hover{background:var(--card)}
-.trade .n{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;transition:color .3s}
-.trade:hover .n{color:var(--purple)}
-.trade .pick{margin-top:10px;font-size:var(--s-1);font-weight:700;letter-spacing:-.025em;
-  line-height:1.25;color:var(--ink)}
-/* a alternativa: riscada de leve, para dizer "esta eu nao levei" sem
-   precisar da palavra. O <s> e' semantico aqui, ao contrario do resto
-   da pagina, onde ele so servia de marcador. */
-.trade .alt{margin-top:9px;font-size:var(--s--1);color:var(--ink-3);
-  display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
-.trade .alt em{font-style:normal;letter-spacing:.1em;text-transform:uppercase;
-  font-size:var(--s--2);color:var(--ink-3);flex:none}
-.trade .alt s{color:var(--ink-3);text-decoration-color:var(--line);opacity:.85}
-.trade .why{margin-top:12px;padding-top:12px;border-top:1px solid var(--line-2);
-  font-family:"Archivo",sans-serif;font-weight:300;color:var(--ink-2);line-height:1.6;
-  font-size:var(--s-0)}
-.trade .why b{color:var(--ink);font-weight:600}
-
-/* ═══ 04b · as decisoes extras ═══════════════════════════════════
-   Tres ficam guardadas e o botao ocupa a celula que sobrou da grade de
-   duas colunas. Ao abrir, o botao sai e as 6 celulas fecham 3 linhas.  */
-.trade.hid{display:none}
-.more-cell{all:unset;box-sizing:border-box;cursor:pointer;background:var(--bg);
-  padding:clamp(20px,2.6vw,30px);display:flex;align-items:center;gap:10px;
-  font-size:var(--s--1);letter-spacing:.02em;color:var(--ink-3);
-  transition:background .25s,color .25s}
-.more-cell:hover,.more-cell:focus-visible{background:var(--card);color:var(--purple)}
-.more-cell .ar{display:inline-block;color:var(--purple);transition:transform .3s}
-.more-cell:hover .ar{transform:rotate(90deg)}
-
-/* ═══ 05 · trilha ═════════════════════════════════════════════════ */
-/* ═══ o bloco "sobre": paragrafo + a frase-diferencial + grade de fatos ══
-   A grade e' a resposta ao "FOCO DE ATUACAO" do alissonlimadev: quatro fatos
-   secos que o recrutador le em 3 segundos, sem virar mais um paragrafo. */
-.bio{max-width:62ch;color:var(--ink-2);font-weight:300;font-family:"Archivo",sans-serif;
-  font-size:var(--s-1);line-height:1.65}
-.pull{margin-top:clamp(20px,2.6vw,30px);border-left:2px solid var(--purple);
-  padding:2px 0 2px clamp(14px,1.8vw,22px);max-width:60ch;
-  font-size:var(--s-1);letter-spacing:-.02em;line-height:1.5}
-.pull b{color:var(--purple);font-weight:800}
-.facts{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line-2);
-  border:1px solid var(--line-2);margin-top:clamp(24px,3.2vw,36px)}
-@media(max-width:860px){.facts{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:440px){.facts{grid-template-columns:1fr}}
-.fact{background:var(--bg);padding:clamp(16px,2.2vw,24px)}
-.fact .k{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase}
-.fact .v{margin-top:8px;font-size:var(--s-0);font-weight:500;line-height:1.45}
+/* ═══ 04 · /career: a linha do tempo (o que sobrou do /track-record) ══ */
 .rows{border-top:1px solid var(--line-2);position:relative;padding-left:28px}
 .rows::before{content:"";position:absolute;left:7px;top:0;bottom:18px;width:1px;background:var(--line)}
 .row{position:relative;display:grid;grid-template-columns:145px 1fr auto;gap:clamp(12px,3vw,30px);
@@ -544,7 +435,8 @@ figure.tile{margin:0}
 .row .env b{color:var(--ink-2);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 .row .where{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;text-align:right}
 
-/* ═══ 06 · contato ════════════════════════════════════════════════ */
+/* ═══ 05 · contato ════════════════════════════════════════════════ */
+.avail{margin:14px 0 0;font-size:var(--s--1);color:var(--ink-3)}
 .contact{border-top:1px solid var(--line-2);position:relative;overflow:hidden;isolation:isolate;
   background:radial-gradient(80% 120% at 50% 128%,var(--purple-dim),transparent 60%)}
 /* o pulso mora atras de tudo e nao intercepta clique nenhum */
@@ -598,7 +490,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
       <a href="#reel">/reel</a>
       <a href="#work">/work</a>
       <a href="#do">/stack</a>
-      <a href="#decisions">/decisions</a>
+      <a href="#career">/career</a>
       <a href="#contact">/contact</a>
     </nav>
     <div class="switches">
@@ -625,8 +517,8 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
       <div class="kicker"><i></i><span data-pt="Disponível para trabalho remoto">Available for remote work</span></div>
       <h1>RAFAEL<span class="l2">AGUIAR</span></h1>
       <p class="role">AI Automation Engineer <b>/</b> <span data-pt="Criativo de IA para Direct Response">Creative AI for Direct Response</span></p>
-      <p class="one-line sans" data-pt="Transformo copy em vídeo pronto — e construo os pipelines que fazem isso em escala.">
-        I turn copy into finished video — and build the pipelines that do it at scale.</p>
+      <p class="one-line sans" data-pt="Transformo copy em vídeo pronto e construo os pipelines que fazem isso em escala.">
+        I turn copy into finished video and build the pipelines that do it at scale.</p>
       <div class="hero-cta">
         <a class="btn solid" href="#work" data-pt="Ver o trabalho">See the work <span class="ar">→</span></a>
         <a class="btn ghost" href="#contact" data-pt="Falar comigo">Get in touch</a>
@@ -646,52 +538,199 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 <section class="sec" id="reel">
   <div class="wrap">
     <div class="head" data-rv="wipe"><span class="slug">/reel</span><span class="note">01</span></div>
-    <h2 class="t" data-rv="up" data-pt="Nada disso foi feito à mão.">None of this was made by hand.</h2>
-    <p class="sub" data-rv="up" data-pt="Avatares, cenas e gradações gerados por IA — saída dos pipelines que estão logo abaixo.">
-      Avatars, scenes and color grades generated by AI — output of the pipelines below.</p>
 
-    <!-- Os dados de cada item ficam no objeto REEL, no topo do bloco de JS.
-         Aqui em baixo fica so o poster: e ele que o build.py converte em
-         base64. Vídeo, alt, categoria e duração NAO se repetem aqui. -->
-    <div class="wall" data-rv="scale" style="margin-top:clamp(24px,3.6vw,40px)">
-      <figure class="tile t-a" data-id="a" data-par="0.05">
-        <img src="data:image/webp;base64,UklGRmwGAABXRUJQVlA4IGAGAADQlACdASowAuQDPpVKpU0lpKOiIXK4ALASiWlu4XdhH4CPjvmPvfNl3EnZvK2Xp4LxF69evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169dpprZLpDDc0Jlo+pxhuaEy0fU4vfbdqY6ECBAgQIECAlIvLO65o1vsbp4WiNvdlkHcWo9mzZs2bNmfPGzWrAcqU3LLA6oNVMePHjltXYiRIkSJEiRGYOcFrWk4R9iByA4dmzZsZ4QsmTJkyZMmTHniUeAeygAaJcgSezZn0CXkLFixYsWLFNdaR1okNETRNYiUkNDSF4cK9W1Rs2bNmzZs2M8ElQowPj0xCLkJdwJm62wSgafxdsKpeHDhw4cOHDdSWRqmsEodz2fwJJ8m0NYq/K5qIqTQBegsb/UCXkLFixYsWLFNdTA6tuEkxe/2+EMiMLesgGJJNdYTKhz7ehKzNW1Rs2bNmzZs2M7Wt1glIi3LQIggpIME73/nBoOiOELJkyZMmTJkx52vXdEtQblObJ1HmXD92bJ1HmTG5udLxBT21Hs2bNmzZszwm+V9kSKDuH7sYbmhMtH1OMNzQmWjpUpekTHJgQIECBAgQIECIVBpXvAr7d0rb169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169d4AD+/76O3PC/mCckDx0gsC24EAAAAAAAAAAAAAAAAAAAAAAAAAEm4vMTNpBe+XQYFwLhj7XD7XD7WYQCZhQZzVfcQgaAR38MSnwvvX0t7U73TMiu43umZFc85HOTK1e0+GCCIIpDAkWvRMivO0k2WQU0PCMXBtscGjrfXPIYBc8JehxNBVfnUDKBNYq4mYYxs/q/8w63tYDWbNGjJWL9wUUjP83vGVcdC/AYvbaLNUVdekgo7YSaOMwHTbxIx82sOROQ00hSkO7qzy0NYUet3uIfc7Cvb85UqwBAHBKt5dIYd0Fs9kpmsGtIc61gsvwfXa/sMLpHB9o2Uw/pjfEx4h9DPOs/B6ctzeLh4kcCBWZhQXwLPBzOBuH/oiU759LE3dr5VnxmIlW+zi74dT5U2TJYR+iniiPqqJLuNMJh7a3vb3fgUFoq3rBhvP4NiXfpPTesbg7NIQazPNqico79VE9IiN7mxtR0ngnyoDXhOop3ijHvxIm+B9qwi9B+JVV1HARiPFGAEtELWRatPGXZA5EuCY4rPY98AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" loading="lazy"
-             alt="AI-generated presenter in a clinical setting"
-             data-alt-pt="Apresentador gerado por IA em cenário clínico">
-        <figcaption class="cap"><b>ai_avatar</b><i>MiniMax</i></figcaption></figure>
-
-      <figure class="tile t-b" data-id="b" data-par="-0.04">
-        <img src="data:image/webp;base64,UklGRnYKAABXRUJQVlA4IGoKAADw6ACdASrUA2cDPpFIpEylpKQiIXLIGLASCWlu4Xf01mNG9+9zBijzAZ+BdAdhcqThN/ea10HYXe8U96SBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAfBidKhY8IYbmhMtH1SMNzQmWj6pGG5oTLR9UjDcODIZ0CECBAgQIECBAgQIECBAgQHwHyIDO8P9zmMpXxgmq8E1Xgmq8E1Xgmq8E1Xgmq8E1Xgmq78qzn1Wll+W5V2BAgQIECBAgQIECBAgQIEBLPcoGANmsnVfAsWDCBx53FcaJ0nK/OnTp06dOnTp06dOnToVq3fYwjapiFy+HEU5TZi5cuXLlys0xk6TlfnTp06dOnTp06dOnTp0K1b7TjPEZLhYlCgGAtSC+94b0xlCvLly5cuXLly5cuXLly5cuFJcWoidWzGaASgOG5NJ73invSQHxIkw/nTp06dOnTp06dOnTp06dNkLrc1JhyyZr3YVRIjMBakF97w3pjJ0nK/OnTp06dOnTp06dOnToV2IjH3SgAVbcBLinvSQHxIkxLBfnTp06dOnTp06dOnTp06FdiIvwyDs3GniNyd4ANvSIa9JAgPiRJh/OnTp06dOnTp06dOnTp06bIXVpXoGY0AipB1AFrsBU3dne8U96IkSYfzp06dOnTp06dOnTp06dOmyF1aVMPtvwPVkEshyUWV+OvPWO0L71iHoSjskVGaXCkSYlgvzp06dOnTp06dOnTp06dCuxEUw/ffJu0Smy/CTSbZ3WyF97UbYIa1e/MrKGVXt7pjJ0nK/OnTp06dOnTp06dOnToV2IemqegeIdAuVgsSqFJgmptc3qP+CXkCyyTG/t7pjJ0nK/OnTp06dOnTp06dOnToV2HxLMNWxiDGCNPeImqOCMznNN9KIFr5I2SthaYyhXly5cuXLly5cuXLly5cuXCkuLGfB8YLeK/OpkG/NhhT59R9mpKHbSH86dOnTp06dOnTp06dOnTpshciTS2A1kJj3G4e5oTodzQmWj7ZMtH1SXLLLsnu6Gvgia00XTy6dJyvzp06dOnTp06dOnTp06FdiI5B/x6RZ8l1+c+S53pjKFeXLly5cuXLly5cuXLly5cIPhPHebbUduk8+7m4fuzZOqtB5lw/dmydVaDzLh+7Nk6q0HmXCLl4QyuTZiNAaFqQX3vFPekgQIECBAgQIEB8bdJ6GUemu3/FLQVZdhEnJLDrZXpIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQIECBAgQICQAA/v/CM710PmOCWQBAIvDAgDRAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABD6fkRyKr8Iyekh8Md66NoJ4/RcdGJ0YnRidGJ0YnRidGJ0YnRidGJ0YnRidGJ0YnRidGJ0YnRidCBuctGfs1BLZMCDIWIEwWEFh9vidsbujItBS3kuYqCUdqT4Sd9RNp9RNp9RNp9RNp9RNp9Pz5L9onNNx/VBPgB/Axz1AsLp/MYoOTM/qRio4CMvo7gvuBItr2yiNppFegpZL0fhrG2sCriSv+Xu4Z35R/+QhuHNdBQhitzfVcIKAK12yY26fwNLn13UuOiFFAvk88vbFAAa0UWHY42DRmlzntJYaf9yU4PzaAqZ947/N/awbAEbDCKkv10LYkQvlOk1IYTJd/KqLq2/v5c65N2y8P9roYCAc4yPmmdvjEmrdV+glAl7vXljWmkSuJUCK9AECKGyoU61qf6ZqR26AioTZCDWKegUVWqoIBWoGMXlQRWrgEbBnEH0QJHfADtU36nydgAaQ5z+DbxlRgfgBDoSwRQ75nQEulaCdJP0b1diuBqtjnusalj+pqXREd8m46fGYsfXdI1XrVm0NFljvJ9muLKA3U7MasJ5bBAaTydb3ET6pyPyoB5FxrbC5WAeJ0piD5pmb8xKOWVATSGLxQx9aamFl2bO4PkrVsOSqHaml4BGwePjuNmPTpk6BoCtd02B+gleyZ0qL76PAPhV5M1kklNezG/W+T559EeQB/5kpC4xewloEPdk3+Qp1f02+1cYmuVG8SAhCIUzUuE8FU/yipeBOp5UWzwyd4+uoMUkcI7dJl30yWRzbKgOU0PUZmgXWzA5zdPj7sXNM0/5e7iesEAVlxzjjnhwSptJVLOJ1gRsRgLT1KWPs45bph86kFFd0bEis6629vb3T6629vb3T6629vQie6nOtatZJyAKUUABqtfyXcfqjy1s9eMjuDnzruLdBKZ/hAinjivQC1HrIcIvbYEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==" loading="lazy"
-             alt="AI-generated underwater temple scene"
-             data-alt-pt="Cena de templo submerso gerada por IA">
-        <figcaption class="cap"><b>generated_shots</b><i data-pt="30 planos">30 shots</i></figcaption></figure>
-
-      <figure class="tile t-c" data-id="c" data-par="0.06">
-        <img src="data:image/webp;base64,UklGRmwGAABXRUJQVlA4IGAGAADQlACdASowAuQDPpVKpU0lpKOiIXK4ALASiWlu4XdhH4CPjvmPvfNl3EnZvK2Xp4LxF69evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169dpprZLpDDc0Jlo+pxhuaEy0fU4vfbdqY6ECBAgQIECAlIvLO65o1vsbp4WiNvdlkHcWo9mzZs2bNmfPGzWrAcqU3LLA6oNVMePHjltXYiRIkSJEiRGYOcFrWk4R9iByA4dmzZsZ4QsmTJkyZMmTHniUeAeygAaJcgSezZn0CXkLFixYsWLFNdaR1okNETRNYiUkNDSF4cK9W1Rs2bNmzZs2M8ElQowPj0xCLkJdwJm62wSgafxdsKpeHDhw4cOHDdSWRqmsEodz2fwJJ8m0NYq/K5qIqTQBegsb/UCXkLFixYsWLFNdTA6tuEkxe/2+EMiMLesgGJJNdYTKhz7ehKzNW1Rs2bNmzZs2M7Wt1glIi3LQIggpIME73/nBoOiOELJkyZMmTJkx52vXdEtQblObJ1HmXD92bJ1HmTG5udLxBT21Hs2bNmzZszwm+V9kSKDuH7sYbmhMtH1OMNzQmWjpUpekTHJgQIECBAgQIECIVBpXvAr7d0rb169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169d4AD+/76O3PC/mCckDx0gsC24EAAAAAAAAAAAAAAAAAAAAAAAAAEm4vMTNpBe+XQYFwLhj7XD7XD7WYQCZhQZzVfcQgaAR38MSnwvvX0t7U73TMiu43umZFc85HOTK1e0+GCCIIpDAkWvRMivO0k2WQU0PCMXBtscGjrfXPIYBc8JehxNBVfnUDKBNYq4mYYxs/q/8w63tYDWbNGjJWL9wUUjP83vGVcdC/AYvbaLNUVdekgo7YSaOMwHTbxIx82sOROQ00hSkO7qzy0NYUet3uIfc7Cvb85UqwBAHBKt5dIYd0Fs9kpmsGtIc61gsvwfXa/sMLpHB9o2Uw/pjfEx4h9DPOs/B6ctzeLh4kcCBWZhQXwLPBzOBuH/oiU759LE3dr5VnxmIlW+zi74dT5U2TJYR+iniiPqqJLuNMJh7a3vb3fgUFoq3rBhvP4NiXfpPTesbg7NIQazPNqico79VE9IiN7mxtR0ngnyoDXhOop3ijHvxIm+B9qwi9B+JVV1HARiPFGAEtELWRatPGXZA5EuCY4rPY98AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" loading="lazy"
-             alt="AI-generated presenter holding a product outdoors"
-             data-alt-pt="Apresentadora gerada por IA segurando um produto em ambiente externo">
-        <figcaption class="cap"><b>batch_creative</b><i data-pt="geração em lote">generation</i></figcaption></figure>
-
-      <figure class="tile t-d" data-id="d" data-par="-0.03">
-        <img src="data:image/webp;base64,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" loading="lazy"
-             alt="Cinematic colour grade applied to a portrait"
-             data-alt-pt="Gradação cinematográfica aplicada a um retrato">
-        <figcaption class="cap"><b>cinematic_grade</b><i>Magnific</i></figcaption></figure>
-
-      <figure class="tile t-e" data-id="e" data-par="0.04">
-        <img src="data:image/webp;base64,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" loading="lazy"
-             alt="Depth-map parallax frame: temple with a foreground object"
-             data-alt-pt="Quadro de parallax por mapa de profundidade: templo com objeto em primeiro plano">
-        <figcaption class="cap"><b>depth_map</b><i data-pt="movimento">motion</i></figcaption></figure>
-
-      <figure class="tile t-f" data-id="f" data-par="-0.05">
-        <img src="data:image/webp;base64,UklGRmwGAABXRUJQVlA4IGAGAADQlACdASowAuQDPpVKpU0lpKOiIXK4ALASiWlu4XdhH4CPjvmPvfNl3EnZvK2Xp4LxF69evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169dpprZLpDDc0Jlo+pxhuaEy0fU4vfbdqY6ECBAgQIECAlIvLO65o1vsbp4WiNvdlkHcWo9mzZs2bNmfPGzWrAcqU3LLA6oNVMePHjltXYiRIkSJEiRGYOcFrWk4R9iByA4dmzZsZ4QsmTJkyZMmTHniUeAeygAaJcgSezZn0CXkLFixYsWLFNdaR1okNETRNYiUkNDSF4cK9W1Rs2bNmzZs2M8ElQowPj0xCLkJdwJm62wSgafxdsKpeHDhw4cOHDdSWRqmsEodz2fwJJ8m0NYq/K5qIqTQBegsb/UCXkLFixYsWLFNdTA6tuEkxe/2+EMiMLesgGJJNdYTKhz7ehKzNW1Rs2bNmzZs2M7Wt1glIi3LQIggpIME73/nBoOiOELJkyZMmTJkx52vXdEtQblObJ1HmXD92bJ1HmTG5udLxBT21Hs2bNmzZszwm+V9kSKDuH7sYbmhMtH1OMNzQmWjpUpekTHJgQIECBAgQIECIVBpXvAr7d0rb169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169evXr169d4AD+/76O3PC/mCckDx0gsC24EAAAAAAAAAAAAAAAAAAAAAAAAAEm4vMTNpBe+XQYFwLhj7XD7XD7WYQCZhQZzVfcQgaAR38MSnwvvX0t7U73TMiu43umZFc85HOTK1e0+GCCIIpDAkWvRMivO0k2WQU0PCMXBtscGjrfXPIYBc8JehxNBVfnUDKBNYq4mYYxs/q/8w63tYDWbNGjJWL9wUUjP83vGVcdC/AYvbaLNUVdekgo7YSaOMwHTbxIx82sOROQ00hSkO7qzy0NYUet3uIfc7Cvb85UqwBAHBKt5dIYd0Fs9kpmsGtIc61gsvwfXa/sMLpHB9o2Uw/pjfEx4h9DPOs/B6ctzeLh4kcCBWZhQXwLPBzOBuH/oiU759LE3dr5VnxmIlW+zi74dT5U2TJYR+iniiPqqJLuNMJh7a3vb3fgUFoq3rBhvP4NiXfpPTesbg7NIQazPNqico79VE9IiN7mxtR0ngnyoDXhOop3ijHvxIm+B9qwi9B+JVV1HARiPFGAEtELWRatPGXZA5EuCY4rPY98AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=" loading="lazy"
-             alt="AI-generated presenter outdoors, voice cloned from a reference"
-             data-alt-pt="Apresentador gerado por IA em ambiente externo, voz clonada de uma referência">
-        <figcaption class="cap"><b>cloned_voice</b><i>pipeline</i></figcaption></figure>
+    <!-- Parede no estilo do alisson-ai-cuts: o texto gruda a esquerda e as
+         colunas de video deslizam em velocidades diferentes com o scroll.
+         Cada trecho tem a proporcao da cena (9:16, 4:5 ou 1:1). Em "Todos",
+         Personagem, Produto e B-roll viram um card so com seis cortes de 2 s
+         (media/reel/seq-*.mp4) e o ASCII roxo marca cada troca. mural.py corta. -->
+    <div class="trab">
+      <div class="trab-side">
+        <h2 class="t" data-rv="up" data-pt="Trabalhos.">Selected work.</h2>
+        <p class="sub" data-rv="up" data-pt="Avatares, UGC, produto e inserts 3D para VSLs e anúncios.">Avatars, UGC, product and 3D inserts for VSLs and ads.</p>
+        <div class="chips" role="group" aria-label="Filter the videos" data-aria-pt="Filtrar os vídeos" data-rv="up">
+          <button type="button" class="chip" data-f="all" aria-pressed="true" data-pt="Todos">All</button>
+          <button type="button" class="chip" data-f="avatar" aria-pressed="false" data-pt="Avatares">Avatars</button>
+          <button type="button" class="chip" data-f="ugc" aria-pressed="false">UGC</button>
+          <button type="button" class="chip" data-f="insert" aria-pressed="false" data-pt="Inserts 3D">3D inserts</button>
+          <button type="button" class="chip" data-f="produto" aria-pressed="false" data-pt="Produto">Product</button>
+          <button type="button" class="chip" data-f="personagem" aria-pressed="false" data-pt="Personagem">Character</button>
+          <button type="button" class="chip" data-f="broll" aria-pressed="false">B-roll</button>
+        </div>
+        <div class="trab-desc" aria-live="polite" data-rv="up">
+          <p data-f="all" data-pt="Personagem, produto e B-roll aparecem aqui em cortes de 2 s. O filtro abre cada um.">Character, product and B-roll show up here as 2-second cuts. The filter opens each one.</p>
+          <p data-f="avatar" hidden data-pt="Avatares falando com lipsync, a partir de uma foto e um áudio.">Talking avatars with lipsync, made from a photo and an audio file.</p>
+          <p data-f="ugc" hidden data-pt="Gente comum falando para o celular, no formato de anúncio.">Ordinary people talking to the phone, in ad format.</p>
+          <p data-f="insert" hidden data-pt="O que a copy descreve, virado imagem.">What the copy describes, turned into an image.</p>
+          <p data-f="produto" hidden data-pt="O frasco em cenários que nunca foram fotografados.">The bottle in settings that were never photographed.</p>
+          <p data-f="personagem" hidden data-pt="A mesma apresentadora em seis cenas do mesmo vídeo.">The same presenter across six scenes of one video.</p>
+          <p data-f="broll" hidden data-pt="Mão, líquido e vapor de perto, onde a IA costuma errar.">Hands, liquid and steam up close, where AI usually breaks.</p>
+        </div>
+      </div>
+      <div class="wall" id="mural">
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-1.mp4">
+            <img src="media/reel/avatar-1.jpg" width="360" height="640"
+                 alt="AI-generated video: testimonial with product" data-alt-pt="Vídeo gerado por IA: depoimento com produto">
+            <figcaption><b>Avatar</b><span data-pt="Com o produto">With the product</span></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5" data-src="media/reel/insert-1.mp4">
+            <img src="media/reel/insert-1.jpg" width="360" height="450"
+                 alt="AI-generated video: blood vessel" data-alt-pt="Vídeo gerado por IA: vaso sanguíneo">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Vaso sanguíneo">Blood vessel</span></figcaption></figure>
+          <figure class="clip seq" data-cat="personagem" data-in="all" style="--r:4/5" data-src="media/reel/seq-personagem.mp4">
+            <img src="media/reel/seq-personagem.jpg" width="360" height="450"
+                 alt="AI-generated video: same presenter, six scenes" data-alt-pt="Vídeo gerado por IA: mesma apresentadora, seis cenas">
+            <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Seis cenas">Six scenes</span></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-1.mp4">
+            <img src="media/reel/ugc-1.jpg" width="360" height="640"
+                 alt="AI-generated video: recipe" data-alt-pt="Vídeo gerado por IA: receita">
+            <figcaption><b>UGC</b><span data-pt="Receita">Recipe</span></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-2.mp4">
+            <img src="media/reel/avatar-2.jpg" width="360" height="640"
+                 alt="AI-generated video: doctor" data-alt-pt="Vídeo gerado por IA: médico">
+            <figcaption><b>Avatar</b><span data-pt="Médico">Doctor</span></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:1/1" data-src="media/reel/insert-2.mp4">
+            <img src="media/reel/insert-2.jpg" width="360" height="360"
+                 alt="AI-generated video: neurons" data-alt-pt="Vídeo gerado por IA: neurônios">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Neurônios">Neurons</span></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5" data-src="media/reel/ugc-2.mp4">
+            <img src="media/reel/ugc-2.jpg" width="360" height="450"
+                 alt="AI-generated video: workshop testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na oficina">
+            <figcaption><b>UGC</b><span data-pt="Na oficina">In the workshop</span></figcaption></figure>
+          <figure class="clip seq" data-cat="produto" data-in="all" style="--r:4/5" data-src="media/reel/seq-produto.mp4">
+            <img src="media/reel/seq-produto.jpg" width="360" height="450"
+                 alt="AI-generated video: six bottles, six settings" data-alt-pt="Vídeo gerado por IA: seis frascos, seis cenários">
+            <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Seis cenários">Six settings</span></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-3.mp4">
+            <img src="media/reel/avatar-3.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: testimonial" data-alt-pt="Vídeo gerado por IA: depoimento">
+            <figcaption><b>Avatar</b><span data-pt="Depoimento">Testimonial</span></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5" data-src="media/reel/insert-3.mp4">
+            <img src="media/reel/insert-3.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: drop in vinegar" data-alt-pt="Vídeo gerado por IA: gota no vinagre">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Gota no vinagre">Drop in vinegar</span></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-3.mp4">
+            <img src="media/reel/ugc-3.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: before and after" data-alt-pt="Vídeo gerado por IA: antes e depois">
+            <figcaption><b>UGC</b><span data-pt="Antes e depois">Before and after</span></figcaption></figure>
+          <figure class="clip seq" data-cat="broll" data-in="all" style="--r:9/16" data-src="media/reel/seq-broll.mp4">
+            <img src="media/reel/seq-broll.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: a recipe in six cuts" data-alt-pt="Vídeo gerado por IA: receita em seis cortes">
+            <span class="segs" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+            <figcaption><b>B-roll</b><span data-pt="Receita em seis cortes">Recipe in six cuts</span></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-4.mp4">
+            <img src="media/reel/avatar-4.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: kitchen talk" data-alt-pt="Vídeo gerado por IA: conversa na cozinha">
+            <figcaption><b>Avatar</b><span data-pt="Na cozinha">In the kitchen</span></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16" data-src="media/reel/insert-4.mp4">
+            <img src="media/reel/insert-4.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: pancreas x-ray" data-alt-pt="Vídeo gerado por IA: pâncreas em raio X">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Pâncreas em raio X">Pancreas x-ray</span></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:4/5" data-src="media/reel/ugc-4.mp4">
+            <img src="media/reel/ugc-4.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: living room testimonial" data-alt-pt="Vídeo gerado por IA: depoimento na sala">
+            <figcaption><b>UGC</b><span data-pt="Na sala">Living room</span></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:9/16" data-src="media/reel/avatar-5.mp4">
+            <img src="media/reel/avatar-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: at home" data-alt-pt="Vídeo gerado por IA: em casa">
+            <figcaption><b>Avatar</b><span data-pt="Em casa">At home</span></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:9/16" data-src="media/reel/insert-5.mp4">
+            <img src="media/reel/insert-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: thermal scan" data-alt-pt="Vídeo gerado por IA: termografia">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Termografia">Thermal scan</span></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-5.mp4">
+            <img src="media/reel/ugc-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: product in hand" data-alt-pt="Vídeo gerado por IA: produto na mão">
+            <figcaption><b>UGC</b><span data-pt="Produto na mão">Product in hand</span></figcaption></figure>
+          <figure class="clip" data-cat="avatar" data-in="all cat" style="--r:4/5" data-src="media/reel/avatar-6.mp4">
+            <img src="media/reel/avatar-6.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: presenter" data-alt-pt="Vídeo gerado por IA: apresentadora">
+            <figcaption><b>Avatar</b><span data-pt="Apresentadora">Presenter</span></figcaption></figure>
+          <figure class="clip" data-cat="insert" data-in="all cat" style="--r:4/5" data-src="media/reel/insert-6.mp4">
+            <img src="media/reel/insert-6.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: capsule" data-alt-pt="Vídeo gerado por IA: cápsula">
+            <figcaption><b data-pt="Insert 3D">3D insert</b><span data-pt="Cápsula">Capsule</span></figcaption></figure>
+          <figure class="clip" data-cat="ugc" data-in="all cat" style="--r:9/16" data-src="media/reel/ugc-6.mp4">
+            <img src="media/reel/ugc-6.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: street selfie" data-alt-pt="Vídeo gerado por IA: selfie na rua">
+            <figcaption><b>UGC</b><span data-pt="Selfie na rua">Street selfie</span></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-1.mp4" hidden>
+            <img src="media/reel/personagem-1.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: scene 1" data-alt-pt="Vídeo gerado por IA: cena 1">
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 1">Scene 1</span></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-2.mp4" hidden>
+            <img src="media/reel/personagem-2.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: scene 2" data-alt-pt="Vídeo gerado por IA: cena 2">
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 2">Scene 2</span></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-3.mp4" hidden>
+            <img src="media/reel/personagem-3.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: scene 3" data-alt-pt="Vídeo gerado por IA: cena 3">
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 3">Scene 3</span></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-4.mp4" hidden>
+            <img src="media/reel/personagem-4.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: scene 4" data-alt-pt="Vídeo gerado por IA: cena 4">
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 4">Scene 4</span></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-5.mp4" hidden>
+            <img src="media/reel/personagem-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: scene 5" data-alt-pt="Vídeo gerado por IA: cena 5">
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 5">Scene 5</span></figcaption></figure>
+          <figure class="clip" data-cat="personagem" data-in="cat" style="--r:9/16" data-src="media/reel/personagem-6.mp4" hidden>
+            <img src="media/reel/personagem-6.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: scene 6" data-alt-pt="Vídeo gerado por IA: cena 6">
+            <figcaption><b data-pt="Personagem">Character</b><span data-pt="Cena 6">Scene 6</span></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16" data-src="media/reel/produto-1.mp4" hidden>
+            <img src="media/reel/produto-1.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: water burst" data-alt-pt="Vídeo gerado por IA: explosão de água">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Explosão de água">Water burst</span></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16" data-src="media/reel/produto-2.mp4" hidden>
+            <img src="media/reel/produto-2.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: sunset" data-alt-pt="Vídeo gerado por IA: pôr do sol">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Pôr do sol">Sunset</span></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5" data-src="media/reel/produto-3.mp4" hidden>
+            <img src="media/reel/produto-3.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: stream" data-alt-pt="Vídeo gerado por IA: riacho">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Riacho">Stream</span></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5" data-src="media/reel/produto-4.mp4" hidden>
+            <img src="media/reel/produto-4.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: flat backdrop" data-alt-pt="Vídeo gerado por IA: fundo chapado">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Fundo chapado">Flat backdrop</span></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:9/16" data-src="media/reel/produto-5.mp4" hidden>
+            <img src="media/reel/produto-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: dropper" data-alt-pt="Vídeo gerado por IA: conta-gotas">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Conta-gotas">Dropper</span></figcaption></figure>
+          <figure class="clip" data-cat="produto" data-in="cat" style="--r:4/5" data-src="media/reel/produto-6.mp4" hidden>
+            <img src="media/reel/produto-6.jpg" loading="lazy" width="360" height="450"
+                 alt="AI-generated video: space" data-alt-pt="Vídeo gerado por IA: espaço">
+            <figcaption><b data-pt="Produto">Product</b><span data-pt="Espaço">Space</span></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-1.mp4" hidden>
+            <img src="media/reel/broll-1.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: boiling water" data-alt-pt="Vídeo gerado por IA: água fervendo">
+            <figcaption><b>B-roll</b><span data-pt="Água fervendo">Boiling water</span></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-2.mp4" hidden>
+            <img src="media/reel/broll-2.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: pouring" data-alt-pt="Vídeo gerado por IA: mistura">
+            <figcaption><b>B-roll</b><span data-pt="Mistura">Pouring</span></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-3.mp4" hidden>
+            <img src="media/reel/broll-3.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: slicing" data-alt-pt="Vídeo gerado por IA: corte">
+            <figcaption><b>B-roll</b><span data-pt="Corte">Slicing</span></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-4.mp4" hidden>
+            <img src="media/reel/broll-4.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: steam" data-alt-pt="Vídeo gerado por IA: vapor">
+            <figcaption><b>B-roll</b><span data-pt="Vapor">Steam</span></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-5.mp4" hidden>
+            <img src="media/reel/broll-5.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: cream" data-alt-pt="Vídeo gerado por IA: creme">
+            <figcaption><b>B-roll</b><span data-pt="Creme">Cream</span></figcaption></figure>
+          <figure class="clip" data-cat="broll" data-in="cat" style="--r:9/16" data-src="media/reel/broll-6.mp4" hidden>
+            <img src="media/reel/broll-6.jpg" loading="lazy" width="360" height="640"
+                 alt="AI-generated video: phone" data-alt-pt="Vídeo gerado por IA: celular">
+            <figcaption><b>B-roll</b><span data-pt="Celular">Phone</span></figcaption></figure>
+      </div>
     </div>
 
-    <div class="stats" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
+    <div class="stats" data-rv="up" style="margin-top:clamp(40px,5.4vw,70px)">
       <div class="stat"><div class="n"><span data-count="1500" data-suffix="+" aria-hidden="true">0</span><span class="sr">1500+</span></div>
         <div class="l" data-pt="criativos entregues">creatives shipped</div></div>
       <div class="stat"><div class="n"><span data-count="12" data-suffix="" aria-hidden="true">0</span><span class="sr">12</span></div>
@@ -704,223 +743,112 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
   </div>
 </section>
 
-<!-- ══ 02 WORK (cases) ═══════════════════════════════════════════ -->
+<!-- ══ 02 WORK ════════════════════════════════════════════════════ -->
 <section class="sec" id="work">
   <div class="wrap">
     <div class="head" data-rv="wipe"><span class="slug">/work</span><span class="note">02</span></div>
     <h2 class="t" data-rv="up" data-pt="Tarefas que eu me recusei <em>a fazer duas vezes.</em>">Tasks I refused <em>to do twice.</em></h2>
 
-    <div class="works" data-rv="up" style="margin-top:clamp(24px,3.6vw,42px)">
-
-      <div class="w-left">
-        <div class="w-stage">
-          <div class="w-media on" data-i="0">
-            <div class="demo">
-              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
-              <div class="lab"><span>TIMELINE.FCPXML</span><span>AUTO-SYNC</span></div>
-              <div class="lane vid"></div>
-              <div class="lane"><i class="clipx" style="left:4%;width:17%;animation-delay:.1s"></i>
-                                <i class="clipx" style="left:26%;width:12%;animation-delay:.45s"></i>
-                                <i class="clipx" style="left:44%;width:21%;animation-delay:.8s"></i></div>
-              <div class="lane"><i class="clipx" style="left:12%;width:14%;animation-delay:1.15s"></i>
-                                <i class="clipx" style="left:52%;width:18%;animation-delay:1.5s"></i>
-                                <i class="clipx" style="left:76%;width:15%;animation-delay:1.85s"></i></div>
-              <div class="play"></div>
-              <div class="score">&#10003; 38/40 matched &middot; avg confidence 0.91</div>
-            </div>
-          </div>
-          <div class="w-media" data-i="1">
-            <div class="demo">
-              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
-              <div class="lab"><span>MINIMAX &middot; QUEUE</span><span>BATCH 40</span></div>
-              <div class="dl">
-                <div class="dlrow" style="--d:0s">
-                  <i class="wv"><b style="height:34%"></b><b style="height:86%"></b><b style="height:52%"></b><b style="height:100%"></b><b style="height:44%"></b><b style="height:72%"></b></i>
-                  <span class="fn">vsl-01-hook.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
-                <div class="dlrow" style="--d:.34s">
-                  <i class="wv"><b style="height:62%"></b><b style="height:38%"></b><b style="height:94%"></b><b style="height:56%"></b><b style="height:80%"></b><b style="height:30%"></b></i>
-                  <span class="fn">vsl-02-lead.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
-                <div class="dlrow" style="--d:.68s">
-                  <i class="wv"><b style="height:48%"></b><b style="height:74%"></b><b style="height:36%"></b><b style="height:88%"></b><b style="height:60%"></b><b style="height:96%"></b></i>
-                  <span class="fn">vsl-03-proof.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
-                <div class="dlrow" style="--d:1.02s">
-                  <i class="wv"><b style="height:90%"></b><b style="height:44%"></b><b style="height:68%"></b><b style="height:34%"></b><b style="height:98%"></b><b style="height:52%"></b></i>
-                  <span class="fn">vsl-04-close.mp3</span><em class="pb"></em><u class="ok">&#10003;</u></div>
-              </div>
-              <div class="score" data-pt="&darr; 40 arquivos &middot; um clique &middot; nome aplicado ao salvar">&darr; 40 files &middot; one click &middot; named on save</div>
-            </div>
-          </div>
-
-          <div class="w-media" data-i="2">
-            <div class="demo">
-              <span class="prev" data-pt="prévia da arquitetura">architecture preview</span>
-              <div class="lab"><span>PIPELINE</span><span>RUN 014</span></div>
-              <div class="flow">
-                <span class="rail"><i></i></span>
-                <div class="fnode hi" style="--d:0s"><span data-pt="BRIEF DA COPY">COPY BRIEF</span><em>&rarr;</em></div>
-                <div class="fnode" style="--d:1s"><span>n8n orchestrator</span><em>1</em></div>
-                <div class="fnode" style="--d:2s"><span>python workers</span><em>&times;6</em></div>
-                <div class="fnode" style="--d:3s"><span data-pt="storage + nomes">storage + naming</span><em>&#10003;</em></div>
-                <div class="fnode hi" style="--d:4s"><span data-pt="ENTREGA">DELIVERY</span><em>&#9670;</em></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="w-media" data-i="3">
-            <div class="demo">
-              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
-              <div class="lab"><span>NARRATION.WAV</span><span>&minus;35 dB &middot; 0.35 s</span></div>
-              <div class="wave">
-              <i style="height:24%"></i><i style="height:32%"></i><i style="height:23%"></i><i style="height:26%"></i><i style="height:46%"></i><i style="height:22%"></i><i style="height:52%"></i><i style="height:29%"></i><i style="height:49%"></i><i style="height:24%"></i>
-              <i style="height:28%"></i><i class="q" style="--d:.0s"></i><i style="height:22%"></i><i style="height:70%"></i><i style="height:44%"></i><i style="height:32%"></i><i style="height:32%"></i><i style="height:71%"></i><i style="height:73%"></i><i style="height:45%"></i>
-              <i style="height:31%"></i><i style="height:26%"></i><i style="height:17%"></i><i style="height:33%"></i><i style="height:37%"></i><i style="height:26%"></i><i style="height:28%"></i><i class="q" style="--d:.55s"></i><i style="height:37%"></i><i style="height:72%"></i>
-              <i style="height:34%"></i><i style="height:55%"></i><i style="height:36%"></i><i style="height:40%"></i><i style="height:27%"></i><i style="height:19%"></i><i style="height:36%"></i><i style="height:24%"></i><i style="height:30%"></i><i style="height:47%"></i>
-              <i style="height:33%"></i><i style="height:55%"></i><i style="height:42%"></i><i style="height:24%"></i><i class="q" style="--d:1.05s"></i><i style="height:29%"></i><i style="height:64%"></i><i style="height:17%"></i><i style="height:58%"></i><i style="height:81%"></i>
-              <i style="height:26%"></i><i style="height:19%"></i><i style="height:42%"></i><i style="height:32%"></i><i style="height:18%"></i><i style="height:63%"></i><i style="height:43%"></i><i style="height:37%"></i><i class="q" style="--d:1.6s"></i><i style="height:46%"></i>
-              <i style="height:63%"></i><i style="height:27%"></i><i style="height:19%"></i><i style="height:58%"></i><i style="height:36%"></i><i style="height:36%"></i><i style="height:30%"></i><i style="height:57%"></i><i style="height:47%"></i><i style="height:33%"></i>
-              </div>
-              <div class="score" data-pt="137 pausas removidas &middot; rascunho encurtado &middot; sem reencode">137 pauses removed &middot; draft trimmed &middot; no re-encode</div>
-            </div>
-          </div>
-
-          <div class="w-media" data-i="4">
-            <div class="demo">
-              <span class="prev" data-pt="prévia do fluxo">workflow preview</span>
-              <div class="lab"><span data-pt="SESS&Atilde;O 07 &middot; OPERADOR 03">SESSION 07 &middot; OPERATOR 03</span><span class="recdot">REC</span></div>
-              <div class="recgrid">
-                <div class="win">
-                  <b class="wbtn" style="left:12%;top:26%;--d:.15s"></b>
-                  <b class="wbtn" style="left:56%;top:44%;--d:1.5s"></b>
-                  <b class="wbtn" style="left:24%;top:70%;--d:2.9s"></b>
-                  <span class="cur"></span>
-                </div>
-                <div class="jsonl">
-                  <code style="--d:.25s">{"t":0.0,"ev":"click","sel":"#generate"}</code>
-                  <code style="--d:1.6s">{"t":2.6,"ev":"wait","for":"img.ready"}</code>
-                  <code style="--d:3.0s">{"t":9.1,"ev":"click","sel":".download"}</code>
-                  <code style="--d:4.1s">{"t":9.8,"ev":"save","as":"avatar_014.png"}</code>
-                </div>
-              </div>
-              <div class="score" data-pt="1 sess&atilde;o gravada &rarr; 1 script do Playwright">1 recorded session &rarr; 1 Playwright script</div>
-            </div>
-          </div>
-          <div class="w-bar" id="wbar"><i id="wfill"></i></div>
+    <!-- Os dois apps publicos. O palco do LoopVideo e o video-guia que esta no
+         proprio app (as 4 abas, 10 s cada); as abas embaixo seguem o video e
+         pulam para a parte certa no clique. O do Avatarize e a tela real com
+         um holofote passando pelas etapas, em CSS. -->
+    <article class="app" id="app-loop" data-rv="up">
+      <div class="app-stage">
+        <div class="app-win">
+          <video class="app-vid" muted loop playsinline preload="none" poster="media/work/loopvideo-demo.jpg"
+                 data-src="media/work/loopvideo-demo.mp4" aria-hidden="true"></video>
         </div>
-
-        <div class="w-detail">
-          <div class="w-body on" data-i="0">
-            <h3>subtitle-audio-sync</h3>
-            <p class="lead" data-pt="38/40 casados &middot; confiança média 0.91">38/40 matched &middot; avg confidence 0.91</p>
-            <div class="case">
-              <div class="ci"><b data-pt="problema">problem</b><span data-pt="40 arquivos de áudio soltos para posicionar dentro de um vídeo de uma hora.">40 loose audio files to place inside a one-hour video.</span></div>
-              <div class="ci"><b data-pt="construído">built</b><span data-pt="Uma CLI em Python que transcreve, casa áudio com legenda e exporta uma timeline FCPXML.">A Python CLI that transcribes, matches audio to caption and exports an FCPXML timeline.</span></div>
-            </div>
-            <div class="icons">
-              <span class="ico"><svg><use href="#i-term"/></svg>Python</span>
-              <span class="ico"><svg><use href="#i-wave"/></svg>Whisper</span>
-              <span class="ico"><svg><use href="#i-film"/></svg>FCPXML</span>
-              <span class="ico"><svg><use href="#i-box"/></svg>Docker</span>
-              <span class="ico"><svg><use href="#i-check"/></svg>GitHub Actions</span>
-            </div>
-            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
-              <a class="btn ghost" data-link="gh_subtitle"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
-              <a class="btn ghost" data-link="demo_subtitle" data-pt="Ver a demo">Watch the demo &#8599;</a>
-            </div>
-          </div>
-
-          <div class="w-body" data-i="1">
-            <h3>minimax-audio-downloader</h3>
-            <p class="lead" data-pt="Baixa o lote inteiro num clique, já com o nome aplicado.">Takes the whole batch in one click, named on save.</p>
-            <div class="case">
-              <div class="ci"><b data-pt="problema">problem</b><span data-pt="Baixar e organizar dezenas de áudios gerados na mão.">Downloading and organising dozens of generated audio files by hand.</span></div>
-              <div class="ci"><b data-pt="construído">built</b><span data-pt="Extensão Chrome MV3: extração via DOM, download em lote, presets persistidos e nomeação determinística.">A Chrome MV3 extension: DOM extraction, batch downloads, persisted presets, deterministic naming.</span></div>
-            </div>
-            <div class="icons">
-              <span class="ico"><svg><use href="#i-eye"/></svg>Chrome MV3</span>
-              <span class="ico"><svg><use href="#i-wave"/></svg>Batch audio</span>
-              <span class="ico"><svg><use href="#i-term"/></svg>JavaScript</span>
-              <span class="ico"><svg><use href="#i-branch"/></svg>MIT</span>
-            </div>
-            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
-              <a class="btn ghost" data-link="gh_minimax"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
-            </div>
-          </div>
-
-          <div class="w-body" data-i="2">
-            <h3>content-pipeline-architecture</h3>
-            <p class="lead" data-pt="Produção de ponta a ponta com custo e tempo medidos por etapa.">End-to-end production with cost and time measured per step.</p>
-            <div class="case">
-              <div class="ci"><b data-pt="problema">problem</b><span data-pt="A copy virava asset e vídeo final passando por várias ferramentas e etapas manuais.">Copy became assets and final video across many tools and manual steps.</span></div>
-              <div class="ci"><b data-pt="construído">built</b><span data-pt="n8n, workers em Python, APIs de mídia, FFmpeg, storage, fallback entre provedores e telemetria.">n8n, Python workers, media APIs, FFmpeg, storage, provider fallback and telemetry.</span></div>
-            </div>
-            <div class="icons">
-              <span class="ico"><svg><use href="#i-flow"/></svg>n8n</span>
-              <span class="ico"><svg><use href="#i-plug"/></svg>REST</span>
-              <span class="ico"><svg><use href="#i-db"/></svg>Storage</span>
-              <span class="ico"><svg><use href="#i-cloud"/></svg>VPS + Docker</span>
-            </div>
-            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
-              <a class="btn ghost" data-link="gh_pipeline"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
-            </div>
-          </div>
-
-          <div class="w-body" data-i="3">
-            <h3>capcut-silence-trim</h3>
-            <p class="lead" data-pt="Timeline mais curta sem reencodar um quadro.">A shorter timeline without a single frame re-encoded.</p>
-            <div class="case">
-              <div class="ci"><b data-pt="problema">problem</b><span data-pt="Uma hora de narração esconde 137 pausas de respiro.">One hour of narration hides 137 breathing pauses.</span></div>
-              <div class="ci"><b data-pt="construído">built</b><span data-pt="O silencedetect acha cada pausa; cada uma vira ponto de corte dentro do rascunho do CapCut.">silencedetect finds every pause; each becomes an in/out point inside the CapCut draft.</span></div>
-            </div>
-            <div class="icons">
-              <span class="ico"><svg><use href="#i-term"/></svg>Python</span>
-              <span class="ico"><svg><use href="#i-wave"/></svg>silencedetect</span>
-              <span class="ico"><svg><use href="#i-film"/></svg>ffmpeg</span>
-              <span class="ico"><svg><use href="#i-box"/></svg>CapCut draft</span>
-            </div>
-            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
-              <a class="btn ghost" data-link="gh_capcut"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
-            </div>
-          </div>
-
-          <div class="w-body" data-i="4">
-            <h3>browser-session-recorder</h3>
-            <p class="lead" data-pt="1 sessão gravada &rarr; 1 script do Playwright.">1 recorded session &rarr; 1 Playwright script.</p>
-            <div class="case">
-              <div class="ci"><b data-pt="problema">problem</b><span data-pt="Cinco operadores repetindo o mesmo trabalho manual no navegador.">Five operators repeating the same manual job in the browser.</span></div>
-              <div class="ci"><b data-pt="construído">built</b><span data-pt="Uma extensão MV3 grava cada clique, espera e nova tentativa em JSONL.">An MV3 extension records every click, wait and retry as JSONL.</span></div>
-            </div>
-            <div class="icons">
-              <span class="ico"><svg><use href="#i-eye"/></svg>Chrome MV3</span>
-              <span class="ico"><svg><use href="#i-flow"/></svg>Playwright</span>
-              <span class="ico"><svg><use href="#i-db"/></svg>JSONL</span>
-              <span class="ico"><svg><use href="#i-check"/></svg>Validator</span>
-            </div>
-            <div class="w-links"><span class="evl" data-pt="evidência">evidence</span>
-              <a class="btn ghost" data-link="gh_recorder"><svg class="gh"><use href="#i-branch"/></svg>GitHub &#8599;</a>
-            </div>
-          </div>
+        <div class="app-tabs">
+          <button type="button" data-t="0" class="on"><span data-pt="Vídeo em loop">Looping video</span><i></i></button>
+          <button type="button" data-t="10"><span data-pt="Imagens">Images</span><i></i></button>
+          <button type="button" data-t="20"><span data-pt="Prova visual">Visual proof</span><i></i></button>
+          <button type="button" data-t="30"><span>Mockup</span><i></i></button>
         </div>
       </div>
-
-      <div class="w-list" role="tablist">
-        <button class="w-item on" data-i="0" role="tab" aria-selected="true">
-          <span class="wi-n">01</span><span class="wi-name">subtitle-audio-sync</span>
-          <span class="wi-tag">Python &middot; Whisper &middot; FCPXML</span></button>
-        <button class="w-item" data-i="1" role="tab" aria-selected="false">
-          <span class="wi-n">02</span><span class="wi-name">minimax-audio-downloader</span>
-          <span class="wi-tag">Chrome MV3 &middot; Batch I/O</span></button>
-        <button class="w-item" data-i="2" role="tab" aria-selected="false">
-          <span class="wi-n">03</span><span class="wi-name">content-pipeline-architecture</span>
-          <span class="wi-tag" data-pt="Arquitetura &middot; ADR">Architecture &middot; ADR</span></button>
-        <div class="w-split" aria-hidden="true"><span data-pt="também na caixa de ferramentas">also in the toolbox</span></div>
-        <button class="w-item minor" data-i="3" role="tab" aria-selected="false">
-          <span class="wi-n">04</span><span class="wi-name">capcut-silence-trim</span>
-          <span class="wi-tag">Python &middot; ffmpeg &middot; CapCut</span></button>
-        <button class="w-item minor" data-i="4" role="tab" aria-selected="false">
-          <span class="wi-n">05</span><span class="wi-name">browser-session-recorder</span>
-          <span class="wi-tag">Chrome MV3 &middot; Playwright</span></button>
+      <div class="app-info">
+        <div class="app-id"><img src="media/work/loopvideo-icon.webp" width="52" height="52" alt="">
+          <div><h3>LoopVideo</h3><span>Windows <s></s> v2.1.0</span></div></div>
+        <p class="app-pitch" data-pt="Uma foto vira 2:30 de vídeo da pessoa falando, em loop e sem corte aparente.">One photo becomes 2:30 of the person talking, looping with no visible cut.</p>
+        <ul class="app-pts">
+          <li data-pt="Gera os trechos na Magnific e emenda sem pulo, pronto para fundo de VSL.">Generates the clips on Magnific and stitches them seamlessly, ready for a VSL background.</li>
+          <li data-pt="Você aprova o primeiro vídeo antes de gastar o resto dos créditos.">You approve the first video before the rest of the credits are spent.</li>
+          <li data-pt="Mais três abas: imagens, prova visual e mockup de produto.">Three more tabs: images, visual proof and product mockups.</li>
+        </ul>
+        <div class="app-cta">
+          <a class="btn solid" data-link="dl_loopvideo" data-pt="Baixar para Windows">Download for Windows</a>
+          <a class="btn ghost" data-link="gh_loopvideo">GitHub &#8599;</a>
+        </div>
       </div>
+    </article>
 
+    <article class="app rev" id="app-avatar" data-rv="up">
+      <div class="app-stage">
+        <div class="app-win shot">
+          <img src="media/work/avatarize-1.webp" loading="lazy" width="1280" height="846"
+               alt="Avatarize: three videos in the queue, one generating, one ready and one with an error"
+               data-alt-pt="Avatarize: três vídeos na fila, um gerando, um pronto e um com erro">
+          <i class="call" style="--x:3.6%;--y:26%;--w:28.6%;--h:14.4%;--d:0s"><b data-pt="a foto">the photo</b></i>
+          <i class="call" style="--x:3.6%;--y:53%;--w:28.6%;--h:25%;--d:2s"><b data-pt="um áudio por vídeo">one audio per video</b></i>
+          <i class="call" style="--x:3.6%;--y:79%;--w:28.6%;--h:7.4%;--d:4s"><b data-pt="gera em fila">queued generation</b></i>
+          <i class="call" style="--x:36.2%;--y:17%;--w:61.6%;--h:21%;--d:6s"><b data-pt="etapa por etapa">step by step</b></i>
+          <i class="call" style="--x:36.2%;--y:51.5%;--w:61.6%;--h:15.4%;--d:8s"><b data-pt="baixa o MP4 sozinho">downloads the MP4</b></i>
+          <i class="call" style="--x:36.2%;--y:70%;--w:61.6%;--h:18.4%;--d:10s"><b data-pt="deu erro? tenta de novo">failed? retry</b></i>
+        </div>
+      </div>
+      <div class="app-info">
+        <div class="app-id"><img src="media/work/avatarize-icon.webp" width="52" height="52" alt="">
+          <div><h3>Avatarize</h3><span>Windows <s></s> v1.2.0</span></div></div>
+        <p class="app-pitch" data-pt="Foto e áudio viram vídeo de avatar falando, pela sua conta HeyGen.">A photo and an audio file become a talking avatar video, through your own HeyGen account.</p>
+        <ul class="app-pts">
+          <li data-pt="Um vídeo para cada áudio, gerados em fila e baixados sozinhos.">One video per audio file, generated in a queue and downloaded for you.</li>
+          <li data-pt="Entra pelo login oficial da HeyGen. Sua senha não passa pelo app.">Signs in through HeyGen's official login. Your password never touches the app.</li>
+          <li data-pt="Corta os silêncios do áudio antes de enviar.">Trims the silences out of the audio before sending.</li>
+        </ul>
+        <div class="app-cta">
+          <a class="btn solid" data-link="dl_avatarize" data-pt="Baixar para Windows">Download for Windows</a>
+          <a class="btn ghost" data-link="gh_avatarize">GitHub &#8599;</a>
+        </div>
+      </div>
+    </article>
+
+    <div class="also" data-rv="up">
+      <h3 class="also-h" data-pt="Também construí">Also built</h3>
+      <div class="ax-list">
+        <article class="ax">
+          <span class="ax-n">01</span>
+          <div class="ax-main">
+            <h4 data-pt="Pipeline do canal">Channel pipeline</h4>
+            <p data-pt="A partir de um tema, escreve o roteiro, gera narração e imagens e entrega um MP4 ou um projeto do CapCut que eu termino à mão.">From a topic, it writes the script, generates narration and visuals, and delivers an MP4 or a CapCut project I finish by hand.</p>
+            <div class="ax-meta"><span>Python · n8n · FastAPI · FFmpeg</span><em data-pt="código privado">private code</em></div>
+          </div>
+          <ol class="ax-flow" aria-label="How it flows" data-aria-pt="Como funciona">
+            <li data-pt="tema">topic</li><li data-pt="roteiro">script</li><li data-pt="narração">narration</li><li data-pt="cenas">scenes</li><li>MP4</li>
+          </ol>
+        </article>
+        <article class="ax">
+          <span class="ax-n">02</span>
+          <div class="ax-main">
+            <h4>capcut-silence-trim</h4>
+            <p data-pt="Acha cada pausa da narração e vira ponto de corte dentro do projeto do CapCut. Nenhum quadro é reencodado, e a timeline encurta em menos de um segundo.">Finds every pause in the narration and turns it into a cut point inside the CapCut project. No frame is re-encoded, and the timeline shortens in under a second.</p>
+            <div class="ax-meta"><span>Python · FFmpeg · CapCut</span><em data-pt="código privado">private code</em></div>
+          </div>
+          <ol class="ax-flow" aria-label="How it flows" data-aria-pt="Como funciona">
+            <li data-pt="narração">narration</li><li data-pt="pausas">pauses</li><li data-pt="cortes">cuts</li><li data-pt="timeline limpa">clean timeline</li>
+          </ol>
+        </article>
+        <article class="ax">
+          <span class="ax-n">03</span>
+          <div class="ax-main">
+            <h4>browser-session-recorder</h4>
+            <p data-pt="Extensão de Chrome que grava o que o operador faz no navegador, clique por clique, e devolve um arquivo que o Playwright repete sozinho.">A Chrome extension that records what an operator does in the browser, click by click, and outputs a file Playwright replays on its own.</p>
+            <div class="ax-meta"><span>JavaScript · Chrome MV3 · Playwright</span><em data-pt="código privado">private code</em></div>
+          </div>
+          <ol class="ax-flow" aria-label="How it flows" data-aria-pt="Como funciona">
+            <li data-pt="cliques">clicks</li><li>JSONL</li><li>Playwright</li><li data-pt="repete">replay</li>
+          </ol>
+        </article>
+      </div>
     </div>
   </div>
 </section>
@@ -929,179 +857,94 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 <section class="sec" id="do">
   <div class="wrap">
     <div class="head" data-rv="wipe"><span class="slug">/stack</span><span class="note">03</span></div>
-    <h2 class="t" data-rv="up" data-pt="Três verbos. <em>Nessa ordem.</em>">Three verbs. <em>In that order.</em></h2>
+    <h2 class="t" data-rv="up" data-pt="O que eu faço.">What I do.</h2>
 
-    <div class="verbs" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
-      <div class="verb">
-        <div class="n">01</div>
-        <h3 data-pt="Gero">Generate</h3>
-        <p data-pt="Vídeo, voz, imagem e avatar com IA — aderentes à narrativa da copy. Em lote, com custo por execução medido.">
-          AI video, voice, image and avatars that hold the copy's narrative. In batch, with
-          measured cost per run.</p>
-        <div class="tools"><span>MiniMax</span><span>ElevenLabs</span><span>Higgsfield</span><span>HeyGen</span><span>Magnific</span><span>Freepik</span></div>
-        <div class="ic"><svg width="34" height="34"><use href="#i-brain"/></svg></div>
-      </div>
-      <div class="verb">
-        <div class="n">02</div>
-        <h3 data-pt="Integro">Integrate</h3>
-        <p data-pt="Ligo as ferramentas por API e orquestro em n8n self-hosted. Retry e fallback entre provedores fazem parte do fluxo — ninguém empurra arquivo.">
-          I wire the tools over APIs and orchestrate them in self-hosted n8n. Retry and provider
-          fallback are part of the flow — nobody moves files by hand.</p>
-        <div class="tools"><span>n8n</span><span>REST</span><span>Webhooks</span><span>Playwright</span><span>Chrome MV3</span><span>Google Drive</span></div>
-        <div class="ic"><svg width="34" height="34"><use href="#i-flow"/></svg></div>
-      </div>
-      <div class="verb">
-        <div class="n">03</div>
-        <h3 data-pt="Construo">Build</h3>
-        <p data-pt="Quando a ferramenta não existe, eu escrevo. CLI, extensão, API e o painel de operação que roda tudo isso.">
-          When the tool doesn't exist, I write it. CLI, extension, API — and the operator panel
-          that runs it all.</p>
-        <div class="tools"><span>Python</span><span>FastAPI</span><span>FFmpeg</span><span>Whisper</span><span>JavaScript</span><span>Docker</span></div>
-        <div class="ic"><svg width="34" height="34"><use href="#i-term"/></svg></div>
-      </div>
+    <!-- Tres etapas, cada uma com uma tela em ASCII roxo (o mesmo do hero):
+         Gero = ruido que vira avatar, frasco e onda de voz; Integro = o n8n
+         distribuindo pedidos; Construo = codigo sendo escrito. Um pulso corre
+         pela borda de cima e acende a etapa por onde passa. Ferramentas iguais
+         ao "Tools I use" do perfil no GitHub. -->
+    <div class="pipe" data-rv="up">
+      <i class="pipe-run" aria-hidden="true"></i>
+      <article class="stg" data-k="gen">
+        <div class="scr"><canvas aria-hidden="true"></canvas></div>
+        <div class="stg-b">
+          <span class="stg-n">01</span>
+          <h3 data-pt="Gero">Generate</h3>
+          <p data-pt="Vídeo, voz, imagem e avatar com IA, em lote.">AI video, voice, image and avatars, in batches.</p>
+          <ul class="stg-tools"><li>HeyGen</li><li>Kling</li><li>MiniMax</li><li>ElevenLabs</li><li>Magnific</li><li>Higgsfield</li><li>Claude</li></ul>
+        </div>
+      </article>
+      <article class="stg" data-k="int">
+        <div class="scr"><canvas aria-hidden="true"></canvas></div>
+        <div class="stg-b">
+          <span class="stg-n">02</span>
+          <h3 data-pt="Integro">Integrate</h3>
+          <p data-pt="Ligo as ferramentas por API e orquestro tudo no n8n.">I connect the tools over APIs and orchestrate them in n8n.</p>
+          <ul class="stg-tools"><li>n8n</li><li>Playwright</li><li>REST</li><li>Webhooks</li><li>MCP</li></ul>
+        </div>
+      </article>
+      <article class="stg" data-k="bld">
+        <div class="scr"><canvas aria-hidden="true"></canvas></div>
+        <div class="stg-b">
+          <span class="stg-n">03</span>
+          <h3 data-pt="Construo">Build</h3>
+          <p data-pt="Quando a ferramenta não existe, eu escrevo.">When the tool doesn't exist, I write it.</p>
+          <ul class="stg-tools"><li>Python</li><li>FastAPI</li><li>JavaScript</li><li>FFmpeg</li><li>Whisper</li></ul>
+        </div>
+      </article>
     </div>
   </div>
 </section>
 
-<!-- ══ 04 DECISIONS ═══════════════════════════════════════════════ -->
-<section class="sec" id="decisions">
+<!-- ══ 04 CAREER ══════════════════════════════════════════════════ -->
+<section class="sec" id="career">
   <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/decisions</span><span class="note">04</span></div>
-    <h2 class="t" data-rv="up" data-pt="Toda decisão tem uma alternativa <em>que eu não escolhi.</em>">Every decision has an alternative <em>I didn't take.</em></h2>
-    <p class="sub" data-rv="up" data-pt="A escolha só vale alguma coisa junto com o que ela custou.">A choice only means something next to what it cost.</p>
-
-    <div class="trades" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
-      <div class="trade">
-        <div class="n">01</div>
-        <div class="pick" data-pt="n8n orquestra, Python executa">n8n orchestrates, Python executes</div>
-        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="lógica pesada dentro do nó">heavy logic inside the node</s></div>
-        <div class="why" data-pt="Nó não versiona, não testa e não devolve <b>stack trace</b>.">A node can't be versioned or tested, and returns no <b>stack trace</b>.</div>
-      </div>
-      <div class="trade">
-        <div class="n">02</div>
-        <div class="pick" data-pt="Playwright determinístico">Deterministic Playwright</div>
-        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="agente visual de IA (UI-TARS, Browser-Use, Skyvern)">a visual AI agent (UI-TARS, Browser-Use, Skyvern)</s></div>
-        <div class="why" data-pt="Quando a tarefa é a <b>mesma toda vez</b>, previsível ganha de flexível — por uma fração do custo.">When the task is the <b>same every time</b>, predictable beats flexible — at a fraction of the cost.</div>
-      </div>
-      <div class="trade">
-        <div class="n">03</div>
-        <div class="pick" data-pt="Um passo manual de aprovação">One manual approval step</div>
-        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="automatizar de ponta a ponta">full end-to-end automation</s></div>
-        <div class="why" data-pt="<b>Julgamento editorial não automatiza.</b> O resto sim — o passo que sobrou cabe em um clique."><b>Editorial judgment doesn't automate.</b> Everything else does — the step left fits one click.</div>
-      </div>
-      <!-- as outras tres so aparecem a pedido: a secao e documentacao de apoio,
-           nao o argumento principal da pagina. Ficam na MESMA grade para que,
-           abertas, as 6 celulas fechem 3 linhas inteiras. -->
-      <div class="trade hid">
-        <div class="n">04</div>
-        <div class="pick" data-pt="Voz premium">Premium voice</div>
-        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="TTS barato">cheap TTS</s></div>
-        <div class="why" data-pt="A narração é <b>88% do custo</b> — e o barato derrubou retenção e subiu o CPA.">Narration is <b>88% of the run cost</b> — and the cheap option dropped retention and raised CPA.</div>
-      </div>
-      <div class="trade hid">
-        <div class="n">05</div>
-        <div class="pick" data-pt="Menos chamadas em paralelo">Fewer parallel calls</div>
-        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="abrir o máximo de chamadas simultâneas">opening as many simultaneous calls as possible</s></div>
-        <div class="why" data-pt="Passado o limite do provedor volta <b>rate limit</b> — e o retry come mais tempo do que economizou.">Past the provider's limit you get <b>rate limits</b> — and retry eats more time than parallelism saved.</div>
-      </div>
-      <div class="trade hid">
-        <div class="n">06</div>
-        <div class="pick" data-pt="Corte seco e imagem forte">Hard cuts and a strong image</div>
-        <div class="alt"><em data-pt="em vez de">instead of</em><s data-pt="parallax 2.5D e callouts animados">2.5D parallax and animated callouts</s></div>
-        <div class="why" data-pt="Lindo no teste, invisível no feed — e o render já é <b>58% do tempo</b>.">Beautiful in the test, invisible in the feed — and render is already <b>58% of the run time</b>.</div>
-      </div>
-      <button class="more-cell" id="moreBtn" aria-expanded="false"
-              data-pt="Ver todas as decisões">View all decisions <span class="ar">+</span></button>
-      </div>
-  </div>
-</section>
-
-<!-- ══ 05 TRACK RECORD ════════════════════════════════════════════ -->
-<section class="sec">
-  <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/track-record</span><span class="note">05</span></div>
-    <h2 class="t" data-rv="up" data-pt="Da ilha de edição <em>para a esteira.</em>">From the edit bay <em>to the assembly line.</em></h2>
-
-    <p class="bio" data-rv="up" style="margin-top:clamp(20px,2.6vw,30px)"
-       data-pt="Produzo criativos de IA para VSLs e ads de Direct Response no mercado internacional — e automatizo o processo que gera esses assets. No trabalho isso vira workflow novo de geração e a ferramenta interna que o time usa; por conta própria virou um pipeline de produção inteiro em Python e n8n, que leva um tema até o vídeo publicado. Eu não só opero as ferramentas — eu construo o sistema em volta delas, porque conheço o funil que elas alimentam: o que um gancho precisa fazer nos três primeiros segundos, e por que um criativo ganha ou morre no teste. Comecei em Técnico em Informática, passei por webdesign e arquitetura, e cheguei aqui pelo lado da produção audiovisual — automatizando o meu próprio trabalho até virar engenharia.">
-      I produce AI creatives for international Direct Response VSLs and ads — and I automate the
-      process that generates them. At work that means new generation workflows and the internal
-      tools the team uses; on my own it became a full production pipeline in Python and n8n that
-      takes a topic all the way to a published video. I don't just operate the tools — I build the
-      systems around them, because I know the funnel they feed: what a hook has to do in the
-      first three seconds, and why a creative wins or dies in testing. I started in a technical IT program, went through web design and
-      architecture, and arrived here from the audiovisual side: automating my own work until it
-      turned into engineering.</p>
-
-    <p class="pull" data-rv="up"
-       data-pt="Pouca gente que escreve código de produção entende funil de Direct Response por dentro. Pouca gente que entende o funil escreve código. <b>Eu faço os dois.</b>">
-      Few people who write production code understand a Direct Response funnel from the inside.
-      Few people who understand the funnel write code. <b>I do both.</b></p>
-
-    <div class="facts" data-rv="up">
-      <div class="fact"><div class="k" data-pt="Atuação">Working</div>
-        <div class="v" data-pt="Remoto · fuso do Brasil">Remote · Brazil timezone</div></div>
-      <div class="fact"><div class="k" data-pt="Mercado">Market</div>
-        <div class="v" data-pt="VSLs e ads internacionais · Nutra">International VSLs &amp; ads · Nutra</div></div>
-      <div class="fact"><div class="k" data-pt="Idioma">Language</div>
-        <div class="v" data-pt="Português nativo · inglês intermediário/avançado">Portuguese native · English intermediate/advanced</div></div>
-      <div class="fact"><div class="k" data-pt="Ambiente">Environment</div>
-        <div class="v" data-pt="Tudo self-hosted · Ryzen 7 + RTX 3060">All self-hosted · Ryzen 7 + RTX 3060</div></div>
-    </div>
+    <div class="head" data-rv="wipe"><span class="slug">/career</span><span class="note">04</span></div>
+    <h2 class="t" data-rv="up" data-pt="Trajetória.">Career.</h2>
 
     <div class="rows" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
-      <div class="row"><div class="when" data-pt="2024 — atual">2024 — now</div>
+      <div class="row"><div class="when" data-pt="desde 2024">since 2024</div>
         <div class="what">
           <h3 data-pt="IA Creator Sênior">Senior AI Creator</h3>
           <ul class="bul">
-            <li data-pt="Traduzo o briefing do time de Copy em vídeo, voz, imagem e avatar de IA para VSLs e ads.">Turn the Copy team's briefing into AI video, voice, image and avatars for VSLs and ads.</li>
-            <li data-pt="Desenho novos workflows de geração e automatizo a etapa manual que trava o time.">Design new generation workflows and automate the manual step that blocks the team.</li>
-            <li data-pt="Construí ferramentas internas: extensão de Chrome, CLIs e scripts que acabaram com o download e a nomeação de arquivo feitos um a um.">Built internal tools: a Chrome extension, CLIs and scripts that ended one-by-one downloading and file naming.</li>
+            <li data-pt="Transformo o briefing do time de copy em vídeo, voz, imagem e avatar de IA para VSLs e ads.">I turn the copy team's brief into AI video, voice, image and avatars for VSLs and ads.</li>
+            <li data-pt="Crio os workflows de geração e as ferramentas internas que o time usa: extensão de Chrome, CLIs e scripts.">I build the generation workflows and the internal tools the team uses: a Chrome extension, CLIs and scripts.</li>
           </ul>
-          <div class="env"><b data-pt="Ambiente:">Environment:</b> MiniMax · ElevenLabs · Higgsfield · HeyGen · Magnific · Freepik · Premiere Pro · CapCut · n8n</div>
+          <div class="env"><b data-pt="Ambiente:">Environment:</b> HeyGen · Kling · MiniMax · ElevenLabs · Magnific · Higgsfield · Premiere Pro · CapCut · n8n</div>
         </div>
         <div class="where" data-pt="Direct Response · Nutra">Direct Response · Nutra</div></div>
 
-      <div class="row"><div class="when" data-pt="Em paralelo">Alongside</div>
+      <div class="row"><div class="when" data-pt="em paralelo">alongside</div>
         <div class="what">
-          <h3 data-pt="Canal automatizado, do tema ao vídeo publicado">An automated channel, from topic to published video</h3>
+          <h3 data-pt="Canal automatizado no YouTube">Automated YouTube channel</h3>
           <ul class="bul">
-            <li data-pt="Projeto pessoal, e é onde eu construo de verdade: ~4k linhas de Python levam um tema até o vídeo pronto.">A personal project, and where I actually build: ~4k lines of Python take a topic to a finished video.</li>
-            <li data-pt="6+ APIs de geração num único fluxo, orquestrado em n8n self-hosted, com workers em Python e um painel de operação próprio em FastAPI.">6+ generation APIs in a single flow, orchestrated in self-hosted n8n, with Python workers and my own FastAPI operator panel.</li>
-            <li data-pt="Custo-alvo de ~US$1 por vídeo finalizado, sustentado por fallback entre provedores, cache em disco e telemetria de custo e tempo por etapa.">A ~US$1 target cost per finished video, held up by provider fallback, disk cache and per-step cost and time telemetry.</li>
+            <li data-pt="Do tema, escreve o roteiro, gera narração e imagens e entrega um MP4 ou um projeto do CapCut que eu termino à mão.">From a topic, it writes the script, generates narration and visuals, and delivers an MP4 or a CapCut project I finish by hand.</li>
+            <li data-pt="Python e n8n self-hosted, com um painel em FastAPI. Custo-alvo de cerca de US$1 por vídeo.">Python and self-hosted n8n, with a FastAPI panel. Target cost of about US$1 per video.</li>
           </ul>
-          <div class="env"><b data-pt="Ambiente:">Environment:</b> Python · FastAPI · n8n · FFmpeg · NVENC · Whisper · Depth Anything V2 · Playwright · Claude API</div>
+          <div class="env"><b data-pt="Ambiente:">Environment:</b> Python · FastAPI · n8n · FFmpeg · Whisper · Playwright · Claude API</div>
         </div>
         <div class="where" data-pt="Projeto pessoal">Personal project</div></div>
 
-      <div class="row"><div class="when">2022 — 2024</div>
+      <div class="row"><div class="when" data-pt="2022 a 2024">2022 to 2024</div>
         <div class="what">
           <h3 data-pt="Editor de VSL, ads e criativos">VSL, ads &amp; creative editor</h3>
           <ul class="bul">
-            <li data-pt="Edição de VSL e criativos de performance para o mercado internacional, dentro de guideline e prazo de campanha.">VSL and performance creative editing for the international market, inside campaign guidelines and deadlines.</li>
-            <li data-pt="Primeiras automações: organização e nomenclatura de assets, geração em lote, download em massa.">First automations: asset naming and organization, batch generation, bulk download.</li>
+            <li data-pt="Edição de VSL e criativos de performance para o mercado internacional.">VSL and performance creative editing for the international market.</li>
+            <li data-pt="As primeiras automações: nome de arquivo, geração em lote e download em massa.">The first automations: file naming, batch generation and bulk download.</li>
           </ul>
           <div class="env"><b data-pt="Ambiente:">Environment:</b> Premiere Pro · After Effects · CapCut · Photoshop</div>
         </div>
         <div class="where" data-pt="Freelance">Freelance</div></div>
 
-      <div class="row"><div class="when" data-pt="Antes">Before</div>
+      <div class="row"><div class="when" data-pt="antes">before</div>
         <div class="what">
           <h3 data-pt="Técnico em Informática, webdesign e arquitetura">Technical IT program, web design and architecture</h3>
           <ul class="bul">
-            <li data-pt="A base técnica veio do curso; o olho de composição e de espaço veio da arquitetura e do webdesign.">The technical base came from the program; the eye for composition and space came from architecture and web design.</li>
+            <li data-pt="A base técnica veio do curso. O olho para composição veio da arquitetura.">The technical base came from the program. The eye for composition came from architecture.</li>
           </ul>
         </div>
         <div class="where" data-pt="Formação">Background</div></div>
-
-      <div class="row"><div class="when" data-pt="Sempre">Ongoing</div>
-        <div class="what">
-          <h3 data-pt="Aprendi a programar construindo o que eu precisava">Learned to code by building what I needed</h3>
-          <ul class="bul">
-            <li data-pt="Desenvolvimento assistido por LLM com contexto versionado, decomposição da tarefa e revisão do que sai — não é colar resposta de chat.">LLM-assisted development with versioned context, task decomposition and review of the output — not pasting chat answers.</li>
-          </ul>
-        </div>
-        <div class="where" data-pt="Autodidata">Self-taught</div></div>
     </div>
   </div>
 </section>
@@ -1110,9 +953,10 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 <section class="sec contact" id="contact">
   <canvas id="ping" aria-hidden="true"></canvas>
   <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/contact</span><span class="note">06</span></div>
+    <div class="head" data-rv="wipe"><span class="slug">/contact</span><span class="note">05</span></div>
     <h2 class="t" data-rv="up" style="max-width:23ch" data-pt="Volume de criativo sem perder qualidade. <em>É esse o problema que eu resolvo.</em>">Creative volume without losing quality. <em>That is the problem I solve.</em></h2>
-    <a class="big-mail" data-rv="up" href="mailto:rafael@rafaguiar.dev">rafael@rafaguiar.dev</a>
+    <a class="big-mail" data-rv="up" href="mailto:rafaguiar.dev@gmail.com">rafaguiar.dev@gmail.com</a>
+    <p class="avail" data-rv="up" data-pt="Remoto, no fuso do Brasil. Português nativo, inglês intermediário a avançado.">Remote, Brazil time zone. Native Portuguese, intermediate to advanced English.</p>
     <div class="socials" data-rv="up">
       <a class="btn ghost" data-link="gh_profile">GitHub ↗</a>
       <a class="btn ghost" data-link="linkedin">LinkedIn ↗</a>
@@ -1124,7 +968,7 @@ footer{border-top:1px solid var(--line-2);padding-block:26px;font-size:var(--s--
 
 <footer>
   <div class="wrap foot">
-    <span>© 2026 RAFAEL AGUIAR — ALL RIGHTS RESERVED</span>
+    <span>© 2026 RAFAEL AGUIAR · ALL RIGHTS RESERVED</span>
     <nav class="foot-nav">
       <a href="#reel">/reel</a><a href="#work">/work</a><a href="#contact">/contact</a>
     </nav>
@@ -1152,13 +996,17 @@ const root = document.documentElement;
    ═══════════════════════════════════════════════════════════════════ */
 const LINKS = {
   gh_profile:    "https://github.com/rafaguiar-dev",   // conferido, existe
+  gh_loopvideo:  "https://github.com/rafaguiar-dev/loopvideo",                  // conferido, publico
+  dl_loopvideo:  "https://github.com/rafaguiar-dev/loopvideo/releases/latest",  // v2.1.0
+  gh_avatarize:  "https://github.com/rafaguiar-dev/avatarize",                  // conferido, publico
+  dl_avatarize:  "https://github.com/rafaguiar-dev/avatarize/releases/latest",  // v1.2.0
   gh_subtitle:   "",   // repo do subtitle-audio-sync
   demo_subtitle: "",   // vídeo/gif da demo do subtitle-audio-sync
   gh_minimax:    "",   // repo do minimax-audio-downloader
   gh_pipeline:   "",   // repo (ou ADR público) do content-pipeline-architecture
   gh_capcut:     "",   // repo do capcut-silence-trim
   gh_recorder:   "",   // repo do browser-session-recorder
-  linkedin:      "",   // perfil do LinkedIn
+  linkedin:      "https://www.linkedin.com/in/rafaguiar-dev",   // o mesmo do perfil do GitHub
   instagram:     "",   // perfil do Instagram
   cv:            ""    // PDF do CV (ex.: "cv-rafael-aguiar.pdf" dentro de docs/)
 };
@@ -2670,183 +2518,639 @@ if (!RM) tick(); else { onProg(); addEventListener("scroll", onProg, { passive: 
 /* ═══ 7. o site é escuro, ponto ═══════════════════════════════════ */
 root.setAttribute("data-theme", "dark");
 
-/* ═══════════════════════════════════════════════════════════════════
-   /reel — OS DADOS DE CADA ITEM FICAM AQUI. É O ÚNICO LUGAR A EDITAR.
-
-   Para colocar um vídeo real: ponha o arquivo em PORTIFOLIO/media/ e
-   escreva o nome em mp4 (e webm, se tiver os dois). O build.py copia a
-   pasta para docs/media/. NÃO mexa no HTML: o poster de lá continua
-   valendo e é ele que aparece enquanto não houver vídeo.
-
-   mp4 / webm  caminho do arquivo, ou "" enquanto não existir
-   cat         categoria curta
-   dur         duração, ex.: "0:06" — opcional, só entra na legenda se
-               estiver preenchida
-
-   O poster e o texto alternativo estão no HTML do mosaico, porque o
-   build.py precisa injetar a imagem em base64 exatamente ali.
-   ═══════════════════════════════════════════════════════════════════ */
-const REEL = {
-  a: { mp4: "", webm: "", cat: "avatar",  dur: "" },
-  b: { mp4: "", webm: "", cat: "scene",   dur: "" },
-  c: { mp4: "", webm: "", cat: "batch",   dur: "" },
-  d: { mp4: "", webm: "", cat: "grade",   dur: "" },
-  e: { mp4: "", webm: "", cat: "motion",  dur: "" },
-  f: { mp4: "", webm: "", cat: "voice",   dur: "" }
-};
-
-/* ═══ 8b. /reel: o poster vira vídeo quando existe vídeo ══════════
-   Regras, na ordem em que importam:
-   · sem arquivo em REEL, nada é criado — fica o poster, e ponto;
-   · o <video> entra por cima do poster e só aparece no primeiro quadro
-     decodificado, então nunca há retângulo preto;
-   · um de cada vez: começar um pausa e rebobina o anterior;
-   · sai da viewport, pausa;
-   · no desktop (ponteiro fino) toca no hover e no foco de teclado;
-   · no toque não existe hover: aparece um botão de play no card;
-   · com prefers-reduced-motion nada toca sozinho — só pelo botão.   */
+/* ═══ 8b. /reel: a parede de trabalhos ═════════════════════════════
+   A lógica do alisson-ai-cuts, sem biblioteca:
+   · os cards vão para a coluna mais baixa (masonry), na ordem do HTML,
+     que já vem intercalada (avatar, insert, sequência, UGC...);
+   · com a parede na tela, cada coluna desliza numa velocidade: o texto
+     da esquerda fica parado e a parede anda;
+   · o filtro reorganiza: quem fica voa até o lugar novo (FLIP) e quem
+     entra nasce em ASCII;
+   · em "Todos", Personagem, Produto e B-roll são um card só com seis
+     cortes de 2 s. O ASCII roxo entra .28 s antes de cada corte e uma
+     linha de varredura revela o plano seguinte. A barra de cima conta;
+   · o <video> só nasce perto da tela e só toca nela. Com movimento
+     reduzido nada anda nem toca sozinho: clique/Enter no card toca.
+   Aberto como file:// o navegador não deixa ler os pixels; aí o ASCII
+   vira um ruído no mesmo tom, e o resto funciona igual.              */
 (() => {
-  const tiles = [...document.querySelectorAll(".tile[data-id]")]
-    .filter(t => { const d = REEL[t.dataset.id]; return d && (d.mp4 || d.webm); });
-  if (!tiles.length) return;
+  const wall = document.getElementById("mural");
+  if (!wall) return;
+  const tiles = [...wall.querySelectorAll(".clip")];
+  const chips = [...document.querySelectorAll(".chip")];
+  const descs = [...document.querySelectorAll(".trab-desc p")];
+  const seqs = tiles.filter(c => c.classList.contains("seq"));
+  const ASC = " .·:-=+*xX#%@";
+  const R = new Map(tiles.map(c => {
+    const i = c.querySelector("img");
+    return [c, +i.getAttribute("height") / +i.getAttribute("width")];
+  }));
+  let filtro = "all", cols = [], ys = [];
 
-  const fino = matchMedia("(hover: hover) and (pointer: fine)").matches;
-  let tocando = null;
+  const mostra = c => {
+    const em = c.dataset.in.split(" ");
+    return filtro === "all" ? em.includes("all") : c.dataset.cat === filtro && em.includes("cat");
+  };
+  // 4 colunas já a partir de 1280 px de tela (como no Alisson); 5 só em tela bem larga
+  const quantas = () => { const w = wall.clientWidth; return w >= 1100 ? 5 : w >= 780 ? 4 : w >= 520 ? 3 : 2; };
 
-  function parar(v) {
-    if (!v) return;
-    v.pause(); v.currentTime = 0; v.classList.remove("ready");
-    v.closest(".tile").classList.remove("playing");
-    if (tocando === v) tocando = null;
+  function distribuir() {
+    const n = quantas();
+    if (n !== cols.length) {
+      tiles.forEach(c => wall.appendChild(c));          // tira os cards antes de jogar as colunas fora
+      cols.forEach(c => c.remove());
+      cols = Array.from({ length: n }, () => {
+        const d = document.createElement("div");
+        d.className = "wcol";
+        wall.appendChild(d);
+        return d;
+      });
+      ys = [];
+      wall.classList.add("on");
+    }
+    const alt = new Array(n).fill(0);
+    tiles.forEach(c => {
+      c.hidden = !mostra(c);
+      if (c.hidden) return;
+      const k = alt.indexOf(Math.min(...alt));
+      cols[k].appendChild(c);
+      alt[k] += R.get(c) + .06;
+    });
   }
-  function tocar(v) {
-    if (tocando && tocando !== v) parar(tocando);   // nunca dois ao mesmo tempo
-    tocando = v;
-    v.closest(".tile").classList.add("playing");
-    const pr = v.play();
-    if (pr) pr.catch(() => parar(v));               // autoplay recusado: volta ao poster
-  }
+  distribuir();
 
-  for (const t of tiles) {
-    const d = REEL[t.dataset.id];
-    const v = document.createElement("video");
-    v.muted = true; v.loop = true; v.playsInline = true;
-    v.preload = "none";                             // nada de vídeo pesado no carregamento
+  // ── vídeo ──
+  function video(c) {
+    let v = c.querySelector("video");
+    if (v) return v;
+    v = document.createElement("video");
+    v.muted = true; v.loop = true; v.playsInline = true; v.preload = "none";
     v.setAttribute("aria-hidden", "true");
-    for (const [arq, tipo] of [[d.webm, "video/webm"], [d.mp4, "video/mp4"]]) {
-      if (!arq) continue;
-      const src = document.createElement("source");
-      src.src = arq; src.type = tipo; v.appendChild(src);
-    }
+    v.src = c.dataset.src;
     v.addEventListener("playing", () => v.classList.add("ready"), { once: true });
-    v.addEventListener("error", () => { t.removeAttribute("data-has-video"); v.remove(); });
-    t.insertBefore(v, t.firstElementChild);
-    t.setAttribute("data-has-video", "");
+    v.addEventListener("error", () => v.remove(), { once: true });
+    c.insertBefore(v, c.querySelector("img").nextSibling);
+    return v;
+  }
+  function play(c) { const p = video(c).play(); if (p) p.catch(() => {}); }
+  function stop(c) { const v = c.querySelector("video"); if (v && !v.paused) v.pause(); }
+  const naTela = c => {
+    if (c.hidden) return false;
+    const r = c.getBoundingClientRect();
+    return r.bottom > 0 && r.top < innerHeight && r.height > 0;
+  };
 
-    if (d.dur) {
-      const e = document.createElement("u");
-      e.className = "dur"; e.textContent = d.dur;
-      t.querySelector(".cap").appendChild(e);
+  if (RM) {
+    tiles.forEach(c => {
+      c.tabIndex = 0;
+      const t = () => { const v = c.querySelector("video"); if (v && !v.paused) v.pause(); else play(c); };
+      c.addEventListener("click", t);
+      c.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); t(); } });
+    });
+  } else {
+    const vio = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) play(e.target); else stop(e.target);
+    }), { threshold: .35 });      // card que mal apareceu na borda não precisa estar decodificando
+    tiles.forEach(c => vio.observe(c));
+  }
+
+  // ── ASCII do poster: a entrada de cada card ──
+  function drawAscii(c) {
+    let cv = c.querySelector(".asc");
+    if (!cv) {
+      const l = document.createElement("span"); l.className = "scanl";
+      cv = document.createElement("canvas"); cv.className = "asc";
+      cv.setAttribute("aria-hidden", "true");
+      const cap = c.querySelector("figcaption");
+      c.insertBefore(cv, cap); c.insertBefore(l, cap);
     }
-    if (d.cat) t.dataset.cat = d.cat;
+    const r = c.getBoundingClientRect();
+    if (!r.width) return false;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.max(1, Math.round(r.width * dpr)), H = Math.max(1, Math.round(r.height * dpr));
+    cv.width = W; cv.height = H;
+    const img = c.querySelector("img");
+    pintar(cv.getContext("2d"), W, H, dpr, img.complete && img.naturalWidth ? img : null, img.naturalWidth, img.naturalHeight);
+    c.classList.add("asc-on");
+    return true;
+  }
 
-    // botão: é o único caminho no toque e com reduced motion, e no desktop
-    // ele fica escondido porque o hover já resolve
-    const btn = document.createElement("button");
-    btn.className = "tplay";
-    btn.type = "button";
-    btn.setAttribute("aria-label", root.lang === "pt-BR" ? "Reproduzir prévia" : "Play preview");
-    btn.dataset.ariaPt = "Reproduzir prévia";
-    btn.dataset.ariaEn = "Play preview";
-    arias.push(btn);            // para o botão trocar de idioma junto com o resto
-    btn.addEventListener("click", () => (v.paused ? tocar(v) : parar(v)));
-    t.appendChild(btn);
-
-    if (fino && !RM) {
-      t.addEventListener("pointerenter", () => tocar(v));
-      t.addEventListener("pointerleave", () => parar(v));
-      t.addEventListener("focusin",  () => tocar(v));
-      t.addEventListener("focusout", () => parar(v));
+  // desenha o ASCII de uma imagem ou de um quadro de vídeo (fonte com a mesma proporção do card)
+  const amostra = document.createElement("canvas");
+  const ax = amostra.getContext("2d", { willReadFrequently: true });
+  function pintar(g, W, H, dpr, fonte, iw, ih) {
+    const CW = 6.6 * dpr, CH = 11 * dpr;
+    const cols = Math.ceil(W / CW), rows = Math.ceil(H / CH);
+    let lum = null;
+    if (fonte) {
+      try {
+        amostra.width = cols; amostra.height = rows;
+        let sw = iw, sh = ih, ox = 0, oy = 0;          // o mesmo recorte do object-fit:cover
+        if (iw / ih > W / H) { sw = ih * W / H; ox = (iw - sw) / 2; } else { sh = iw * H / W; oy = (ih - sh) / 2; }
+        ax.drawImage(fonte, ox, oy, sw, sh, 0, 0, cols, rows);
+        const d = ax.getImageData(0, 0, cols, rows).data;
+        lum = new Float32Array(cols * rows);
+        for (let i = 0; i < lum.length; i++) lum[i] = (d[i * 4] * .299 + d[i * 4 + 1] * .587 + d[i * 4 + 2] * .114) / 255;
+      } catch (_) { lum = null; }
+    }
+    g.fillStyle = "#0A0A0A"; g.fillRect(0, 0, W, H);
+    g.font = (10 * dpr) + "px 'JetBrains Mono', monospace";
+    g.textBaseline = "top";
+    for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
+      let v = lum ? lum[y * cols + x] : .3 + .35 * Math.abs(Math.sin(x * .45 + y * .3)) * Math.random();
+      v = Math.pow(Math.min(1, Math.max(0, v)), 1.1);
+      const k = Math.round(v * (ASC.length - 1));
+      if (!k) continue;
+      g.fillStyle = "rgba(191,133,249," + (.16 + .84 * v).toFixed(2) + ")";
+      g.fillText(ASC[k], x * CW, y * CH);
     }
   }
 
-  // fora da tela ninguém toca
-  const vio = new IntersectionObserver(es => es.forEach(e => {
-    if (!e.isIntersecting) parar(e.target.querySelector("video"));
-  }), { threshold: .1 });
-  tiles.forEach(t => vio.observe(t));
-})();
+  function revelar(c, d) {
+    c.dataset.rev = "1";
+    if (!drawAscii(c)) return;
+    c.classList.remove("scan"); void c.offsetWidth;
+    c.style.setProperty("--d", d.toFixed(2) + "s");
+    c.classList.add("scan");
+    c.querySelector(".asc").addEventListener("animationend", () => c.classList.remove("asc-on", "scan"), { once: true });
+  }
+  const coluna = c => Math.max(0, cols.indexOf(c.parentNode));
 
-/* ═══ 8c. /decisions: as outras três, a pedido ════════════════════
-   Revelação de mão única: o botão some depois de usado. Trocar o rótulo
-   dele em tempo de execução brigaria com o seletor de idioma, que tira
-   uma cópia do texto de cada [data-pt] quando a página carrega.        */
-(() => {
-  const btn = document.getElementById("moreBtn");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    const escondidas = [...document.querySelectorAll(".trade.hid")];
-    escondidas.forEach(t => t.classList.remove("hid"));
-    btn.remove();
-    if (escondidas[0]) escondidas[0].scrollIntoView({ block: "nearest" });
+  // ── filtro ──
+  function filtrar(f) {
+    if (f === filtro) return;
+    chips.forEach(b => b.setAttribute("aria-pressed", b.dataset.f === f));
+    descs.forEach(p => { p.hidden = p.dataset.f !== f; });
+    const antes = new Map(tiles.filter(c => !c.hidden).map(c => [c, c.getBoundingClientRect()]));
+    filtro = f;
+    distribuir();
+    const novos = [];
+    tiles.forEach(c => {
+      if (c.hidden) return;
+      const a = antes.get(c);
+      if (!a) { novos.push(c); return; }
+      if (RM) return;
+      const b = c.getBoundingClientRect();
+      const dx = a.left - b.left, dy = a.top - b.top;
+      if (Math.abs(dx) + Math.abs(dy) > 1)
+        c.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: "none" }],
+          { duration: 650, easing: "cubic-bezier(.65,0,.35,1)" });
+    });
+    // com menos card a parede encolhe: se ela já tinha passado do topo, volta para o começo dela
+    const top = wall.getBoundingClientRect().top;
+    let espera = 0;
+    if (top < 60) {
+      scrollTo({ top: scrollY + top - 110, behavior: RM ? "auto" : "smooth" });
+      espera = RM ? 0 : 380;
+    }
+    if (RM) return;
+    setTimeout(() => {
+      novos.forEach((c, i) => {
+        if (naTela(c)) { revelar(c, coluna(c) * .06 + Math.floor(i / cols.length) * .05); play(c); }
+        else { delete c.dataset.rev; rev.observe(c); }
+      });
+    }, espera);
+  }
+  chips.forEach(b => b.addEventListener("click", () => filtrar(b.dataset.f)));
+
+  let largura = innerWidth;
+  addEventListener("resize", () => {
+    if (innerWidth === largura) return;          // a barra do celular some e volta: não é resize de verdade
+    largura = innerWidth;
+    if (quantas() !== cols.length) distribuir();
   });
-})();
 
-/* ═══ 9. trabalhos: painel, lista e troca automática ══════════════
-   troca sozinho a cada AUTO_MS; um clique intencional segura o painel
-   por LOCK_MS. O relógio só corre com a seção na tela.              */
-const wItems = [...document.querySelectorAll(".w-item")];
-const wMedia = [...document.querySelectorAll(".w-media")];
-const wBody  = [...document.querySelectorAll(".w-body")];
-const wBar   = document.getElementById("wbar");
-const wFill  = document.getElementById("wfill");
-const AUTO_MS = 10000, LOCK_MS = 30000;
-let wCur = 0, wTimer = null, wOn = false;
+  if (RM) return;
 
-function wRunBar(ms) {
-  if (!wFill) return;
-  wFill.style.transition = "none";
-  wFill.style.transform = "scaleX(0)";
-  void wFill.offsetWidth;              // sem o reflow a transição não recomeça
-  wFill.style.transition = "transform " + ms + "ms linear";
-  wFill.style.transform = "scaleX(1)";
-}
-function wFreezeBar() {
-  if (!wFill) return;
-  const t = getComputedStyle(wFill).transform;
-  wFill.style.transition = "none";
-  wFill.style.transform = t === "none" ? "scaleX(0)" : t;
-}
-function wSchedule(ms) {
-  clearTimeout(wTimer);
-  if (RM || !wOn) { wFreezeBar(); return; }
-  wRunBar(ms);
-  wTimer = setTimeout(() => selectWork((wCur + 1) % wItems.length, false), ms);
-}
-function selectWork(i, byUser) {
-  wCur = i;
-  wItems.forEach((el, k) => { el.classList.toggle("on", k === i); el.setAttribute("aria-selected", k === i); });
-  wMedia.forEach((el, k) => el.classList.toggle("on", k === i));
-  wBody.forEach((el, k) => el.classList.toggle("on", k === i));
-  if (wBar) wBar.style.transform = "translateX(" + i * 100 + "%)";
-  wSchedule(byUser ? LOCK_MS : AUTO_MS);
-}
-wItems.forEach((el, i) => {
-  el.addEventListener("click", () => selectWork(i, true));
-  el.addEventListener("keydown", e => {
-    const n = wItems.length;
-    if (e.key === "ArrowDown" || e.key === "ArrowRight") { e.preventDefault(); wItems[(i + 1) % n].focus(); selectWork((i + 1) % n, true); }
-    if (e.key === "ArrowUp"   || e.key === "ArrowLeft")  { e.preventDefault(); const j = (i - 1 + n) % n; wItems[j].focus(); selectWork(j, true); }
-  });
-  el.tabIndex = 0;
-});
-const wSec = document.getElementById("work");
-if (wSec && "IntersectionObserver" in window) {
+  // cada card espera em ASCII um pouco antes de chegar e é revelado quando entra de verdade
+  const pre = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    const c = e.target; pre.unobserve(c);
+    if (c.dataset.rev) return;
+    const im = c.querySelector("img");
+    Promise.all([document.fonts ? document.fonts.ready : 0, im.decode ? im.decode().catch(() => {}) : 0])
+      .then(() => { if (!c.dataset.rev && !c.hidden) drawAscii(c); });
+  }), { rootMargin: "500px 0px 500px 0px" });
+  const rev = new IntersectionObserver(es => {
+    const entram = es.filter(e => e.isIntersecting).map(e => e.target);
+    entram.forEach(c => rev.unobserve(c));
+    entram.sort((a, b) => coluna(a) - coluna(b)).forEach((c, i) => revelar(c, i * .07));
+  }, { rootMargin: "0px 0px -10% 0px", threshold: .12 });
+  tiles.forEach(c => { if (!c.hidden) { pre.observe(c); rev.observe(c); } });
+
+  // ── os cortes dos cards de sequência ──
+  const D = 2, ANTES = .28, DEPOIS = .45;
+  function camada(c) {
+    if (c._xf) return c._xf;
+    const cv = document.createElement("canvas"); cv.className = "xf"; cv.setAttribute("aria-hidden", "true");
+    const l = document.createElement("span"); l.className = "xl";
+    const segs = c.querySelector(".segs");
+    c.insertBefore(cv, segs); c.insertBefore(l, segs);
+    c._xl = l; c._segs = [...c.querySelectorAll(".segs i")];
+    return (c._xf = cv);
+  }
+  function corte(c) {
+    const v = c.querySelector("video");
+    if (!v || c.hidden || v.paused || v.readyState < 2) return;
+    const cv = camada(c), n = c._segs.length;
+    const t = v.currentTime, ph = t - Math.floor(t / D) * D, k = Math.floor(t / D) % n;
+    c._segs.forEach((s, i) => s.style.setProperty("--p", i < k ? "100%" : i > k ? "0%" : (ph / D * 100).toFixed(1) + "%"));
+    let fase = 0, a = 0;
+    if (ph > D - ANTES) { fase = 1; a = (ph - (D - ANTES)) / ANTES; c._armado = true; }
+    else if (ph < DEPOIS && c._armado) { fase = 2; a = ph / DEPOIS; }
+    else c._armado = false;
+    if (!fase) {
+      if (cv.style.display === "block") { cv.style.display = "none"; c._xl.style.display = "none"; }
+      return;
+    }
+    const r = c.getBoundingClientRect(), dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = Math.round(r.width * dpr), H = Math.round(r.height * dpr);
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    pintar(cv.getContext("2d"), W, H, dpr, v, v.videoWidth, v.videoHeight);
+    cv.style.display = "block";
+    if (fase === 1) {                       // o plano que sai se desfaz em ASCII
+      cv.style.opacity = (a * a).toFixed(2); cv.style.clipPath = "none"; c._xl.style.display = "none";
+    } else {                                // a varredura revela o plano que entra
+      const e = 1 - Math.pow(1 - a, 2);
+      cv.style.opacity = "1"; cv.style.clipPath = "inset(" + (e * 100).toFixed(1) + "% 0 0 0)";
+      c._xl.style.display = "block"; c._xl.style.transform = "translateY(" + (e * r.height).toFixed(1) + "px)";
+      c._xl.style.opacity = (1 - a * .6).toFixed(2);
+    }
+  }
+
+  // ── o movimento da parede: cada coluna numa velocidade ──
+  const A = [0, 50, 15, 70, 30], B = [70, 10, 100, 30, 60];
+  let vivo = false, last = 0;
+  function quadro(now) {
+    const dt = last ? Math.min(now - last, 100) : 16; last = now;
+    const r = wall.getBoundingClientRect(), vh = innerHeight;
+    const p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
+    const amp = innerWidth < 900 ? .5 : 1, s = 1 - Math.pow(1 - .14, dt / 16);
+    cols.forEach((c, i) => {
+      const alvo = (A[i % 5] - (A[i % 5] + B[i % 5]) * p) * amp;
+      ys[i] = ys[i] == null ? alvo : ys[i] + (alvo - ys[i]) * s;
+      c.style.transform = "translate3d(0," + ys[i].toFixed(1) + "px,0)";
+    });
+    seqs.forEach(corte);
+    if (vivo) requestAnimationFrame(quadro); else last = 0;
+  }
   new IntersectionObserver(es => es.forEach(e => {
-    wOn = e.isIntersecting;
-    if (wOn) wSchedule(AUTO_MS); else { clearTimeout(wTimer); wFreezeBar(); }
-  }), { threshold: .3 }).observe(wSec);
-} else { wOn = true; wSchedule(AUTO_MS); }
+    const era = vivo; vivo = e.isIntersecting;
+    if (vivo && !era) requestAnimationFrame(quadro);
+  }), { rootMargin: "200px 0px 200px 0px" }).observe(wall);
+})();
+
+/* ═══ 9. /work: os dois apps ══════════════════════════════════════
+   · LoopVideo: o vídeo-guia do app (4 abas de 10 s). As abas embaixo
+     acompanham o vídeo e, no clique, pulam para a parte daquela aba.
+   · Avatarize: o holofote passa pelas etapas da tela real (CSS); a
+     classe .live liga a animação só com o app na tela.
+   Fora da tela o vídeo pausa; com movimento reduzido nada toca sozinho. */
+(() => {
+  const apps = [...document.querySelectorAll(".app")];
+  if (!apps.length) return;
+  const v = document.querySelector("#app-loop .app-vid");
+  const tabs = [...document.querySelectorAll("#app-loop .app-tabs button")];
+  const SEG = 10;
+  function carregar() { if (v && !v.getAttribute("src")) v.src = v.dataset.src; }
+  if (v && tabs.length) {
+    v.addEventListener("timeupdate", () => {
+      const i = Math.min(tabs.length - 1, Math.floor(v.currentTime / SEG));
+      tabs.forEach((b, k) => {
+        b.classList.toggle("on", k === i);
+        b.style.setProperty("--p", k < i ? "100%" : k > i ? "0%" : ((v.currentTime - i * SEG) / SEG * 100).toFixed(1) + "%");
+      });
+    });
+    tabs.forEach(b => b.addEventListener("click", () => {
+      carregar();
+      v.currentTime = +b.dataset.t;
+      const p = v.play(); if (p) p.catch(() => {});
+    }));
+  }
+  const aio = new IntersectionObserver(es => es.forEach(e => {
+    const a = e.target, dentro = e.isIntersecting;
+    a.classList.toggle("live", dentro && !RM);
+    const vid = a.querySelector(".app-vid");
+    if (!vid) return;
+    if (dentro && !RM) { carregar(); const p = vid.play(); if (p) p.catch(() => {}); }
+    else vid.pause();
+  }), { threshold: .3 });
+  apps.forEach(a => aio.observe(a));
+})();
+
+/* ═══ 9a. "também construí": o fluxo de cada projeto acende em ordem ═
+   Pílula por pílula, segura tudo aceso um instante, apaga e recomeça.
+   Só roda com a linha na tela; com movimento reduzido fica tudo aceso. */
+(() => {
+  const rows = [...document.querySelectorAll(".ax")];
+  if (!rows.length) return;
+  if (RM) { rows.forEach(r => r.querySelectorAll(".ax-flow li").forEach(l => l.classList.add("lit"))); return; }
+  const tm = new Map();
+  function roda(r) {
+    const lis = [...r.querySelectorAll(".ax-flow li")];
+    let k = -1;
+    return setInterval(() => {
+      k = (k + 1) % (lis.length + 4);
+      lis.forEach((l, i) => {
+        l.classList.toggle("lit", k < lis.length + 3 && i <= k);
+        l.classList.toggle("now", i === k);
+      });
+    }, 430);
+  }
+  const ioAx = new IntersectionObserver(es => es.forEach(e => {
+    const r = e.target;
+    if (e.isIntersecting && !tm.has(r)) tm.set(r, setTimeout(() => tm.set(r, roda(r)), rows.indexOf(r) * 280));
+    else if (!e.isIntersecting && tm.has(r)) { clearTimeout(tm.get(r)); clearInterval(tm.get(r)); tm.delete(r); }
+  }), { threshold: .35 });
+  rows.forEach(r => ioAx.observe(r));
+})();
+
+/* ═══ 9b. /stack: as três telas ════════════════════════════════════
+   Canvas em ASCII roxo, a ~30 quadros por segundo, só com a tela visível.
+   · Gero: ruído que se resolve em avatar, frasco e onda de voz, célula
+     por célula, como uma geração de imagem chegando;
+   · Integro: o pedido sai da copy, passa pelo n8n e vai para uma das
+     ferramentas; cada nó pisca quando o pacote chega;
+   · Construo: código sendo escrito, com o resultado embaixo.
+   Um pulso corre pela borda de cima e acende a etapa por onde passa.
+   Com movimento reduzido cada tela desenha um quadro parado.          */
+(() => {
+  const pipe = document.querySelector(".pipe");
+  if (!pipe) return;
+  const run = pipe.querySelector(".pipe-run");
+  const stgs = [...pipe.querySelectorAll(".stg")];
+  const RAMP = " .·:-=+*xX#%@";
+  const ROXO = "191,133,249";
+  const telas = stgs.map(s => ({ s, k: s.dataset.k, cv: s.querySelector("canvas"), on: false, st: null }));
+  const pt = () => root.lang !== "en";
+
+  function medir(t) {
+    const r = t.cv.getBoundingClientRect();
+    t.dpr = Math.min(devicePixelRatio || 1, 2);
+    t.W = Math.max(1, Math.round(r.width * t.dpr)); t.H = Math.max(1, Math.round(r.height * t.dpr));
+    t.cv.width = t.W; t.cv.height = t.H;
+    const [cw, ch] = { gen: [6.2, 10.5], int: [7.6, 14] }[t.k] || [7, 12];
+    t.cw = cw * t.dpr; t.ch = ch * t.dpr;
+    t.cols = Math.max(8, Math.floor(t.W / t.cw)); t.rows = Math.max(6, Math.floor((t.H - 26 * t.dpr) / t.ch));
+    t.ox = (t.W - t.cols * t.cw) / 2; t.oy = 8 * t.dpr;
+    t.g = t.cv.getContext("2d");
+    t.st = null;
+  }
+  function fundo(t) { t.g.fillStyle = "#0B0911"; t.g.fillRect(0, 0, t.W, t.H); }
+  function hud(t, txt, p, m) {
+    const g = t.g, d = t.dpr;
+    g.font = (10 * d) + "px 'JetBrains Mono', monospace"; g.textBaseline = "alphabetic";
+    g.fillStyle = "rgba(250,250,250," + (.55 * m).toFixed(2) + ")";
+    g.fillText(txt, 12 * d, t.H - 10 * d);
+    if (p == null) return;
+    g.fillStyle = "rgba(" + ROXO + ",.18)"; g.fillRect(0, t.H - 2 * d, t.W, 2 * d);
+    g.fillStyle = "rgba(" + ROXO + "," + m.toFixed(2) + ")"; g.fillRect(0, t.H - 2 * d, t.W * p, 2 * d);
+  }
+  function glifo(t, x, y, L, m) {
+    const k = Math.round(Math.min(1, Math.max(0, L)) * (RAMP.length - 1));
+    if (!k) return;
+    t.g.fillStyle = "rgba(" + ROXO + "," + ((.14 + .86 * L) * m).toFixed(2) + ")";
+    t.g.fillText(RAMP[k], t.ox + x * t.cw, t.oy + y * t.ch);
+  }
+  const suave = x => x * x * (3 - 2 * x);
+
+  // ── Gero ──
+  // as formas têm luz de verdade (normal de esfera/cilindro contra uma luz
+  // de cima à esquerda) para o avatar e o frasco lerem como volume
+  const LUZ = [-.48, -.58, .66];
+  const sombra = (nx, ny) => {
+    const nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+    return Math.max(0, nx * LUZ[0] + ny * LUZ[1] + nz * LUZ[2]);
+  };
+  function forma(n, x, u, v, a, s) {
+    const dx = (u - .5) * a;
+    if (n === 0) {                                     // avatar: cabeça, pescoço e ombros
+      const hx = dx / .19, hy = (v - .4) / .23;
+      if (hx * hx + hy * hy < 1) {
+        const L = .22 + .78 * sombra(hx, hy);
+        return hx * hx + hy * hy > .8 && hx > .2 ? Math.max(L, .9) : L;   // contorno de luz roxa à direita
+      }
+      if (v > .58 && v < .72 && Math.abs(dx) < .07) return .26;
+      const sx = dx / .46, sy = (v - 1.02) / .36;
+      if (sx * sx + sy * sy < 1) return .14 + .6 * sombra(sx, sy * .6);
+      return .02 + .03 * (1 - v);
+    }
+    if (n === 1) {                                     // frasco: cilindro, tampa, rótulo e brilho
+      if (v > .2 && v <= .33 && Math.abs(dx) < .11) return .3 + .65 * sombra(dx / .11, -.3);
+      if (v > .33 && v < .86 && Math.abs(dx) < .19) {
+        let L = .2 + .8 * sombra(dx / .19, (v - .6) * .5);
+        if (v > .48 && v < .7) L = L * .42 + (Math.abs(v - .59) < .015 ? .4 : 0);
+        return L;
+      }
+      if (v >= .86 && v < .9 && Math.abs(dx) < .34) return .12;
+      return .02;
+    }
+    if (x % 2) return .02;                             // voz: barras, uma coluna sim e outra não
+    const amp = .05 + .36 * Math.abs(Math.sin(x * .41 + s * 3.2) * Math.sin(x * .17 - s * 1.6)) * Math.sin(Math.PI * Math.min(1, u * 1.04));
+    const dv = Math.abs(v - .5);
+    return dv < amp ? .4 + .6 * (1 - dv / amp) : .02;
+  }
+  const NOMES = ["avatar_01.mp4", "packshot_02.png", "vo_03.wav"];
+  function gen(t, now, m) {
+    const N = t.cols * t.rows, T = 5;
+    let st = t.st;
+    if (!st) st = t.st = { thr: new Float32Array(N).map(Math.random), t0: now, n: 0 };
+    let e = RM ? 3.5 : (now - st.t0) / 1000;
+    if (e > T) { st.t0 = now; e = 0; st.n = (st.n + 1) % 3; st.thr = st.thr.map(Math.random); }
+    const p = e < .25 ? 0 : e < 2.3 ? suave((e - .25) / 2.05) : e < 4.4 ? 1 : 1 - (e - 4.4) / .6;
+    fundo(t);
+    const g = t.g, a = (t.cols * t.cw) / (t.rows * t.ch), s = now / 1000;
+    g.font = (t.ch / t.dpr * .92 * t.dpr) + "px 'JetBrains Mono', monospace"; g.textBaseline = "top";
+    for (let y = 0; y < t.rows; y++) for (let x = 0; x < t.cols; x++) {
+      const i = y * t.cols + x;
+      if (p > st.thr[i]) glifo(t, x, y, forma(st.n, x, (x + .5) / t.cols, (y + .5) / t.rows, a, s), m);
+      else if (Math.random() < .3) glifo(t, x, y, Math.random() * .26, m);
+    }
+    const pct = Math.round(Math.min(1, p) * 100);
+    hud(t, NOMES[st.n] + "   " + (e < 2.3 ? (pt() ? "gerando " : "generating ") + pct + "%" : (pt() ? "pronto" : "done")), Math.min(1, p), m);
+  }
+
+  // ── Integro ──
+  // caixas e canos desenhados com os caracteres de caixa, numa grade maior
+  const CANO = { 3: "─", 12: "│", 5: "┘", 9: "┐", 6: "└", 10: "┌", 7: "┴", 11: "┬", 13: "┤", 14: "├", 15: "┼", 1: "─", 2: "─", 4: "│", 8: "│" };
+  function intMontar(t) {
+    const C = t.cols, Rr = t.rows, mid = Math.floor(Rr / 2);
+    const box = (s, x, y) => ({ s, x, y, w: s.length + 4, f: 0 });
+    const src = box("copy", 0, mid);
+    const hub = box("n8n", Math.round(C * .3), mid);
+    const ys = [Math.max(1, Math.round(Rr * .2)), mid, Math.min(Rr - 2, Math.round(Rr * .8))];
+    const outs = ["HeyGen", "Kling", "ElevenLabs"].map((s, i) => box(s, C - (s.length + 4), ys[i]));
+    const linha = (x0, y0, pts) => {
+      const cs = [[x0, y0]]; let x = x0, y = y0;
+      for (const [tx, ty] of pts) {
+        while (x !== tx) { x += Math.sign(tx - x); cs.push([x, y]); }
+        while (y !== ty) { y += Math.sign(ty - y); cs.push([x, y]); }
+      }
+      return cs;
+    };
+    const ent = linha(src.x + src.w, mid, [[hub.x - 1, mid]]);
+    const jx = hub.x + hub.w + 2;
+    const sai = outs.map(o => linha(hub.x + hub.w, mid, [[jx, mid], [jx, o.y], [o.x - 1, o.y]]));
+    // cada célula do cano guarda para que lados ele segue (E=1 D=2 C=4 B=8) e vira o caractere certo
+    const lado = new Map();
+    const marca = (x, y, b) => { const k = x + "," + y; lado.set(k, (lado.get(k) || 0) | b); };
+    for (const c of [ent, ...sai]) {
+      marca(c[0][0], c[0][1], 1);
+      marca(c[c.length - 1][0], c[c.length - 1][1], 2);
+      for (let i = 1; i < c.length; i++) {
+        const [ax, ay] = c[i - 1], [bx, by] = c[i];
+        if (bx > ax) { marca(ax, ay, 2); marca(bx, by, 1); }
+        else if (bx < ax) { marca(ax, ay, 1); marca(bx, by, 2); }
+        else if (by > ay) { marca(ax, ay, 8); marca(bx, by, 4); }
+        else { marca(ax, ay, 4); marca(bx, by, 8); }
+      }
+    }
+    const canos = [...lado].map(([k, b]) => { const [x, y] = k.split(",").map(Number); return [x, y, CANO[b] || "·"]; });
+    return { src, hub, outs, ent, sai, canos, pk: [], prox: 0, log: "" };
+  }
+  function caixa(t, n, m) {
+    const g = t.g, f = n.f;
+    const borda = "rgba(" + (f > .05 ? "250,250,250" : ROXO) + "," + ((.38 + .62 * f) * m).toFixed(2) + ")";
+    const txt = "rgba(" + (f > .05 ? "250,250,250" : ROXO) + "," + ((.8 + .2 * f) * m).toFixed(2) + ")";
+    const linhas = ["┌" + "─".repeat(n.w - 2) + "┐", "│ " + n.s + " │", "└" + "─".repeat(n.w - 2) + "┘"];
+    linhas.forEach((l, r) => {
+      for (let i = 0; i < l.length; i++) {
+        const meio = r === 1 && i > 1 && i < l.length - 2;
+        g.fillStyle = meio ? txt : borda;
+        g.fillText(l[i], t.ox + (n.x + i) * t.cw, t.oy + (n.y - 1 + r) * t.ch);
+      }
+    });
+    if (f > .05) {                                     // o brilho quando o pacote chega
+      g.fillStyle = "rgba(" + ROXO + "," + (.16 * f * m).toFixed(2) + ")";
+      g.fillRect(t.ox + n.x * t.cw, t.oy + (n.y - 1) * t.ch, n.w * t.cw, 3 * t.ch);
+    }
+  }
+  function int(t, now, m) {
+    let st = t.st;
+    if (!st) st = t.st = intMontar(t);
+    const dt = st.tl ? Math.min(.1, (now - st.tl) / 1000) : 0; st.tl = now;
+    if (!RM && now > st.prox) { st.pk.push({ c: st.ent, i: 0, fim: "hub" }); st.prox = now + 1500; }
+    const vivos = [];
+    for (const k of st.pk) {
+      k.i += dt * 30;
+      if (k.i < k.c.length + 5) { vivos.push(k); if (k.i < k.c.length) continue; }
+      if (k.chegou) continue;
+      k.chegou = true;
+      if (k.fim === "hub") { st.hub.f = 1; st.sai.forEach((c, j) => vivos.push({ c, i: -j * 2.5, fim: j })); }
+      else { st.outs[k.fim].f = 1; st.log = "→ " + st.outs[k.fim].s + "   200 OK"; }
+    }
+    st.pk = vivos;
+    fundo(t);
+    const g = t.g;
+    g.font = (t.ch / t.dpr * .86 * t.dpr) + "px 'JetBrains Mono', monospace"; g.textBaseline = "top";
+    g.fillStyle = "rgba(" + ROXO + "," + (.3 * m).toFixed(2) + ")";
+    for (const [x, y, ch] of st.canos) g.fillText(ch, t.ox + x * t.cw, t.oy + y * t.ch);
+    for (const k of st.pk) {
+      for (let r = 0; r < 7; r++) {
+        const q = k.c[Math.floor(k.i) - r];
+        if (!q) continue;
+        g.fillStyle = r ? "rgba(" + ROXO + "," + ((.9 - r * .12) * m).toFixed(2) + ")" : "rgba(250,250,250," + m.toFixed(2) + ")";
+        const ant = k.c[Math.floor(k.i) - r - 1] || q;
+        g.fillText(r ? (ant[0] !== q[0] ? "━" : "┃") : "■", t.ox + q[0] * t.cw, t.oy + q[1] * t.ch);
+      }
+    }
+    for (const n of [st.src, st.hub, ...st.outs]) { n.f = Math.max(0, n.f - dt * 1.4); caixa(t, n, m); }
+    hud(t, st.log || "POST /webhook   → n8n", null, m);
+  }
+
+  // ── Construo ──
+  const SNIP = [
+    { l: ["pausas = detectar_silencio(audio, -35)", "for ini, fim in pausas:", "    timeline.cortar(ini, fim)",
+          "projeto.salvar()  # sem reencode"], ok: ["✓ timeline mais curta", "✓ shorter timeline"], f: "silencio.py" },
+    { l: ['@app.post("/video")', "async def gerar(pedido: Pedido):", "    roteiro = await claude(pedido.tema)",
+          "    voz = await elevenlabs(roteiro)", "    return montar(roteiro, voz)"], ok: ["✓ 200 OK", "✓ 200 OK"], f: "api.py" },
+    { l: ["ffmpeg -i cena.mp4 -i voz.wav \\", "  -map 0:v -map 1:a -shortest \\", "  -c:v libx264 final.mp4"],
+      ok: ["✓ final.mp4", "✓ final.mp4"], f: "render.sh" },
+  ];
+  const TOK = /(#.*$)|("[^"]*")|(\b(?:for|in|async|def|await|return|import|from)\b)|(@[\w.]+)|(-?\b\d+\b)|(\s+|\w+|[^\s\w"#@]+)/g;
+  const COR = ["#6B6B73", "#2DD4BF", "#BF85F9", "#C9A2FA", "#2DD4BF", "#E4E4E7"];
+  const MAIOR = Math.max(...SNIP.map(s => Math.max(...s.l.map(l => l.length)))) + 3;
+  const hex = a => Math.round(255 * Math.max(0, Math.min(1, a))).toString(16).padStart(2, "0");
+  function bld(t, now, m) {
+    let st = t.st;
+    if (!st) st = t.st = { n: 0, t0: now };
+    const sn = SNIP[st.n], tot = sn.l.reduce((s, l) => s + l.length + 1, 0);
+    let e = RM ? 99 : (now - st.t0) / 1000;
+    const dig = tot / 32, fimT = dig + .35 + 1.8;
+    if (e > fimT + .45) { st.n = (st.n + 1) % SNIP.length; st.t0 = now; e = 0; }
+    const mm = m * (e > fimT ? Math.max(0, 1 - (e - fimT) / .45) : 1);
+    fundo(t);
+    const g = t.g, d = t.dpr;
+    const fs = Math.min(13, (t.W / d - 30) / (MAIOR * .61));
+    g.font = (fs * d) + "px 'JetBrains Mono', monospace"; g.textBaseline = "top";
+    const lh = fs * 1.85 * d, x0 = 16 * d, xc = x0 + g.measureText("00 ").width;
+    let y = Math.max(14 * d, (t.H - 26 * d - lh * (sn.l.length + 1.6)) / 2);
+    let resto = Math.floor(Math.min(e, dig) * 32), cx = xc, cy = y;
+    sn.l.forEach((linha, li) => {
+      g.fillStyle = "#4A4A55" + hex(mm);
+      g.fillText(String(li + 1).padStart(2, " "), x0, y);
+      if (resto > 0) {
+        let x = xc, usou = 0, mt;
+        TOK.lastIndex = 0;
+        while ((mt = TOK.exec(linha)) && usou < resto) {
+          const tipo = mt.slice(1).findIndex(Boolean);
+          const pedaco = mt[0].slice(0, resto - usou);
+          g.fillStyle = COR[tipo] + hex(mm);
+          g.fillText(pedaco, x, y);
+          x += g.measureText(pedaco).width; usou += pedaco.length;
+        }
+        cx = x; cy = y;
+      }
+      resto -= linha.length + 1; y += lh;
+    });
+    const pronto = e > dig + .35;
+    if (!pronto && Math.floor(now / 420) % 2 === 0) {               // o cursor
+      g.fillStyle = "rgba(" + ROXO + "," + mm.toFixed(2) + ")";
+      g.fillRect(cx + 1 * d, cy - 1 * d, fs * .58 * d, fs * 1.3 * d);
+    }
+    if (pronto) {
+      g.fillStyle = "rgba(74,222,128," + (.95 * mm).toFixed(2) + ")";
+      g.fillText(sn.ok[pt() ? 0 : 1], xc, y + lh * .5);
+    }
+    hud(t, sn.f, null, m);
+  }
+
+  const DESENHA = { gen, int, bld };
+  telas.forEach(medir);
+  function estatico() { telas.forEach(t => DESENHA[t.k](t, performance.now(), 1)); }
+  let rz = 0;
+  addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(() => { telas.forEach(medir); if (RM) estatico(); }, 150); });
+  if (RM) { (document.fonts ? document.fonts.ready : Promise.resolve()).then(estatico); stgs.forEach(s => s.classList.add("hot")); return; }
+
+  let vivo = false, ult = 0, hot = -1;
+  const T_RUN = 5600;
+  function quadro(now) {
+    if (!vivo) return;
+    requestAnimationFrame(quadro);
+    if (now - ult < 32) return;                  // ~30 quadros: o ASCII não precisa de mais
+    ult = now;
+    let h;
+    if (innerWidth >= 900) {
+      const w = pipe.clientWidth, rw = run.offsetWidth, f = (now % T_RUN) / T_RUN;
+      const x = -rw + (w + rw) * f;
+      run.style.transform = "translateX(" + x.toFixed(1) + "px)";
+      h = Math.floor((x + rw / 2) / (w / 3));
+    } else {
+      const mid = innerHeight / 2;
+      h = stgs.findIndex(s => { const r = s.getBoundingClientRect(); return r.top < mid && r.bottom > mid; });
+    }
+    if (h !== hot) { hot = h; stgs.forEach((s, i) => s.classList.toggle("hot", i === h)); }
+    telas.forEach((t, i) => { if (t.on) DESENHA[t.k](t, now, i === hot ? 1 : .8); });
+  }
+  const ioTela = new IntersectionObserver(es => es.forEach(e => {
+    const t = telas.find(x => x.s === e.target);
+    t.on = e.isIntersecting;
+    if (t.on && !t.W) medir(t);
+    const era = vivo; vivo = telas.some(x => x.on);
+    if (vivo && !era) requestAnimationFrame(quadro);
+  }), { rootMargin: "100px 0px" });
+  telas.forEach(t => ioTela.observe(t.s));
+})();
 
 /* ═══ 10. a navegação acompanha a seção em que você está ══════════ */
 const navLinks = [...document.querySelectorAll(".nav-links a")];
