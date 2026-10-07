@@ -3499,7 +3499,7 @@ root.setAttribute("data-theme", "dark");
       const w = pipe.clientWidth, rw = run.offsetWidth, f = (now % T_RUN) / T_RUN;
       const x = -rw + (w + rw) * f;
       run.style.transform = "translateX(" + x.toFixed(1) + "px)";
-      h = Math.floor((x + rw / 2) / (w / 3));
+      h = Math.max(0, Math.min(2, Math.floor((x + rw / 2) / (w / 3))));   // entrando ou saindo pela borda, a ponta mais perto fica acesa
     } else {
       const mid = innerHeight / 2;
       h = stgs.findIndex(s => { const r = s.getBoundingClientRect(); return r.top < mid && r.bottom > mid; });
