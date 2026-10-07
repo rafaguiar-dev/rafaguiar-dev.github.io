@@ -36,6 +36,7 @@ with sync_playwright() as p:
     ok(pg.evaluate("document.getElementById('lang').textContent.trim()") == "EN", "botao oferece EN")
     ok("Transformo copy" in pg.evaluate("document.querySelector('.one-line').textContent"), "hero em PT")
     ok(pg.evaluate("document.querySelector('.wall img').alt").startswith("Vídeo gerado por IA"), "alt traduzido")
+    ok(pg.evaluate("document.querySelector('.monitor-badge').textContent") == "● no monitor", "selo do monitor em PT")
     vazio = pg.evaluate("[...document.querySelectorAll('[data-pt]')].filter(n=>!n.dataset.pt.trim()).length")
     ok(vazio == 0, "nenhum data-pt vazio", vazio)
     pg.click("#lang")
@@ -43,6 +44,7 @@ with sync_playwright() as p:
     ok(pg.evaluate("document.documentElement.lang") == "en", "botao troca para EN")
     ok("I turn copy" in pg.evaluate("document.querySelector('.one-line').textContent"), "hero volta ao EN")
     ok(pg.evaluate("document.querySelector('.wall img').alt").startswith("AI-generated"), "alt volta ao EN")
+    ok(pg.evaluate("document.querySelector('.monitor-badge').textContent") == "● on monitor", "selo do monitor em EN")
     pg.click("#lang")
     pg.wait_for_timeout(500)
 
@@ -66,9 +68,9 @@ with sync_playwright() as p:
 
     print("\n-- /reel: a ilha de edicao --")
     ok(pg.evaluate("document.querySelector('#reel h2').textContent") == "Trabalhos.", "titulo Trabalhos.")
-    ok(pg.evaluate("document.querySelectorAll('.wall figure.clip').length") == 39, "39 cards (36 trechos + 3 sequencias)")
+    ok(pg.evaluate("document.querySelectorAll('.wall figure.clip').length") == 47, "47 cards (44 trechos + 3 sequencias)")
     todos = pg.evaluate("[...document.querySelectorAll('.wall .clip')].filter(c=>!c.hidden).length")
-    ok(todos == 21, "Todos: 21 cards, sem repetir personagem/produto/B-roll", todos)
+    ok(todos == 27, "Todos: 27 cards, sem repetir personagem/produto/B-roll", todos)
     ok(pg.evaluate("[...document.querySelectorAll('.wall .clip.seq')].filter(c=>!c.hidden).length") == 3, "3 cards de cortes em Todos")
     ok(pg.evaluate("[...document.querySelectorAll('.clip.seq')].every(c=>c.querySelectorAll('.segs i').length===6)"), "barra de 6 cortes nos cards de sequencia")
     ok(pg.evaluate("new Set([...document.querySelectorAll('.wall .clip')].map(c=>c.style.getPropertyValue('--r'))).size") == 3, "3 proporcoes (9:16, 4:5, 1:1)")
@@ -80,12 +82,14 @@ with sync_playwright() as p:
     ok(pg.evaluate("document.querySelectorAll('.chip').length") == 7, "7 filtros")
     nomes = pg.evaluate("[...document.querySelectorAll('.chip > span')].map(c=>c.textContent.trim()).join('|')")
     ok(nomes == "Todos|Avatares|UGC|Inserts 3D|Produto|Personagem|B-roll", "filtros com os nomes aprovados", nomes)
-    ok(pg.evaluate("[...document.querySelectorAll('.chip sup')].map(c=>c.textContent).join()") == "21,6,6,6,6,6,6", "contagem em cada filtro")
+    ok(pg.evaluate("[...document.querySelectorAll('.chip sup')].map(c=>c.textContent).join()") == "27,8,8,8,8,6,6", "contagem em cada filtro")
     ok(pg.evaluate("!!document.querySelector('#monitor .mon-stage .mon-clip')"), "monitor de programa")
-    ok(pg.evaluate("document.getElementById('mon-n').textContent") == "01 / 21", "monitor abre no 1 de 21")
-    ok(pg.evaluate("document.querySelector('.mi:not([hidden])').dataset.k") == "seq-personagem", "monitor abre no card de seis cortes do personagem")
+    ok(pg.evaluate("document.getElementById('mon-n').textContent") == "01 / 27", "monitor abre no 1 de 27")
+    ok(pg.evaluate("document.querySelector('.mi:not([hidden])').dataset.k") == "avatar-1", "monitor abre no primeiro avatar do bloco")
     ok(pg.evaluate("getComputedStyle(document.getElementById('monitor')).position") == "sticky", "monitor fixo ao lado da folha")
-    ok(pg.evaluate("(()=>{const l=[...document.querySelectorAll('.wall .clip')].filter(c=>!c.hidden).map(c=>c.getBoundingClientRect().height);return Math.max(...l)-Math.min(...l)<1})()"), "folha: todos na mesma altura de linha")
+    ok(pg.evaluate("[...document.querySelectorAll('.wall-block:not([hidden])')].map(c=>c.dataset.group).join()") == "avatar,ugc,insert,seq", "Todos agrupado na ordem aprovada")
+    ok(pg.evaluate("[...document.querySelectorAll('.wall-row')].every(r=>r.children.length>=2&&r.clientHeight<=224)"), "fileiras balanceadas, sem card sozinho nem altura excessiva")
+
     pg.evaluate("scrollTo({top:0,behavior:'instant'})")
     pg.wait_for_timeout(500)
     ok(pg.evaluate("[...document.querySelectorAll('#reel video')].every(v=>v.paused)"), "longe da secao: nenhum video tocando")
@@ -96,6 +100,8 @@ with sync_playwright() as p:
     ok(tocando <= 14, "na folha: so a faixa do meio toca, nao todos", tocando)
     ok(pg.evaluate("(()=>{const v=document.querySelector('#mon-clip video');return !!v&&!v.paused})()"), "o monitor toca o trecho escolhido")
     ok(pg.evaluate("document.getElementById('mon-t').textContent") != "00:00:00:00", "timecode do monitor anda")
+    pg.evaluate("document.querySelector('.wall .clip.seq').click()")
+    pg.wait_for_timeout(1400)
     pg.wait_for_function("(()=>{const c=document.getElementById('mon-clip');const v=c.querySelector('video');if(!v||v.paused)return false;const x=c.querySelector('.xf');return !!x&&x.style.display==='block'})()", timeout=30000, polling=10)
     ok(True, "ASCII entra perto de um corte no monitor")
     pg.evaluate("document.querySelector('#reel .head').scrollIntoView({block:'start',behavior:'instant'})")
@@ -113,10 +119,12 @@ with sync_playwright() as p:
     pg.wait_for_timeout(1500)
     ok(pg.evaluate("document.querySelector('.mi:not([hidden])').dataset.k") == "avatar-3", "clicar num card manda o trecho para o monitor")
     ok(pg.evaluate("document.querySelector('.wall .clip.sel').dataset.src.endsWith('avatar-3.mp4')"), "o card escolhido fica marcado na folha")
+    ok(pg.evaluate("getComputedStyle(document.querySelector('.wall .clip.sel img')).filter") == "none", "seleção conserva a cor do card")
+    ok(pg.evaluate("getComputedStyle(document.querySelector('.wall .clip.sel .monitor-badge')).display") == "block", "selo aparece no card selecionado")
     ok(pg.evaluate("(()=>{const v=document.querySelector('#mon-clip video');return !!v&&!v.paused&&v.src.endsWith('avatar-3.mp4')})()"), "monitor toca o card clicado")
     pg.click(".chip[data-f=all]")
     pg.wait_for_timeout(1200)
-    ok(pg.evaluate("[...document.querySelectorAll('.wall .clip')].filter(c=>!c.hidden).length") == 21, "Todos volta os 21")
+    ok(pg.evaluate("[...document.querySelectorAll('.wall .clip')].filter(c=>!c.hidden).length") == 27, "Todos volta os 27")
     ok(pg.evaluate("document.documentElement.scrollWidth<=document.documentElement.clientWidth"), "sem rolagem horizontal")
 
     print("\n-- /work: os dois apps --")
@@ -156,7 +164,7 @@ with sync_playwright() as p:
     ok(len(errs) == 0, "zero erro de console", errs[:3])
     pg.close()
 
-    for W, H in [(360, 780), (768, 1024), (1280, 800), (1440, 700)]:
+    for W, H in [(360, 780), (390, 844), (768, 1024), (1280, 800), (1440, 900)]:
         pg = b.new_page(viewport={"width": W, "height": H})
         e2 = []
         pg.on("pageerror", lambda e: e2.append(str(e)))
@@ -167,6 +175,16 @@ with sync_playwright() as p:
         print("\n-- %dx%d --" % (W, H))
         ok(over <= 0, "sem rolagem horizontal", over)
         ok(cols == (2 if W < 760 else 4), "indicadores 2x2 no mobile / 4 no desktop", cols)
+        for filtro, quantidade in [("all", 27), ("avatar", 8), ("ugc", 8), ("insert", 8), ("produto", 8), ("personagem", 6), ("broll", 6)]:
+            pg.evaluate("f=>document.querySelector('.chip[data-f='+f+']').click()", filtro)
+            pg.wait_for_timeout(750)
+            ok(pg.evaluate("[...document.querySelectorAll('.wall .clip')].filter(c=>!c.hidden).length") == quantidade, "contagem do filtro " + filtro)
+            fechado = pg.evaluate("""()=>[...document.querySelectorAll('.wall-block:not([hidden]) .wall-row')].every(row=>{
+                const r=row.getBoundingClientRect(), cs=[...row.children].map(c=>c.getBoundingClientRect());
+                return cs.length>=2 && Math.abs(cs[0].left-r.left)<1 && Math.abs(cs.at(-1).right-r.right)<1
+                  && cs.every(c=>Math.abs(c.height-r.height)<1) && r.height<=224.1;
+            })""")
+            ok(fechado, "todas as fileiras fecham: " + filtro)
         ok(len(e2) == 0, "sem erro de pagina", e2[:2])
         pg.close()
 
