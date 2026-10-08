@@ -49,7 +49,7 @@ CARDS = [
  ("ugc-8", IMP + r"23-09\UP\UP 1\UP1B-DEPO-1.mp3.mp4", "4:5", .3),
  # Inserts 3D
  ("insert-1", "5-insert-vfx/vfx-15.mp4", "4:5", .5),
- ("insert-2", IMP + r"VSL MICROSHOT\EDICAO\BROLL_BLOCO_8\B8-03A_Recap-Estomago_IA_MASTER.mp4", "1:1", .5),
+ ("insert-2", IMP + r"VSL MICROSHOT\INSERTS\LEAD_5\Broll5_Esponja_MASTER.mp4", "1:1", .5),
  ("insert-3", "5-insert-vfx/vfx-22.mp4", "9:16", .5),   # v27b: volta o pâncreas
  ("insert-4", IMP + r"VSL MICROSHOT\EDICAO\BROLL_LEAD_5\L5-06B_Termografia-Pernas_IA.mp4", "9:16", .5),   # v27b: volta a termografia
  ("insert-5", E + r"2-INSERT\corpo-anatomia\insert-156-corpo-anatomia-5s.mp4", "1:1", .5),
