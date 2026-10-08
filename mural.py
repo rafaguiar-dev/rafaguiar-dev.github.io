@@ -46,15 +46,15 @@ CARDS = [
  ("ugc-3", "2-volume/vol-14.mp4", "9:16", .5), ("ugc-4", "2-volume/vol-15.mp4", "4:5", .3),
  ("ugc-5", "2-volume/vol-16.mp4", "9:16", .5), ("ugc-6", "2-volume/vol-20.mp4", "9:16", .5),
  ("ugc-7", "2-volume/vol-12.mp4", "4:5", .5, .22),
- ("ugc-8", r"E:\IA CREATOR\1-LIPSYNC\exterior\lipsync-083-avatar-ad-4-60s.mp4", "9:16", .3),   # v27b: selfie no parque
+ ("ugc-8", IMP + r"23-09\UP\UP 1\UP1B-DEPO-1.mp3.mp4", "4:5", .3),
  # Inserts 3D
- ("insert-1", E + r"2-INSERT\corpo-anatomia\insert-154-corpo-anatomia-5s.mp4", "4:5", .5),
- ("insert-2", IMP + r"14-09\BROLLS-BLOCO-6-9\11 - BLOCO 7\B7-04_neuronio-3d-BC.mp4", "1:1", .45),
+ ("insert-1", "5-insert-vfx/vfx-15.mp4", "4:5", .5),
+ ("insert-2", IMP + r"VSL MICROSHOT\EDICAO\BROLL_BLOCO_8\B8-03A_Recap-Estomago_IA_MASTER.mp4", "1:1", .5),
  ("insert-3", "5-insert-vfx/vfx-22.mp4", "9:16", .5),   # v27b: volta o pâncreas
  ("insert-4", IMP + r"VSL MICROSHOT\EDICAO\BROLL_LEAD_5\L5-06B_Termografia-Pernas_IA.mp4", "9:16", .5),   # v27b: volta a termografia
  ("insert-5", E + r"2-INSERT\corpo-anatomia\insert-156-corpo-anatomia-5s.mp4", "1:1", .5),
- ("insert-6", "5-insert-vfx/vfx-10.mp4", "1:1", .5),
- ("insert-7", E + r"2-INSERT\industria-laboratorio\insert-266-industria-5s.mp4", "4:5", .5),
+ ("insert-6", IMP + r"VSL MICROSHOT\BANCO_VIDEOS\LEAD_3\Broll5_CapsulaNeon_BANCO.mp4", "1:1", .5),
+ ("insert-7", IMP + r"VSL IRUAN 20-08\inserts-ia\INSERTS\09_BLOCO3_sistema-nervoso-3d.mp4", "4:5", .5),
  ("insert-8", IMP + r"VSL MICROSHOT\BANCO_VIDEOS\LEAD_3\Broll6_PlanoA_CapsulaLiberaIntestino_BANCO.mp4", "1:1", .5),
  # Personagem: a mesma apresentadora de suéter amarelo
  ("personagem-1", IMP + r"VSL MOUNJARO\AV-FINAL\11.mp4", "1:1", .5),
