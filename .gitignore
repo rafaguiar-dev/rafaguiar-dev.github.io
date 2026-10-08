@@ -38,3 +38,5 @@ videos-selecao/
 media/**/_*
 # originais das telas dos apps; as versoes web ficam em media/work/
 assets/work/
+
+tmp/
