@@ -37,7 +37,7 @@ CARDS = [
  ("avatar-4", "1-lipsync/ls-09.mp4", "9:16", .5),
  ("avatar-5", IMP + r"23-09\UP\TESTE.mp4", "4:5", .5),
  ("avatar-6", IMP + r"23-09\ML1\ML 01\ML01-5-MBB.mp3.mp4", "4:5", .25),
- ("avatar-7", IMP + r"VSLCAIO03\INSERTS-BODY-VSL\INSERTS-PRODUTO\VIDEOS\36_C20_homem50+_com_frasco_H.mp4", "4:5", .30),
+ ("avatar-7", "1-lipsync/ls-17.mp4", "4:5", .1),   # v27b: volta a apresentadora; o homem das oliveiras ficou estranho
  ("avatar-8", IMP + r"22-09\mls\ML 1\ML01-2-MICHELLY.mp3.mp4", "9:16", .5),
  ("avatar-9", E + r"1-LIPSYNC\exterior\lipsync-168-depo-32-1080p-35s.mp4", "4:5", .25),
  ("avatar-10", "1-lipsync/ls-11.mp4", "9:16", .5),
@@ -46,12 +46,12 @@ CARDS = [
  ("ugc-3", "2-volume/vol-14.mp4", "9:16", .5), ("ugc-4", "2-volume/vol-15.mp4", "4:5", .3),
  ("ugc-5", "2-volume/vol-16.mp4", "9:16", .5), ("ugc-6", "2-volume/vol-20.mp4", "9:16", .5),
  ("ugc-7", "2-volume/vol-12.mp4", "4:5", .5, .22),
- ("ugc-8", "6-consistencia/B-homem-oculos-02.mp4", "4:5", .3),   # v26: ls-06 repetia o careca do avatar-8
+ ("ugc-8", r"E:\IA CREATOR\1-LIPSYNC\exterior\lipsync-083-avatar-ad-4-60s.mp4", "9:16", .3),   # v27b: selfie no parque
  # Inserts 3D
  ("insert-1", E + r"2-INSERT\corpo-anatomia\insert-154-corpo-anatomia-5s.mp4", "4:5", .5),
  ("insert-2", IMP + r"14-09\BROLLS-BLOCO-6-9\11 - BLOCO 7\B7-04_neuronio-3d-BC.mp4", "1:1", .45),
- ("insert-3", IMP + r"VSL MICROSHOT\EDICAO\BROLL_BLOCO_8\B8-03A_Recap-Estomago_IA_MASTER.mp4", "1:1", .5),
- ("insert-4", IMP + r"VSL IRUAN 20-08\inserts-ia\INSERTS\10_BLOCO3_nervo-toxina-verde.mp4", "1:1", .5, .75),
+ ("insert-3", "5-insert-vfx/vfx-22.mp4", "9:16", .5),   # v27b: volta o pâncreas
+ ("insert-4", IMP + r"VSL MICROSHOT\EDICAO\BROLL_LEAD_5\L5-06B_Termografia-Pernas_IA.mp4", "9:16", .5),   # v27b: volta a termografia
  ("insert-5", E + r"2-INSERT\corpo-anatomia\insert-156-corpo-anatomia-5s.mp4", "1:1", .5),
  ("insert-6", "5-insert-vfx/vfx-10.mp4", "1:1", .5),
  ("insert-7", E + r"2-INSERT\industria-laboratorio\insert-266-industria-5s.mp4", "4:5", .5),
