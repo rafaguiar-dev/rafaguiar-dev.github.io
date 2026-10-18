@@ -234,7 +234,7 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .sr{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
   clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;border:0}
 
-/* ═══ 01 · /reel: a ilha de edição (v25) ══════════════════════════
+/* ═══ 01 · /work: a ilha de edição (v25) ══════════════════════════
    Monitor de programa à esquerda (fixo), folha de contatos à direita,
    filtros como trilhas com uma régua embaixo. Nada de parede que anda:
    o que está parado se lê, o que está sob a faixa do meio da tela toca.
@@ -374,100 +374,9 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 }
 
 /* o filtro troca 29 cards por 8: sem isto o Chrome "compensa" a altura e joga a página centenas de px para cima */
-#reel{overflow-anchor:none}
+#work{overflow-anchor:none}
 
-/* ═══ 02 · /work: os dois apps em destaque + o que mais eu construí ══ */
-.app{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:clamp(24px,3.4vw,52px);
-  align-items:center;margin-top:clamp(30px,4.4vw,60px)}
-.app.rev{grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
-.app.rev .app-stage{order:2}
-@media(max-width:900px){.app,.app.rev{grid-template-columns:1fr}.app.rev .app-stage{order:0}}
-@media(max-width:560px){.app-tabs button{font-size:var(--s--2)}}
-.app-stage{position:relative;min-width:0}
-/* o brilho embaixo do palco e o único enfeite da seção */
-.app-stage::before{content:"";position:absolute;inset:12% 8% -6%;z-index:-1;filter:blur(46px);
-  background:radial-gradient(closest-side,color-mix(in srgb,var(--purple) 34%,transparent),transparent)}
-.app-win{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#0d0b14;
-  border:1px solid var(--line);box-shadow:0 28px 70px -34px rgba(0,0,0,.9)}
-.app-win video,.app-win img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.app-win.shot{aspect-ratio:1280/846}
-.app-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:12px}
-.app-tabs button{all:unset;box-sizing:border-box;cursor:pointer;font-size:var(--s--1);color:var(--ink-3);
-  transition:color .2s}
-.app-tabs button:hover,.app-tabs button.on{color:var(--ink)}
-.app-tabs button:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
-.app-tabs i{display:block;height:2px;margin-top:8px;background:var(--line);overflow:hidden}
-.app-tabs i::after{content:"";display:block;height:100%;width:var(--p,0%);background:var(--purple);
-  transition:width .25s linear}
-/* o holofote do Avatarize: uma etapa de cada vez, 2 s cada, em ciclo */
-.call{position:absolute;left:var(--x);top:var(--y);width:var(--w);height:var(--h);z-index:2;
-  border:1.5px solid var(--purple);border-radius:8px;pointer-events:none;opacity:0;
-  box-shadow:0 0 0 9999px rgba(6,4,12,.52),0 0 26px -4px var(--purple);
-  animation:callOn 12s ease var(--d,0s) infinite both;animation-play-state:paused}
-.app.live .call{animation-play-state:running}
-.call b{position:absolute;left:-1px;bottom:calc(100% + 7px);white-space:nowrap;font-weight:600;
-  font-size:var(--s--2);line-height:1;background:var(--purple);color:#0A0A0A;padding:5px 8px;border-radius:4px}
-@keyframes callOn{0%{opacity:0;transform:scale(1.03)}2%{opacity:1;transform:none}15.5%{opacity:1}17.5%{opacity:0}100%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.call{display:none}}
-
-.app-info{min-width:0}
-.app-id{display:flex;align-items:center;gap:14px}
-.app-id img{border-radius:12px;flex:none}
-.app-id h3{font-size:var(--s-2);letter-spacing:-.035em;line-height:1}
-.app-id span{display:flex;align-items:center;gap:8px;margin-top:7px;font-size:var(--s--1);color:var(--ink-3)}
-.app-id s{width:3px;height:3px;border-radius:50%;background:var(--ink-3)}
-.app-pitch{margin:20px 0 0;max-width:30ch;font-family:"Archivo",sans-serif;font-weight:400;
-  font-size:var(--s-1);line-height:1.4;letter-spacing:-.01em}
-.app-pts{margin:16px 0 0;padding:0;list-style:none;display:grid;gap:8px}
-.app-pts li{position:relative;padding-left:18px;color:var(--ink-2);font-family:"Archivo",sans-serif;
-  font-weight:300;font-size:var(--s-0);line-height:1.5}
-.app-pts li::before{content:"▹";position:absolute;left:0;color:var(--purple)}
-.app-cta{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
-.app-cta .btn{padding:11px 18px}
-
-/* "também construí": uma linha larga por projeto, nome grande e o fluxo
-   dele em pílulas que acendem em sequência quando a linha está na tela */
-.also{margin-top:clamp(56px,7vw,100px)}
-/* line-height 1.6: o reveal corta no clip-path tudo que passa da borda, e o acento do É ficava fora */
-.also-h{display:flex;align-items:center;gap:14px;line-height:1.6;font-size:var(--s--2);font-weight:500;color:var(--ink-3);
-  letter-spacing:.16em;text-transform:uppercase}
-.also-h::after{content:"";flex:1;height:1px;background:var(--line-2)}
-.ax-list{margin-top:6px}
-.ax{position:relative;display:grid;grid-template-columns:52px minmax(0,1fr) minmax(0,1.05fr);
-  gap:clamp(14px,2.6vw,40px);align-items:center;padding:clamp(24px,3vw,38px) clamp(4px,1vw,14px);
-  border-bottom:1px solid var(--line-2);isolation:isolate}
-.ax::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:0;transition:opacity .4s;
-  background:linear-gradient(90deg,var(--purple-dim),transparent 70%)}
-.ax:hover::before{opacity:1}
-.ax-n{align-self:start;padding-top:.55em;font-size:var(--s--1);color:var(--ink-3);letter-spacing:.1em;transition:color .3s}
-.ax:hover .ax-n{color:var(--purple)}
-.ax h4{margin:0;font-size:var(--s-2);font-weight:800;letter-spacing:-.045em;line-height:1.05;overflow-wrap:anywhere}
-.ax p{margin:12px 0 0;max-width:46ch;color:var(--ink-2);font-family:"Archivo",sans-serif;font-weight:300;
-  font-size:var(--s-0);line-height:1.55}
-.ax-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:16px;font-size:var(--s--2);
-  color:var(--ink-3);letter-spacing:.06em}
-.ax-meta em{font-style:normal;border:1px solid var(--line);border-radius:999px;padding:3px 9px}
-.ax-flow{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;align-items:center;row-gap:12px}
-.ax-flow li{position:relative;font-size:var(--s--1);color:var(--ink-3);white-space:nowrap;
-  border:1px solid var(--line);border-radius:999px;padding:8px 13px;background:var(--bg);
-  transition:color .35s,border-color .35s,background .35s,box-shadow .35s}
-.ax-flow li+li{margin-left:30px}
-.ax-flow li+li::before{content:"";position:absolute;right:calc(100% + 5px);top:50%;width:20px;height:1px;
-  background:var(--line);transition:background .35s}
-.ax-flow li+li::after{content:"";position:absolute;right:calc(100% + 5px);top:calc(50% - 3px);width:6px;height:6px;
-  border-top:1px solid var(--line);border-right:1px solid var(--line);transform:rotate(45deg);transition:border-color .35s}
-.ax-flow li:last-child{color:var(--ink);border-color:color-mix(in srgb,var(--purple) 45%,transparent)}
-.ax-flow li.lit{color:var(--ink);border-color:color-mix(in srgb,var(--purple) 70%,transparent);background:var(--purple-dim)}
-.ax-flow li.lit::before{background:var(--purple)}
-.ax-flow li.lit::after{border-color:var(--purple)}
-.ax-flow li.now{box-shadow:0 0 22px -4px var(--purple);border-color:var(--purple)}
-@media(max-width:900px){
-  .ax{grid-template-columns:34px minmax(0,1fr);align-items:start}
-  .ax-flow{grid-column:2}
-}
-@media(max-width:520px){.ax-flow li+li{margin-left:24px}.ax-flow li+li::before{width:14px}}
-
-/* ═══ 03 · /stack: três etapas com telas vivas (v24) ═══════════════
+/* ═══ 02 · /stack: três etapas com telas vivas (v24) ═══════════════
    Cada etapa tem uma tela em ASCII roxo desenhada num canvas (JS 9b).
    Um pulso corre pela borda de cima e acende a etapa por onde passa. */
 .pipe{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;
@@ -497,7 +406,7 @@ h2.t em{font-style:normal;color:var(--ink-3)}
   .scr{aspect-ratio:16/10}
 }
 
-/* ═══ 04 · /career: a linha do tempo (o que sobrou do /track-record) ══ */
+/* ═══ 03 · /career: a linha do tempo (o que sobrou do /track-record) ══ */
 .rows{border-top:1px solid var(--line-2);position:relative;padding-left:28px}
 .rows::before{content:"";position:absolute;left:7px;top:0;bottom:18px;width:1px;background:var(--line)}
 .row{position:relative;display:grid;grid-template-columns:145px 1fr auto;gap:clamp(12px,3vw,30px);
@@ -524,7 +433,7 @@ h2.t em{font-style:normal;color:var(--ink-3)}
 .row .env b{color:var(--ink-2);font-weight:500;letter-spacing:.08em;text-transform:uppercase}
 .row .where{font-size:var(--s--2);color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;text-align:right}
 
-/* ═══ 05 · contato ════════════════════════════════════════════════ */
+/* ═══ 04 · contato ════════════════════════════════════════════════ */
 .avail{margin:14px 0 0;font-size:var(--s--1);color:var(--ink-3)}
 .contact{border-top:1px solid var(--line-2);position:relative;overflow:hidden;isolation:isolate;
   background:radial-gradient(80% 120% at 50% 128%,var(--purple-dim),transparent 60%)}
@@ -585,7 +494,6 @@ if (!location.hash) addEventListener("load", () => scrollTo(0, 0));</script>
   <div class="wrap nav-in">
     <a class="brand" href="#top">RAFAGUIAR<span>.DEV</span></a>
     <nav class="nav-links">
-      <a href="#reel">/reel</a>
       <a href="#work">/work</a>
       <a href="#do">/stack</a>
       <a href="#career">/career</a>
@@ -642,10 +550,10 @@ if (!location.hash) addEventListener("load", () => scrollTo(0, 0));</script>
 <div class="track"><div class="tick" id="t1"></div></div>
 <div class="track"><div class="tick" id="t2"></div></div>
 
-<!-- ══ 01 REEL ════════════════════════════════════════════════════ -->
-<section class="sec" id="reel">
+<!-- ══ 01 WORK ════════════════════════════════════════════════════ -->
+<section class="sec" id="work">
   <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/reel</span><span class="note">01</span></div>
+    <div class="head" data-rv="wipe"><span class="slug">/work</span><span class="note">01</span></div>
 
     <!-- Parede no estilo do alisson-ai-cuts: o texto gruda a esquerda e as
          colunas de video deslizam em velocidades diferentes com o scroll.
@@ -1072,120 +980,10 @@ if (!location.hash) addEventListener("load", () => scrollTo(0, 0));</script>
   </div>
 </section>
 
-<!-- ══ 02 WORK ════════════════════════════════════════════════════ -->
-<section class="sec" id="work">
-  <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/work</span><span class="note">02</span></div>
-    <h2 class="t" data-rv="up" data-pt="Tarefas que eu me recusei <em>a fazer duas vezes.</em>">Tasks I refused <em>to do twice.</em></h2>
-
-    <!-- Os dois apps publicos. O palco do LoopVideo e o video-guia que esta no
-         proprio app (as 4 abas, 10 s cada); as abas embaixo seguem o video e
-         pulam para a parte certa no clique. O do Avatarize e a tela real com
-         um holofote passando pelas etapas, em CSS. -->
-    <article class="app" id="app-loop" data-rv="up">
-      <div class="app-stage">
-        <div class="app-win">
-          <video class="app-vid" muted loop playsinline preload="none" poster="media/work/loopvideo-demo.jpg"
-                 data-src="media/work/loopvideo-demo.mp4" aria-hidden="true"></video>
-        </div>
-        <div class="app-tabs">
-          <button type="button" data-t="0" class="on"><span data-pt="Vídeo em loop">Looping video</span><i></i></button>
-          <button type="button" data-t="10"><span data-pt="Imagens">Images</span><i></i></button>
-          <button type="button" data-t="20"><span data-pt="Prova visual">Visual proof</span><i></i></button>
-          <button type="button" data-t="30"><span>Mockup</span><i></i></button>
-        </div>
-      </div>
-      <div class="app-info">
-        <div class="app-id"><img src="media/work/loopvideo-icon.webp" width="52" height="52" alt="">
-          <div><h3>LoopVideo</h3><span>Windows <s></s> v2.1.0</span></div></div>
-        <p class="app-pitch" data-pt="Uma foto vira 2:30 de vídeo da pessoa falando, em loop e sem corte aparente.">One photo becomes 2:30 of the person talking, looping with no visible cut.</p>
-        <ul class="app-pts">
-          <li data-pt="Gera os trechos na Magnific e emenda sem pulo, pronto para fundo de VSL.">Generates the clips on Magnific and stitches them seamlessly, ready for a VSL background.</li>
-          <li data-pt="Você aprova o primeiro vídeo antes de gastar o resto dos créditos.">You approve the first video before the rest of the credits are spent.</li>
-          <li data-pt="Mais três abas: imagens, prova visual e mockup de produto.">Three more tabs: images, visual proof and product mockups.</li>
-        </ul>
-        <div class="app-cta">
-          <a class="btn solid" data-link="dl_loopvideo" data-pt="Baixar para Windows">Download for Windows</a>
-          <a class="btn ghost" data-link="gh_loopvideo">GitHub &#8599;</a>
-        </div>
-      </div>
-    </article>
-
-    <article class="app rev" id="app-avatar" data-rv="up">
-      <div class="app-stage">
-        <div class="app-win shot">
-          <img src="media/work/avatarize-1.webp" loading="lazy" width="1280" height="846"
-               alt="Avatarize: three videos in the queue, one generating, one ready and one with an error"
-               data-alt-pt="Avatarize: três vídeos na fila, um gerando, um pronto e um com erro">
-          <i class="call" style="--x:3.6%;--y:26%;--w:28.6%;--h:14.4%;--d:0s"><b data-pt="a foto">the photo</b></i>
-          <i class="call" style="--x:3.6%;--y:53%;--w:28.6%;--h:25%;--d:2s"><b data-pt="um áudio por vídeo">one audio per video</b></i>
-          <i class="call" style="--x:3.6%;--y:79%;--w:28.6%;--h:7.4%;--d:4s"><b data-pt="gera em fila">queued generation</b></i>
-          <i class="call" style="--x:36.2%;--y:17%;--w:61.6%;--h:21%;--d:6s"><b data-pt="etapa por etapa">step by step</b></i>
-          <i class="call" style="--x:36.2%;--y:51.5%;--w:61.6%;--h:15.4%;--d:8s"><b data-pt="baixa o MP4 sozinho">downloads the MP4</b></i>
-          <i class="call" style="--x:36.2%;--y:70%;--w:61.6%;--h:18.4%;--d:10s"><b data-pt="deu erro? tenta de novo">failed? retry</b></i>
-        </div>
-      </div>
-      <div class="app-info">
-        <div class="app-id"><img src="media/work/avatarize-icon.webp" width="52" height="52" alt="">
-          <div><h3>Avatarize</h3><span>Windows <s></s> v1.2.0</span></div></div>
-        <p class="app-pitch" data-pt="Foto e áudio viram vídeo de avatar falando, pela sua conta HeyGen.">A photo and an audio file become a talking avatar video, through your own HeyGen account.</p>
-        <ul class="app-pts">
-          <li data-pt="Um vídeo para cada áudio, gerados em fila e baixados sozinhos.">One video per audio file, generated in a queue and downloaded for you.</li>
-          <li data-pt="Entra pelo login oficial da HeyGen. Sua senha não passa pelo app.">Signs in through HeyGen's official login. Your password never touches the app.</li>
-          <li data-pt="Corta os silêncios do áudio antes de enviar.">Trims the silences out of the audio before sending.</li>
-        </ul>
-        <div class="app-cta">
-          <a class="btn solid" data-link="dl_avatarize" data-pt="Baixar para Windows">Download for Windows</a>
-          <a class="btn ghost" data-link="gh_avatarize">GitHub &#8599;</a>
-        </div>
-      </div>
-    </article>
-
-    <div class="also" data-rv="up">
-      <h3 class="also-h" data-pt="Também construí">Also built</h3>
-      <div class="ax-list">
-        <article class="ax">
-          <span class="ax-n">01</span>
-          <div class="ax-main">
-            <h4 data-pt="Pipeline do canal">Channel pipeline</h4>
-            <p data-pt="A partir de um tema, escreve o roteiro, gera narração e imagens e entrega um MP4 ou um projeto do CapCut que eu termino à mão.">From a topic, it writes the script, generates narration and visuals, and delivers an MP4 or a CapCut project I finish by hand.</p>
-            <div class="ax-meta"><span>Python · n8n · FastAPI · FFmpeg</span><em data-pt="código privado">private code</em></div>
-          </div>
-          <ol class="ax-flow" aria-label="How it flows" data-aria-pt="Como funciona">
-            <li data-pt="tema">topic</li><li data-pt="roteiro">script</li><li data-pt="narração">narration</li><li data-pt="cenas">scenes</li><li>MP4</li>
-          </ol>
-        </article>
-        <article class="ax">
-          <span class="ax-n">02</span>
-          <div class="ax-main">
-            <h4>capcut-silence-trim</h4>
-            <p data-pt="Acha cada pausa da narração e vira ponto de corte dentro do projeto do CapCut. Nenhum quadro é reencodado, e a timeline encurta em menos de um segundo.">Finds every pause in the narration and turns it into a cut point inside the CapCut project. No frame is re-encoded, and the timeline shortens in under a second.</p>
-            <div class="ax-meta"><span>Python · FFmpeg · CapCut</span><em data-pt="código privado">private code</em></div>
-          </div>
-          <ol class="ax-flow" aria-label="How it flows" data-aria-pt="Como funciona">
-            <li data-pt="narração">narration</li><li data-pt="pausas">pauses</li><li data-pt="cortes">cuts</li><li data-pt="timeline limpa">clean timeline</li>
-          </ol>
-        </article>
-        <article class="ax">
-          <span class="ax-n">03</span>
-          <div class="ax-main">
-            <h4>browser-session-recorder</h4>
-            <p data-pt="Extensão de Chrome que grava o que o operador faz no navegador, clique por clique, e devolve um arquivo que o Playwright repete sozinho.">A Chrome extension that records what an operator does in the browser, click by click, and outputs a file Playwright replays on its own.</p>
-            <div class="ax-meta"><span>JavaScript · Chrome MV3 · Playwright</span><em data-pt="código privado">private code</em></div>
-          </div>
-          <ol class="ax-flow" aria-label="How it flows" data-aria-pt="Como funciona">
-            <li data-pt="cliques">clicks</li><li>JSONL</li><li>Playwright</li><li data-pt="repete">replay</li>
-          </ol>
-        </article>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ 03 STACK ═══════════════════════════════════════════════════ -->
+<!-- ══ 02 STACK ═══════════════════════════════════════════════════ -->
 <section class="sec" id="do">
   <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/stack</span><span class="note">03</span></div>
+    <div class="head" data-rv="wipe"><span class="slug">/stack</span><span class="note">02</span></div>
     <h2 class="t" data-rv="up" data-pt="O que eu faço.">What I do.</h2>
 
     <!-- Tres etapas, cada uma com uma tela em ASCII roxo (o mesmo do hero):
@@ -1226,10 +1024,10 @@ if (!location.hash) addEventListener("load", () => scrollTo(0, 0));</script>
   </div>
 </section>
 
-<!-- ══ 04 CAREER ══════════════════════════════════════════════════ -->
+<!-- ══ 03 CAREER ══════════════════════════════════════════════════ -->
 <section class="sec" id="career">
   <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/career</span><span class="note">04</span></div>
+    <div class="head" data-rv="wipe"><span class="slug">/career</span><span class="note">03</span></div>
     <h2 class="t" data-rv="up" data-pt="Trajetória.">Career.</h2>
 
     <div class="rows" data-rv="up" style="margin-top:clamp(24px,3.6vw,40px)">
@@ -1278,11 +1076,11 @@ if (!location.hash) addEventListener("load", () => scrollTo(0, 0));</script>
   </div>
 </section>
 
-<!-- ══ 06 CONTACT ═════════════════════════════════════════════════ -->
+<!-- ══ 04 CONTACT ═════════════════════════════════════════════════ -->
 <section class="sec contact" id="contact">
   <canvas id="ping" aria-hidden="true"></canvas>
   <div class="wrap">
-    <div class="head" data-rv="wipe"><span class="slug">/contact</span><span class="note">05</span></div>
+    <div class="head" data-rv="wipe"><span class="slug">/contact</span><span class="note">04</span></div>
     <h2 class="t" data-rv="up" data-pt="Vídeo com IA e as automações por trás dele. <em>Vamos conversar sobre o seu projeto?</em>">AI video and the automations behind it. <em>Let's talk about your project.</em></h2>
     <a class="big-mail" data-rv="up" href="mailto:rafaguiar.dev@gmail.com">rafaguiar.dev@gmail.com</a>
     <p class="avail" data-rv="up" data-pt="Remoto, no fuso do Brasil. Português nativo, inglês intermediário a avançado.">Remote, Brazil time zone. Native Portuguese, intermediate to advanced English.</p>
@@ -1299,7 +1097,7 @@ if (!location.hash) addEventListener("load", () => scrollTo(0, 0));</script>
   <div class="wrap foot">
     <span>© 2026 RAFAEL AGUIAR · ALL RIGHTS RESERVED</span>
     <nav class="foot-nav">
-      <a href="#reel">/reel</a><a href="#work">/work</a><a href="#contact">/contact</a>
+      <a href="#work">/work</a><a href="#contact">/contact</a>
     </nav>
     <span data-pt="FEITO À MÃO · HTML, CSS E UM CANVAS">HAND-BUILT · HTML, CSS AND ONE CANVAS</span>
   </div>
@@ -2848,7 +2646,7 @@ if (!RM) tick(); else { onProg(); addEventListener("scroll", onProg, { passive: 
 /* ═══ 7. o site é escuro, ponto ═══════════════════════════════════ */
 root.setAttribute("data-theme", "dark");
 
-/* ═══ 8b. /reel: a ilha de edição ══════════════════════════════════
+/* ═══ 8b. /work: a ilha de edição ══════════════════════════════════
    A seção é uma mesa de edição, não uma parede:
    · o monitor de programa (à esquerda, fixo) mostra o trecho escolhido
      em tela maior, com timecode, régua e, nos cards de cortes (6 ou 9), as
@@ -3241,71 +3039,6 @@ root.setAttribute("data-theme", "dark");
   }), { rootMargin: "200px 0px 200px 0px" }).observe(wall.parentNode);
 
   escolher(tiles.find(c => !c.hidden), false);
-})();
-
-/* ═══ 9. /work: os dois apps ══════════════════════════════════════
-   · LoopVideo: o vídeo-guia do app (4 abas de 10 s). As abas embaixo
-     acompanham o vídeo e, no clique, pulam para a parte daquela aba.
-   · Avatarize: o holofote passa pelas etapas da tela real (CSS); a
-     classe .live liga a animação só com o app na tela.
-   Fora da tela o vídeo pausa; com movimento reduzido nada toca sozinho. */
-(() => {
-  const apps = [...document.querySelectorAll(".app")];
-  if (!apps.length) return;
-  const v = document.querySelector("#app-loop .app-vid");
-  const tabs = [...document.querySelectorAll("#app-loop .app-tabs button")];
-  const SEG = 10;
-  function carregar() { if (v && !v.getAttribute("src")) v.src = v.dataset.src; }
-  if (v && tabs.length) {
-    v.addEventListener("timeupdate", () => {
-      const i = Math.min(tabs.length - 1, Math.floor(v.currentTime / SEG));
-      tabs.forEach((b, k) => {
-        b.classList.toggle("on", k === i);
-        b.style.setProperty("--p", k < i ? "100%" : k > i ? "0%" : ((v.currentTime - i * SEG) / SEG * 100).toFixed(1) + "%");
-      });
-    });
-    tabs.forEach(b => b.addEventListener("click", () => {
-      carregar();
-      v.currentTime = +b.dataset.t;
-      const p = v.play(); if (p) p.catch(() => {});
-    }));
-  }
-  const aio = new IntersectionObserver(es => es.forEach(e => {
-    const a = e.target, dentro = e.isIntersecting;
-    a.classList.toggle("live", dentro && !RM);
-    const vid = a.querySelector(".app-vid");
-    if (!vid) return;
-    if (dentro && !RM) { carregar(); const p = vid.play(); if (p) p.catch(() => {}); }
-    else vid.pause();
-  }), { threshold: .3 });
-  apps.forEach(a => aio.observe(a));
-})();
-
-/* ═══ 9a. "também construí": o fluxo de cada projeto acende em ordem ═
-   Pílula por pílula, segura tudo aceso um instante, apaga e recomeça.
-   Só roda com a linha na tela; com movimento reduzido fica tudo aceso. */
-(() => {
-  const rows = [...document.querySelectorAll(".ax")];
-  if (!rows.length) return;
-  if (RM) { rows.forEach(r => r.querySelectorAll(".ax-flow li").forEach(l => l.classList.add("lit"))); return; }
-  const tm = new Map();
-  function roda(r) {
-    const lis = [...r.querySelectorAll(".ax-flow li")];
-    let k = -1;
-    return setInterval(() => {
-      k = (k + 1) % (lis.length + 4);
-      lis.forEach((l, i) => {
-        l.classList.toggle("lit", k < lis.length + 3 && i <= k);
-        l.classList.toggle("now", i === k);
-      });
-    }, 430);
-  }
-  const ioAx = new IntersectionObserver(es => es.forEach(e => {
-    const r = e.target;
-    if (e.isIntersecting && !tm.has(r)) tm.set(r, setTimeout(() => tm.set(r, roda(r)), rows.indexOf(r) * 280));
-    else if (!e.isIntersecting && tm.has(r)) { clearTimeout(tm.get(r)); clearInterval(tm.get(r)); tm.delete(r); }
-  }), { threshold: .35 });
-  rows.forEach(r => ioAx.observe(r));
 })();
 
 /* ═══ 9b. /stack: as três telas ════════════════════════════════════
